@@ -429,7 +429,7 @@
     const pairs = [
       { code:"USDRUB", count:217 },
       { code:"EURRUB", count:68 },
-      { code:"CNYRUB", count:769 }
+      { code:"CNYRUB", count:28 }
     ];
 
     const rows = [
@@ -506,9 +506,35 @@
       mkRow({pair:"EURRUB", captured:"05.06.2025, 11:46", client:'ООО "Гладиолус"', valid:"05.06.2025, 21:26", sell:null, rate:92.85304, buy:15367547, mt:null, exec:"None"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 11:17", client:'ООО "Жасмин"', valid:"06.06.2025, 02:42", sell:18748490, rate:92.39318, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 12:12", client:'ООО "Гиацинт"', valid:"05.06.2025, 17:52", sell:7404829, rate:91.37980, buy:null, mt:null, exec:"NTPro"}),
-      mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:null, rate:10.80000, buy:10000000000, mt:"bulb", exec:"Traders"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:02", client:'ООО "Роза"', valid:"05.06.2025, 12:10", sell:null, rate:11.02000, buy:1200000, mt:null, exec:"None"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:07", client:'ООО "Лилия"', valid:"06.06.2025, 09:30", sell:null, rate:11.08000, buy:25000000, mt:null, exec:"Traders"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:12", client:'ООО "Пион"', valid:"05.06.2025, 14:40", sell:null, rate:11.14000, buy:5500000, mt:null, exec:"NTPro"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:18", client:'ООО "Ирис"', valid:"06.06.2025, 16:20", sell:null, rate:11.06000, buy:85000000, mt:null, exec:"Traders"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:23", client:'ООО "Тюльпан"', valid:"05.06.2025, 11:45", sell:null, rate:11.11000, buy:320000, mt:null, exec:"None"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:29", client:'ООО "Орхидея"', valid:"05.06.2025, 13:05", sell:null, rate:11.09000, buy:18700000, mt:null, exec:"NTPro"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:34", client:'ООО "Нарцисс"', valid:"06.06.2025, 10:15", sell:null, rate:11.03000, buy:100000000, mt:null, exec:"Traders"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:41", client:'ООО "Лаванда"', valid:"05.06.2025, 12:55", sell:null, rate:11.12000, buy:2400000, mt:null, exec:"None"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:46", client:'ООО "Сирень"', valid:"06.06.2025, 08:05", sell:null, rate:11.07000, buy:41000000, mt:null, exec:"Traders"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:52", client:'ООО "Астра"', valid:"05.06.2025, 11:40", sell:null, rate:11.01000, buy:980000, mt:null, exec:"NTPro"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:05", client:'ООО "Гербера"', valid:"06.06.2025, 13:10", sell:null, rate:11.04000, buy:12500000, mt:null, exec:"None"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:12", client:'ООО "Камелия"', valid:"05.06.2025, 16:50", sell:null, rate:11.10000, buy:22000000, mt:null, exec:"Traders"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:20", client:'ООО "Гладиолус"', valid:"06.06.2025, 06:20", sell:null, rate:11.13000, buy:7750000, mt:null, exec:"NTPro"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:27", client:'ООО "Ромашка"', valid:"05.06.2025, 15:30", sell:null, rate:11.14900, buy:30000000, mt:"bulb", exec:"Traders"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:33", client:'ООО "Хризантема"', valid:"05.06.2025, 12:40", sell:900000, rate:11.18000, buy:null, mt:null, exec:"None"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:38", client:'ООО "Фиалка"', valid:"06.06.2025, 09:05", sell:14000000, rate:11.21000, buy:null, mt:null, exec:"NTPro"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:44", client:'ООО "Календула"', valid:"06.06.2025, 14:30", sell:60000000, rate:11.26000, buy:null, mt:null, exec:"Traders"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:50", client:'ООО "Лотос"', valid:"05.06.2025, 13:20", sell:3600000, rate:11.17000, buy:null, mt:null, exec:"None"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:56", client:'ООО "Гиацинт"', valid:"06.06.2025, 10:40", sell:25500000, rate:11.23000, buy:null, mt:null, exec:"Traders"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:03", client:'ООО "Магнолия"', valid:"05.06.2025, 16:05", sell:8250000, rate:11.19000, buy:null, mt:null, exec:"NTPro"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:08", client:'ООО "Жасмин"', valid:"06.06.2025, 17:00", sell:100000000, rate:11.27000, buy:null, mt:null, exec:"Traders"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:12", client:'ООО "Клевер"', valid:"06.06.2025, 08:45", sell:1100000, rate:11.30000, buy:null, mt:null, exec:"None"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:18", client:'ООО "Крокус"', valid:"05.06.2025, 18:10", sell:19500000, rate:11.22000, buy:null, mt:null, exec:"NTPro"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:24", client:'ООО "Барвинок"', valid:"06.06.2025, 12:00", sell:42000000, rate:11.24000, buy:null, mt:null, exec:"Traders"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:31", client:'ООО "Гортензия"', valid:"06.06.2025, 07:50", sell:16800000, rate:11.28000, buy:null, mt:null, exec:"None"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:37", client:'ООО "Колокольчик"', valid:"06.06.2025, 15:45", sell:27300000, rate:11.25000, buy:null, mt:null, exec:"Traders"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:44", client:'ООО "Ландыш"', valid:"05.06.2025, 17:25", sell:5200000, rate:11.16000, buy:null, mt:null, exec:"NTPro"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:52", client:'ООО "Мак"', valid:"06.06.2025, 11:10", sell:33000000, rate:11.15100, buy:null, mt:"bulb", exec:"Traders"}),
       mkRow({pair:"USDRUB", captured:"05.06.2025, 12:50", client:'ООО "Одуванчик"', valid:"06.06.2025, 16:20", sell:10000000, rate:78.20000, buy:null, mt:null, exec:"Traders"}),
-      mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:590000, rate:10.80000, buy:null, mt:"bulb", exec:"Traders"}),
     ];
 
     function mkRow({pair, captured, client, valid, sell, rate, buy, mt, exec}){
