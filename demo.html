@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>XIOMA FX — Order Monitor (Demo)</title>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --line2:#d1d5db;
+      --blue:#2563eb;
+      --blue2:#1d4ed8;
+      --chip:#f3f4f6;
+      --chipText:#374151;
+      --shadow: 0 1px 2px rgba(0,0,0,.04);
+      --radius: 10px;
+      --radius2: 8px;
+      --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+      background:var(--bg);
+    }
+    a{color:inherit; text-decoration:none}
+    /* Top nav */
+    .topbar{
+      height:56px;
+      background:var(--card);
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      padding:0 18px;
+      gap:18px;
+    }
+    .brand{
+      font-weight:800;
+      letter-spacing:.2px;
+      color:#0b3bff;
+    }
+    .menu{display:flex; gap:16px; align-items:center; color:#111827}
+    .menu .item{font-weight:600; font-size:14px; color:#111827}
+    .menu .item .caret{font-size:12px; color:var(--muted); margin-left:6px}
+    .spacer{flex:1}
+    .user{
+      font-size:14px;
+      color:#111827;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .icon-btn{
+      width:32px; height:32px;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:8px;
+      display:grid; place-items:center;
+      cursor:pointer;
+    }
+    .icon{font-size:16px; color:var(--muted)}
+    /* Page */
+    .page{
+      padding:18px;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .header{
+      padding:16px 16px 10px 16px;
+      display:flex;
+      align-items:flex-start;
+      gap:16px;
+    }
+    .hgroup{display:flex; flex-direction:column; gap:8px}
+    .title{
+      font-size:18px;
+      font-weight:800;
+      margin:0;
+    }
+    .subline{
+      display:flex; align-items:center; gap:10px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    /* Switch */
+    .switch{
+      position:relative; width:38px; height:20px;
+      background:#d1d5db;
+      border-radius:999px;
+      cursor:pointer;
+      display:inline-block;
+      vertical-align:middle;
+    }
+    .switch::after{
+      content:"";
+      position:absolute; top:2px; left:2px;
+      width:16px; height:16px;
+      background:#fff;
+      border-radius:999px;
+      transition:all .15s ease;
+      box-shadow:0 1px 2px rgba(0,0,0,.12);
+    }
+    .switch.on{background:#60a5fa}
+    .switch.on::after{left:20px}
+    /* Buttons */
+    .actions{margin-left:auto; display:flex; gap:10px; align-items:center}
+    .btn{
+      height:34px;
+      padding:0 12px;
+      border-radius:8px;
+      font-weight:700;
+      font-size:13px;
+      border:1px solid var(--line2);
+      background:#fff;
+      color:#111827;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .btn.primary{
+      background:var(--blue);
+      color:#fff;
+      border-color:var(--blue);
+    }
+    .btn.primary:hover{background:var(--blue2)}
+    .btn.ghost{
+      color:var(--blue);
+      border-color:#bfdbfe;
+      background:#eff6ff;
+    }
+    .btn:active{transform:translateY(1px)}
+    /* Filters row */
+    .filters{
+      padding:0 16px 16px 16px;
+      display:grid;
+      grid-template-columns: 1.1fr 1.2fr .5fr .5fr .7fr auto;
+      gap:12px;
+      align-items:end;
+    }
+    .field label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:6px;
+      font-weight:700;
+    }
+    .input, .select, .chips{
+      height:34px;
+      border:1px solid var(--line2);
+      border-radius:8px;
+      background:#fff;
+      padding:0 10px;
+      font-size:13px;
+      outline:none;
+      width:100%;
+    }
+    .input:focus, .select:focus, .chips:focus-within{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 3px rgba(59,130,246,.15);
+    }
+    .chips{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 6px;
+      overflow:hidden;
+    }
+    .chip{
+      background:var(--chip);
+      color:var(--chipText);
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:4px 8px;
+      font-size:12px;
+      font-weight:700;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+    .chip .x{
+      width:16px; height:16px;
+      border-radius:999px;
+      display:grid; place-items:center;
+      font-size:12px;
+      color:#6b7280;
+      cursor:pointer;
+    }
+    .chip .x:hover{background:#e5e7eb}
+    .chips input{
+      border:none;
+      outline:none;
+      font-size:13px;
+      min-width:90px;
+      flex:1;
+    }
+    .filter-actions{
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      align-items:center;
+    }
+    .btn.small{height:34px}
+    /* Main layout */
+    .content{
+      border-top:1px solid var(--line);
+      display:grid;
+      grid-template-columns: 220px 1fr;
+      min-height:520px;
+    }
+    .sidebar{
+      border-right:1px solid var(--line);
+      padding:12px 0;
+    }
+    .side-title{
+      padding:0 14px 10px 14px;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:800;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .pair-list{
+      max-height:520px;
+      overflow:auto;
+      padding:0 6px;
+    }
+    .pair{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:8px 10px;
+      margin:2px 6px;
+      border-radius:10px;
+      cursor:pointer;
+      font-size:13px;
+      border:1px solid transparent;
+    }
+    .pair:hover{background:#f9fafb; border-color:var(--line)}
+    .pair.active{background:#eef2ff; border-color:#c7d2fe}
+    .pair .code{font-weight:800}
+    .pair .count{color:var(--muted); font-variant-numeric:tabular-nums}
+    /* Table toolbar */
+    .tablebar{
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .tablebar .tool{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      color:#9ca3af;
+      font-weight:700;
+      user-select:none;
+    }
+    .tablebar .sep{width:1px; height:18px; background:var(--line); margin:0 6px}
+    /* Table */
+    .table-wrap{overflow:auto; border-top:1px solid var(--line)}
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      min-width:980px;
+      font-size:13px;
+    }
+    thead th{
+      position:sticky;
+      top:0;
+      background:#fff;
+      z-index:2;
+      text-align:left;
+      color:#111827;
+      font-weight:800;
+      border-bottom:1px solid var(--line);
+      padding:10px 10px;
+      white-space:nowrap;
+    }
+    tbody td{
+      border-bottom:1px solid var(--line);
+      padding:10px 10px;
+      white-space:nowrap;
+      color:#111827;
+      vertical-align:middle;
+    }
+    tbody tr:hover{background:#fafafa}
+    .num{font-variant-numeric:tabular-nums; text-align:right}
+    .muted{color:var(--muted)}
+    .checkbox{width:36px}
+    .kebab{
+      width:34px;
+      text-align:center;
+      color:#9ca3af;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .bulb{
+      width:18px; height:18px;
+      border-radius:999px;
+      display:grid; place-items:center;
+      border:1px solid #fcd34d;
+      background:#fffbeb;
+      color:#b45309;
+      font-size:12px;
+      font-weight:900;
+    }
+    /* Utility */
+    .right{margin-left:auto}
+    .hidden{display:none !important}
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <div class="brand">XIOMA FX</div>
+    <nav class="menu">
+      <a class="item" href="#">Deals <span class="caret">▾</span></a>
+      <a class="item" href="#">Rates <span class="caret">▾</span></a>
+      <a class="item" href="#">Data <span class="caret">▾</span></a>
+      <a class="item" href="#">Services <span class="caret">▾</span></a>
+      <a class="item" href="#">Audit</a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="user">
+      <span>Главков А.И.</span>
+      <button class="icon-btn" title="Профиль"><span class="icon">⎋</span></button>
+    </div>
+  </div>
+
+  <div class="page">
+    <div class="card">
+      <div class="header">
+        <div class="hgroup">
+          <h1 class="title">Order Monitor</h1>
+          <div class="subline">
+            <span id="toggleAll" class="switch" role="switch" aria-checked="false"></span>
+            <span>Switch to Order Blotter</span>
+          </div>
+        </div>
+
+        <div class="actions">
+          <!-- Export убран по вашему требованию -->
+          <button class="btn primary" id="newOrderBtn">＋ New Order</button>
+        </div>
+      </div>
+
+      <div class="filters">
+        <div class="field">
+          <label>Order ID/UID</label>
+          <input id="qOrderId" class="input" placeholder="" />
+        </div>
+
+        <div class="field">
+          <label>Status</label>
+          <div class="chips" id="statusChips">
+            <span class="chip" data-value="New">New <span class="x" title="Remove">×</span></span>
+            <span class="chip" data-value="Delegated">Delegated <span class="x" title="Remove">×</span></span>
+            <span class="chip" data-value="Execute Pending">Execute Pending <span class="x" title="Remove">×</span></span>
+            <input id="statusInput" placeholder="Add status…" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Create Date</label>
+          <input id="createDate" class="input" type="date" />
+        </div>
+
+        <div class="field">
+          <label>Value Date</label>
+          <input id="valueDate" class="input" type="date" />
+        </div>
+
+        <div class="field">
+          <label>Currency Pair</label>
+          <select id="pairSelect" class="select">
+            <option value="">Default all</option>
+            <option>USDRUB</option>
+            <option>EURRUB</option>
+            <option>EURUSD</option>
+            <option>CNYRUB</option>
+            <option>USDCNY</option>
+            <option>AEDRUB</option>
+            <option>AMDRUB</option>
+            <option>AUDCHF</option>
+          </select>
+        </div>
+
+        <div class="filter-actions">
+          <button class="btn small" id="resetBtn">Reset</button>
+          <button class="btn small primary" id="searchBtn">Search</button>
+        </div>
+      </div>
+
+      <div class="content">
+        <!-- Left sidebar -->
+        <aside class="sidebar">
+          <div class="side-title">
+            <span>Currency Pair</span>
+            <span class="icon" title="Refresh">⟳</span>
+          </div>
+          <div class="pair-list" id="pairList">
+            <!-- rendered by JS -->
+          </div>
+        </aside>
+
+        <!-- Table -->
+        <section>
+          <div class="tablebar">
+            <span class="tool">⟲ Convert to Deal</span>
+            <span class="tool">✉ Send to NT Pro</span>
+            <span class="tool">✉ Send to NT Pro 2</span>
+            <span class="tool">✕ Cancel Order</span>
+            <span class="right muted" id="resultHint"></span>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th class="checkbox"></th>
+                  <th>Capture Date</th>
+                  <th>Client</th>
+                  <th>Valid Till</th>
+                  <th class="num">Sell Amount</th>
+                  <th class="num">Rate</th>
+                  <th class="num">Buy Amount</th>
+                  <th>Market Touch</th>
+                  <th>Execution Method</th>
+                  <th class="kebab"></th>
+                </tr>
+              </thead>
+              <tbody id="tbody">
+                <!-- rows by JS -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ------- Demo data -------
+    const pairs = [
+      { code:"USDRUB", count:213 },
+      { code:"EURRUB", count:584 },
+      { code:"EURUSD", count:144 },
+      { code:"CNYRUB", count:769 },
+      { code:"USDCNY", count:105 },
+      { code:"AEDRUB", count:83 },
+      { code:"AMDRUB", count:165 },
+      { code:"AUDCHF", count:8 },
+      { code:"AUDRUB", count:4 },
+      { code:"AUDUSD", count:54 },
+      { code:"AZNRUB", count:21 },
+      { code:"BGNRUB", count:1 },
+      { code:"BRLRUB", count:6 },
+      { code:"BYNRUB", count:316 },
+      { code:"CADRUB", count:14 },
+      { code:"CHFRUB", count:439 }
+    ];
+
+    const rows = [
+      mkRow({pair:"USDRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:null, rate:10.80000, buy:15000000000, mt:"bulb", exec:"NT Pro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:null, rate:10.80000, buy:100000, mt:null, exec:"Traders"}),
+      mkRow({pair:"EURUSD", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:null, rate:10.80000, buy:478000, mt:null, exec:"Traders"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:null, rate:10.80000, buy:10000000000, mt:"bulb", exec:"Traders"}),
+      mkRow({pair:"USDRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:10000000, rate:10.80000, buy:null, mt:null, exec:"NT Pro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:590000, rate:10.80000, buy:null, mt:null, exec:"NT Pro"}),
+      mkRow({pair:"EURUSD", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:9000000, rate:10.80000, buy:null, mt:null, exec:"NT Pro"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:590000, rate:10.80000, buy:null, mt:"bulb", exec:"Traders"}),
+      mkRow({pair:"USDCNY", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:null, rate:10.80000, buy:100000, mt:null, exec:"Traders"}),
+      mkRow({pair:"AEDRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:null, rate:10.80000, buy:50000000, mt:"bulb", exec:"NT Pro"}),
+    ];
+
+    function mkRow({pair, captured, client, valid, sell, rate, buy, mt, exec}){
+      return { pair, captured, client, valid, sell, rate, buy, mt, exec, id: cryptoRandomId() };
+    }
+
+    function cryptoRandomId(){
+      // not cryptographic; just demo
+      return Math.random().toString(16).slice(2,10);
+    }
+
+    // ------- Rendering -------
+    const pairListEl = document.getElementById('pairList');
+    const pairSelect = document.getElementById('pairSelect');
+    const tbody = document.getElementById('tbody');
+    const resultHint = document.getElementById('resultHint');
+    const qOrderId = document.getElementById('qOrderId');
+
+    let activePair = "";
+    let filtered = [...rows];
+
+    function renderPairs(){
+      pairListEl.innerHTML = "";
+      pairs.forEach(p => {
+        const el = document.createElement('div');
+        el.className = "pair" + (p.code === activePair ? " active" : "");
+        el.innerHTML = `<span class="code">${p.code}</span><span class="count">${p.count}</span>`;
+        el.addEventListener('click', () => {
+          activePair = (activePair === p.code) ? "" : p.code;
+          pairSelect.value = activePair; // sync
+          renderPairs();
+          applyFilters();
+        });
+        pairListEl.appendChild(el);
+      });
+    }
+
+    function fmtNum(n){
+      if (n === null || n === undefined) return "";
+      const s = Math.round(n).toString();
+      return s.replace(/\B(?=(\d{3})+(?!\d))/g, " ") + ".00";
+    }
+
+    function fmtRate(n){
+      if (n === null || n === undefined) return "";
+      return n.toFixed(5);
+    }
+
+    function renderTable(){
+      tbody.innerHTML = "";
+      filtered.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="checkbox"><input type="checkbox" /></td>
+          <td>${r.captured}</td>
+          <td>${r.client}</td>
+          <td>${r.valid}</td>
+          <td class="num">${fmtNum(r.sell)}</td>
+          <td class="num">${fmtRate(r.rate)}</td>
+          <td class="num">${fmtNum(r.buy)}</td>
+          <td>
+            ${r.mt === "bulb" ? `<span class="badge"><span class="bulb">💡</span></span>` : ``}
+          </td>
+          <td class="muted">${r.exec}</td>
+          <td class="kebab" title="More">⋮</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      resultHint.textContent = `Rows: ${filtered.length}`;
+    }
+
+    // ------- Status chips -------
+    const statusChips = document.getElementById('statusChips');
+    const statusInput = document.getElementById('statusInput');
+
+    function attachChipHandlers(){
+      statusChips.querySelectorAll('.chip .x').forEach(x => {
+        x.onclick = () => x.closest('.chip').remove();
+      });
+    }
+    attachChipHandlers();
+
+    statusInput.addEventListener('keydown', (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const v = statusInput.value.trim();
+        if(!v) return;
+        const chip = document.createElement('span');
+        chip.className = "chip";
+        chip.dataset.value = v;
+        chip.innerHTML = `${escapeHtml(v)} <span class="x" title="Remove">×</span>`;
+        statusInput.value = "";
+        statusChips.insertBefore(chip, statusInput);
+        attachChipHandlers();
+      }
+    });
+
+    function escapeHtml(str){
+      return str.replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+    }
+
+    // ------- Filters -------
+    function applyFilters(){
+      const q = (qOrderId.value || "").trim().toLowerCase();
+      const selPair = pairSelect.value || activePair;
+
+      filtered = rows.filter(r => {
+        // demo: pretend order id is in r.id
+        const okId = q ? r.id.toLowerCase().includes(q) : true;
+        const okPair = selPair ? (r.pair === selPair) : true;
+        return okId && okPair;
+      });
+
+      renderPairs();
+      renderTable();
+    }
+
+    document.getElementById('searchBtn').addEventListener('click', applyFilters);
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      qOrderId.value = "";
+      document.getElementById('createDate').value = "";
+      document.getElementById('valueDate').value = "";
+      pairSelect.value = "";
+      activePair = "";
+      filtered = [...rows];
+      renderPairs();
+      renderTable();
+    });
+
+    pairSelect.addEventListener('change', () => {
+      activePair = pairSelect.value || "";
+      renderPairs();
+      applyFilters();
+    });
+
+    // ------- Toggle "Show all Orders" -------
+    const toggleAll = document.getElementById('toggleAll');
+    toggleAll.addEventListener('click', () => {
+      toggleAll.classList.toggle('on');
+      const on = toggleAll.classList.contains('on');
+      toggleAll.setAttribute('aria-checked', on ? "true" : "false");
+      // demo: no extra behavior, but можно привязать фильтр/подгрузку
+    });
+
+    // Init
+    renderPairs();
+    renderTable();
+  </script>
+</body>
+</html>
