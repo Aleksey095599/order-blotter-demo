@@ -426,11 +426,7 @@
 
   <script>
     // ------- Demo data -------
-    const pairs = [
-      { code:"USDRUB", count:217 },
-      { code:"EURRUB", count:68 },
-      { code:"CNYRUB", count:769 }
-    ];
+    const pairCodes = ["USDRUB", "EURRUB", "CNYRUB"];
 
     const rows = [
       mkRow({pair:"USDRUB", captured:"05.06.2025, 11:15", client:'ООО "Ромашка"', valid:"06.06.2025, 09:30", sell:null, rate:77.80000, buy:15000000000, mt:"bulb", exec:"NT Pro"}),
@@ -551,17 +547,24 @@
     const tbody = document.getElementById('tbody');
     const resultHint = document.getElementById('resultHint');
 
-    let activePair = "";
+    let activePair = pairCodes[0];
     let filtered = [...rows];
+
+    function getPairsWithCounts(){
+      return pairCodes.map(code => ({
+        code,
+        count: rows.filter(row => row.pair === code).length
+      }));
+    }
 
     function renderPairs(){
       pairListEl.innerHTML = "";
-      pairs.forEach(p => {
+      getPairsWithCounts().forEach(p => {
         const el = document.createElement('div');
         el.className = "pair" + (p.code === activePair ? " active" : "");
         el.innerHTML = `<span class="code">${p.code}</span><span class="count">${p.count}</span>`;
         el.addEventListener('click', () => {
-          activePair = (activePair === p.code) ? "" : p.code;
+          activePair = p.code;
           renderPairs();
           applyFilters();
         });
@@ -606,8 +609,11 @@
 
     // ------- Filters -------
     function applyFilters(){
+      if (!activePair) {
+        activePair = pairCodes[0];
+      }
       filtered = rows.filter(r => {
-        const okPair = activePair ? (r.pair === activePair) : true;
+        const okPair = r.pair === activePair;
         return okPair;
       });
       filtered.sort((a, b) => a.rate - b.rate);
@@ -619,7 +625,6 @@
     document.getElementById('searchBtn').addEventListener('click', applyFilters);
     document.getElementById('resetBtn').addEventListener('click', () => {
       document.getElementById('createDate').value = "";
-      activePair = "";
       applyFilters();
     });
 
