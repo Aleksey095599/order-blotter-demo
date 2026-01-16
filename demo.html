@@ -143,9 +143,23 @@
     .filters{
       padding:0 16px 16px 16px;
       display:grid;
-      grid-template-columns: minmax(220px, 0.7fr) auto;
+      grid-template-columns: minmax(220px, 0.6fr) minmax(220px, 1fr) auto;
       gap:12px;
       align-items:end;
+    }
+    .input.with-icon{
+      padding-left:30px;
+    }
+    .field.has-icon{
+      position:relative;
+    }
+    .field-icon{
+      position:absolute;
+      left:10px;
+      bottom:10px;
+      color:#9ca3af;
+      font-size:14px;
+      pointer-events:none;
     }
     .field label{
       display:block;
@@ -369,6 +383,12 @@
           <label>Capture Date</label>
           <input id="createDate" class="input" type="date" />
         </div>
+        <div class="field has-icon">
+          <label>Client</label>
+          <span class="field-icon">🔎</span>
+          <input id="clientFilter" class="input with-icon" type="text" placeholder="Начните вводить имя клиента" list="clientOptions" autocomplete="off" />
+          <datalist id="clientOptions"></datalist>
+        </div>
 
         <div class="filter-actions">
           <button class="btn small" id="resetBtn">Reset</button>
@@ -546,6 +566,8 @@
     const pairListEl = document.getElementById('pairList');
     const tbody = document.getElementById('tbody');
     const resultHint = document.getElementById('resultHint');
+    const clientFilterInput = document.getElementById('clientFilter');
+    const clientOptions = document.getElementById('clientOptions');
 
     let activePair = pairCodes[0];
     let filtered = [...rows];
@@ -569,6 +591,16 @@
           applyFilters();
         });
         pairListEl.appendChild(el);
+      });
+    }
+
+    function renderClientOptions(){
+      const clients = Array.from(new Set(rows.map(row => row.client))).sort();
+      clientOptions.innerHTML = "";
+      clients.forEach(client => {
+        const option = document.createElement('option');
+        option.value = client;
+        clientOptions.appendChild(option);
       });
     }
 
@@ -612,9 +644,11 @@
       if (!activePair) {
         activePair = pairCodes[0];
       }
+      const clientNeedle = clientFilterInput.value.trim().toLowerCase();
       filtered = rows.filter(r => {
         const okPair = r.pair === activePair;
-        return okPair;
+        const okClient = !clientNeedle || r.client.toLowerCase().includes(clientNeedle);
+        return okPair && okClient;
       });
       filtered.sort((a, b) => a.rate - b.rate);
 
@@ -623,8 +657,10 @@
     }
 
     document.getElementById('searchBtn').addEventListener('click', applyFilters);
+    clientFilterInput.addEventListener('input', applyFilters);
     document.getElementById('resetBtn').addEventListener('click', () => {
       document.getElementById('createDate').value = "";
+      clientFilterInput.value = "";
       applyFilters();
     });
 
@@ -638,6 +674,7 @@
     });
 
     // Init
+    renderClientOptions();
     applyFilters();
   </script>
 </body>
