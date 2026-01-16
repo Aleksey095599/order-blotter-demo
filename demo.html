@@ -433,14 +433,14 @@
     ];
 
     const rows = [
-      mkRow({pair:"USDRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:null, rate:77.80000, buy:15000000000, mt:"bulb", exec:"NT Pro"}),
-      mkRow({pair:"USDRUB", captured:"05.06.2025, 10:15", client:'ООО "Мак"', valid:"05.06.2025, 10:15", sell:4500000, rate:78.50000, buy:null, mt:null, exec:"None"}),
-      mkRow({pair:"USDRUB", captured:"05.06.2025, 10:15", client:'ООО "Василек"', valid:"05.06.2025, 10:15", sell:300000, rate:78.13000, buy:null, mt:null, exec:"NTPro"}),
-      mkRow({pair:"USDRUB", captured:"05.06.2025, 10:15", client:'ООО "Кактус"', valid:"05.06.2025, 10:15", sell:null, rate:77.70000, buy:17000000000, mt:null, exec:"NT Pro"}),
-      mkRow({pair:"USDRUB", captured:"05.06.2025, 10:15", client:'ООО "Кактус"', valid:"05.06.2025, 10:15", sell:null, rate:77.65000, buy:30000000000, mt:null, exec:"Traders"}),
+      mkRow({pair:"USDRUB", captured:"05.06.2025, 11:15", client:'ООО "Ромашка"', valid:"06.06.2025, 09:30", sell:null, rate:77.80000, buy:15000000000, mt:"bulb", exec:"NT Pro"}),
+      mkRow({pair:"USDRUB", captured:"05.06.2025, 10:25", client:'ООО "Мак"', valid:"06.06.2025, 15:10", sell:4500000, rate:78.50000, buy:null, mt:null, exec:"None"}),
+      mkRow({pair:"USDRUB", captured:"05.06.2025, 12:05", client:'ООО "Василек"', valid:"06.06.2025, 11:45", sell:300000, rate:78.13000, buy:null, mt:null, exec:"NTPro"}),
+      mkRow({pair:"USDRUB", captured:"05.06.2025, 10:40", client:'ООО "Кактус"', valid:"05.06.2025, 16:05", sell:null, rate:77.70000, buy:17000000000, mt:null, exec:"NT Pro"}),
+      mkRow({pair:"USDRUB", captured:"05.06.2025, 10:05", client:'ООО "Кактус"', valid:"05.06.2025, 14:20", sell:null, rate:77.65000, buy:30000000000, mt:null, exec:"Traders"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:null, rate:10.80000, buy:100000, mt:null, exec:"Traders"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:null, rate:10.80000, buy:10000000000, mt:"bulb", exec:"Traders"}),
-      mkRow({pair:"USDRUB", captured:"05.06.2025, 10:15", client:'ООО "Одуванчик"', valid:"05.06.2025, 10:15", sell:10000000, rate:78.20000, buy:null, mt:null, exec:"Traders"}),
+      mkRow({pair:"USDRUB", captured:"05.06.2025, 12:50", client:'ООО "Одуванчик"', valid:"06.06.2025, 16:20", sell:10000000, rate:78.20000, buy:null, mt:null, exec:"Traders"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:590000, rate:10.80000, buy:null, mt:null, exec:"NT Pro"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:590000, rate:10.80000, buy:null, mt:"bulb", exec:"Traders"}),
     ];
@@ -517,6 +517,7 @@
         const okPair = activePair ? (r.pair === activePair) : true;
         return okPair;
       });
+      filtered.sort((a, b) => a.rate - b.rate);
 
       renderPairs();
       renderTable();
@@ -526,9 +527,7 @@
     document.getElementById('resetBtn').addEventListener('click', () => {
       document.getElementById('createDate').value = "";
       activePair = "";
-      filtered = [...rows];
-      renderPairs();
-      renderTable();
+      applyFilters();
     });
 
     // ------- Toggle "Show all Orders" -------
@@ -541,8 +540,7 @@
     });
 
     // Init
-    renderPairs();
-    renderTable();
+    applyFilters();
   </script>
 </body>
 </html>
