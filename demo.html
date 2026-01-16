@@ -143,7 +143,7 @@
     .filters{
       padding:0 16px 16px 16px;
       display:grid;
-      grid-template-columns: minmax(220px, 0.6fr) minmax(220px, 1fr) minmax(200px, 0.6fr) auto;
+      grid-template-columns: minmax(220px, 0.6fr) minmax(220px, 1fr) minmax(200px, 0.6fr) minmax(200px, 0.7fr) auto;
       gap:12px;
       align-items:end;
     }
@@ -392,6 +392,12 @@
           <label>Min Amount (Buy/Sell)</label>
           <input id="amountMin" class="input" type="text" inputmode="decimal" placeholder="1 000 000.00" />
         </div>
+        <div class="field">
+          <label>Market Exposure</label>
+          <select id="marketExposure" class="select">
+            <option value="">All</option>
+          </select>
+        </div>
 
         <div class="filter-actions">
           <button class="btn small" id="resetBtn">Reset</button>
@@ -571,9 +577,11 @@
     const resultHint = document.getElementById('resultHint');
     const clientFilterInput = document.getElementById('clientFilter');
     const amountMinInput = document.getElementById('amountMin');
+    const marketExposureSelect = document.getElementById('marketExposure');
 
     let activePair = pairCodes[0];
     let filtered = [...rows];
+    const exposureOptions = [...new Set(rows.map(row => row.exec).filter(Boolean))];
 
     function getPairsWithCounts(){
       return pairCodes.map(code => ({
@@ -594,6 +602,15 @@
           applyFilters();
         });
         pairListEl.appendChild(el);
+      });
+    }
+
+    function renderExposureOptions(){
+      exposureOptions.forEach(exposure => {
+        const option = document.createElement('option');
+        option.value = exposure;
+        option.textContent = exposure;
+        marketExposureSelect.appendChild(option);
       });
     }
 
@@ -654,11 +671,13 @@
       }
       const clientNeedle = clientFilterInput.value.trim().toLowerCase();
       const minAmount = parseAmount(amountMinInput.value);
+      const exposureNeedle = marketExposureSelect.value;
       filtered = rows.filter(r => {
         const okPair = r.pair === activePair;
         const okClient = !clientNeedle || r.client.toLowerCase().includes(clientNeedle);
         const okAmount = isRowAboveMin(r, minAmount);
-        return okPair && okClient && okAmount;
+        const okExposure = !exposureNeedle || r.exec === exposureNeedle;
+        return okPair && okClient && okAmount && okExposure;
       });
       filtered.sort((a, b) => a.rate - b.rate);
 
@@ -669,10 +688,12 @@
     document.getElementById('searchBtn').addEventListener('click', applyFilters);
     clientFilterInput.addEventListener('input', applyFilters);
     amountMinInput.addEventListener('input', applyFilters);
+    marketExposureSelect.addEventListener('change', applyFilters);
     document.getElementById('resetBtn').addEventListener('click', () => {
       document.getElementById('createDate').value = "";
       clientFilterInput.value = "";
       amountMinInput.value = "";
+      marketExposureSelect.value = "";
       applyFilters();
     });
 
@@ -686,6 +707,7 @@
     });
 
     // Init
+    renderExposureOptions();
     applyFilters();
   </script>
 </body>
