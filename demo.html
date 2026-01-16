@@ -143,7 +143,7 @@
     .filters{
       padding:0 16px 16px 16px;
       display:grid;
-      grid-template-columns: 1.1fr 1.2fr .5fr .5fr .7fr auto;
+      grid-template-columns: minmax(220px, 0.7fr) auto;
       gap:12px;
       align-items:end;
     }
@@ -366,43 +366,8 @@
 
       <div class="filters">
         <div class="field">
-          <label>Order ID/UID</label>
-          <input id="qOrderId" class="input" placeholder="" />
-        </div>
-
-        <div class="field">
-          <label>Status</label>
-          <div class="chips" id="statusChips">
-            <span class="chip" data-value="New">New <span class="x" title="Remove">×</span></span>
-            <span class="chip" data-value="Delegated">Delegated <span class="x" title="Remove">×</span></span>
-            <span class="chip" data-value="Execute Pending">Execute Pending <span class="x" title="Remove">×</span></span>
-            <input id="statusInput" placeholder="Add status…" />
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Create Date</label>
+          <label>Capture Date</label>
           <input id="createDate" class="input" type="date" />
-        </div>
-
-        <div class="field">
-          <label>Value Date</label>
-          <input id="valueDate" class="input" type="date" />
-        </div>
-
-        <div class="field">
-          <label>Currency Pair</label>
-          <select id="pairSelect" class="select">
-            <option value="">Default all</option>
-            <option>USDRUB</option>
-            <option>EURRUB</option>
-            <option>EURUSD</option>
-            <option>CNYRUB</option>
-            <option>USDCNY</option>
-            <option>AEDRUB</option>
-            <option>AMDRUB</option>
-            <option>AUDCHF</option>
-          </select>
         </div>
 
         <div class="filter-actions">
@@ -445,7 +410,7 @@
                   <th class="num">Rate</th>
                   <th class="num">Buy Amount</th>
                   <th>Market Touch</th>
-                  <th>Execution Method</th>
+                  <th>Market Exposure</th>
                   <th class="kebab"></th>
                 </tr>
               </thead>
@@ -504,10 +469,8 @@
 
     // ------- Rendering -------
     const pairListEl = document.getElementById('pairList');
-    const pairSelect = document.getElementById('pairSelect');
     const tbody = document.getElementById('tbody');
     const resultHint = document.getElementById('resultHint');
-    const qOrderId = document.getElementById('qOrderId');
 
     let activePair = "";
     let filtered = [...rows];
@@ -520,7 +483,6 @@
         el.innerHTML = `<span class="code">${p.code}</span><span class="count">${p.count}</span>`;
         el.addEventListener('click', () => {
           activePair = (activePair === p.code) ? "" : p.code;
-          pairSelect.value = activePair; // sync
           renderPairs();
           applyFilters();
         });
@@ -562,46 +524,11 @@
       resultHint.textContent = `Rows: ${filtered.length}`;
     }
 
-    // ------- Status chips -------
-    const statusChips = document.getElementById('statusChips');
-    const statusInput = document.getElementById('statusInput');
-
-    function attachChipHandlers(){
-      statusChips.querySelectorAll('.chip .x').forEach(x => {
-        x.onclick = () => x.closest('.chip').remove();
-      });
-    }
-    attachChipHandlers();
-
-    statusInput.addEventListener('keydown', (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        const v = statusInput.value.trim();
-        if(!v) return;
-        const chip = document.createElement('span');
-        chip.className = "chip";
-        chip.dataset.value = v;
-        chip.innerHTML = `${escapeHtml(v)} <span class="x" title="Remove">×</span>`;
-        statusInput.value = "";
-        statusChips.insertBefore(chip, statusInput);
-        attachChipHandlers();
-      }
-    });
-
-    function escapeHtml(str){
-      return str.replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-    }
-
     // ------- Filters -------
     function applyFilters(){
-      const q = (qOrderId.value || "").trim().toLowerCase();
-      const selPair = pairSelect.value || activePair;
-
       filtered = rows.filter(r => {
-        // demo: pretend order id is in r.id
-        const okId = q ? r.id.toLowerCase().includes(q) : true;
-        const okPair = selPair ? (r.pair === selPair) : true;
-        return okId && okPair;
+        const okPair = activePair ? (r.pair === activePair) : true;
+        return okPair;
       });
 
       renderPairs();
@@ -610,20 +537,11 @@
 
     document.getElementById('searchBtn').addEventListener('click', applyFilters);
     document.getElementById('resetBtn').addEventListener('click', () => {
-      qOrderId.value = "";
       document.getElementById('createDate').value = "";
-      document.getElementById('valueDate').value = "";
-      pairSelect.value = "";
       activePair = "";
       filtered = [...rows];
       renderPairs();
       renderTable();
-    });
-
-    pairSelect.addEventListener('change', () => {
-      activePair = pairSelect.value || "";
-      renderPairs();
-      applyFilters();
     });
 
     // ------- Toggle "Show all Orders" -------
