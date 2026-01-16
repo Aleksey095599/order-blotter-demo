@@ -386,8 +386,7 @@
         <div class="field has-icon">
           <label>Client</label>
           <span class="field-icon">🔎</span>
-          <input id="clientFilter" class="input with-icon" type="text" placeholder="Начните вводить имя клиента" list="clientOptions" autocomplete="off" />
-          <datalist id="clientOptions"></datalist>
+          <input id="clientFilter" class="input with-icon" type="text" placeholder="Начните вводить имя клиента" autocomplete="off" />
         </div>
 
         <div class="filter-actions">
@@ -567,7 +566,6 @@
     const tbody = document.getElementById('tbody');
     const resultHint = document.getElementById('resultHint');
     const clientFilterInput = document.getElementById('clientFilter');
-    const clientOptions = document.getElementById('clientOptions');
 
     let activePair = pairCodes[0];
     let filtered = [...rows];
@@ -594,15 +592,6 @@
       });
     }
 
-    function renderClientOptions(){
-      const clients = Array.from(new Set(rows.map(row => row.client))).sort();
-      clientOptions.innerHTML = "";
-      clients.forEach(client => {
-        const option = document.createElement('option');
-        option.value = client;
-        clientOptions.appendChild(option);
-      });
-    }
 
     function fmtNum(n){
       if (n === null || n === undefined) return "";
@@ -674,7 +663,6 @@
     });
 
     // Init
-    renderClientOptions();
     applyFilters();
   </script>
 </body>
