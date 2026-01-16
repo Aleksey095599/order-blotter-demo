@@ -429,33 +429,16 @@
     const pairs = [
       { code:"USDRUB", count:213 },
       { code:"EURRUB", count:584 },
-      { code:"EURUSD", count:144 },
-      { code:"CNYRUB", count:769 },
-      { code:"USDCNY", count:105 },
-      { code:"AEDRUB", count:83 },
-      { code:"AMDRUB", count:165 },
-      { code:"AUDCHF", count:8 },
-      { code:"AUDRUB", count:4 },
-      { code:"AUDUSD", count:54 },
-      { code:"AZNRUB", count:21 },
-      { code:"BGNRUB", count:1 },
-      { code:"BRLRUB", count:6 },
-      { code:"BYNRUB", count:316 },
-      { code:"CADRUB", count:14 },
-      { code:"CHFRUB", count:439 }
+      { code:"CNYRUB", count:769 }
     ];
 
     const rows = [
       mkRow({pair:"USDRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:null, rate:10.80000, buy:15000000000, mt:"bulb", exec:"NT Pro"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:null, rate:10.80000, buy:100000, mt:null, exec:"Traders"}),
-      mkRow({pair:"EURUSD", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:null, rate:10.80000, buy:478000, mt:null, exec:"Traders"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:null, rate:10.80000, buy:10000000000, mt:"bulb", exec:"Traders"}),
       mkRow({pair:"USDRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:10000000, rate:10.80000, buy:null, mt:null, exec:"NT Pro"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:590000, rate:10.80000, buy:null, mt:null, exec:"NT Pro"}),
-      mkRow({pair:"EURUSD", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:9000000, rate:10.80000, buy:null, mt:null, exec:"NT Pro"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:590000, rate:10.80000, buy:null, mt:"bulb", exec:"Traders"}),
-      mkRow({pair:"USDCNY", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:null, rate:10.80000, buy:100000, mt:null, exec:"Traders"}),
-      mkRow({pair:"AEDRUB", captured:"05.06.2025, 10:15", client:'ООО "Ромашка"', valid:"05.06.2025, 10:15", sell:null, rate:10.80000, buy:50000000, mt:"bulb", exec:"NT Pro"}),
     ];
 
     function mkRow({pair, captured, client, valid, sell, rate, buy, mt, exec}){
