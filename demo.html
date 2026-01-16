@@ -143,7 +143,7 @@
     .filters{
       padding:0 16px 16px 16px;
       display:grid;
-      grid-template-columns: minmax(220px, 0.6fr) minmax(220px, 1fr) auto;
+      grid-template-columns: minmax(220px, 0.6fr) minmax(220px, 1fr) minmax(200px, 0.6fr) auto;
       gap:12px;
       align-items:end;
     }
@@ -388,6 +388,10 @@
           <span class="field-icon">🔎</span>
           <input id="clientFilter" class="input with-icon" type="text" placeholder="Начните вводить имя клиента" autocomplete="off" />
         </div>
+        <div class="field">
+          <label>Min Amount (Buy/Sell)</label>
+          <input id="amountMin" class="input" type="text" inputmode="decimal" placeholder="1 000 000.00" />
+        </div>
 
         <div class="filter-actions">
           <button class="btn small" id="resetBtn">Reset</button>
@@ -566,6 +570,7 @@
     const tbody = document.getElementById('tbody');
     const resultHint = document.getElementById('resultHint');
     const clientFilterInput = document.getElementById('clientFilter');
+    const amountMinInput = document.getElementById('amountMin');
 
     let activePair = pairCodes[0];
     let filtered = [...rows];
@@ -605,6 +610,20 @@
       return n.toFixed(5);
     }
 
+    function parseAmount(value){
+      if (!value) return 0;
+      const normalized = value.toString().replace(/[^\d.,]/g, "").replace(",", ".");
+      const parsed = Number.parseFloat(normalized);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function isRowAboveMin(r, minAmount){
+      if (!minAmount) return true;
+      const sell = r.sell ?? 0;
+      const buy = r.buy ?? 0;
+      return Math.max(sell, buy) >= minAmount;
+    }
+
     function renderTable(){
       tbody.innerHTML = "";
       filtered.forEach(r => {
@@ -634,10 +653,12 @@
         activePair = pairCodes[0];
       }
       const clientNeedle = clientFilterInput.value.trim().toLowerCase();
+      const minAmount = parseAmount(amountMinInput.value);
       filtered = rows.filter(r => {
         const okPair = r.pair === activePair;
         const okClient = !clientNeedle || r.client.toLowerCase().includes(clientNeedle);
-        return okPair && okClient;
+        const okAmount = isRowAboveMin(r, minAmount);
+        return okPair && okClient && okAmount;
       });
       filtered.sort((a, b) => a.rate - b.rate);
 
@@ -647,9 +668,11 @@
 
     document.getElementById('searchBtn').addEventListener('click', applyFilters);
     clientFilterInput.addEventListener('input', applyFilters);
+    amountMinInput.addEventListener('input', applyFilters);
     document.getElementById('resetBtn').addEventListener('click', () => {
       document.getElementById('createDate').value = "";
       clientFilterInput.value = "";
+      amountMinInput.value = "";
       applyFilters();
     });
 
