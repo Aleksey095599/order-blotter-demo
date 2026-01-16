@@ -549,8 +549,9 @@
       return s.replace(/\B(?=(\d{3})+(?!\d))/g, " ") + ".00";
     }
 
-    function fmtRate(n){
+    function fmtRate(n, pair){
       if (n === null || n === undefined) return "";
+      if (pair === "EURRUB") return n.toFixed(2);
       return n.toFixed(5);
     }
 
@@ -564,7 +565,7 @@
           <td>${r.client}</td>
           <td>${r.valid}</td>
           <td class="num">${fmtNum(r.sell)}</td>
-          <td class="num">${fmtRate(r.rate)}</td>
+          <td class="num">${fmtRate(r.rate, r.pair)}</td>
           <td class="num">${fmtNum(r.buy)}</td>
           <td>
             ${r.mt === "bulb" ? `<span class="badge"><span class="bulb">💡</span></span>` : ``}
