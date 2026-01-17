@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -140,8 +140,28 @@
     }
     .btn:active{transform:translateY(1px)}
     /* Filters row */
-    .filters{
-      padding:0 16px 16px 16px;
+    .filters-panel{
+      margin:0 16px 16px 16px;
+      padding:12px 14px 14px 14px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#f9fafb;
+      box-shadow:0 1px 0 rgba(15,23,42,0.02);
+    }
+    .filters-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:12px;
+    }
+    .filters-title{
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-weight:800;
+      color:#4b5563;
+    }
+    .filters-grid{
       display:grid;
       grid-template-columns: minmax(220px, 0.6fr) minmax(220px, 1fr) minmax(170px, 0.6fr) minmax(170px, 0.6fr) minmax(200px, 0.7fr) auto;
       gap:12px;
@@ -179,7 +199,7 @@
       color:#b45309;
     }
     .input, .select, .chips{
-      height:34px;
+      height:36px;
       border:1px solid var(--line2);
       border-radius:8px;
       background:#fff;
@@ -376,8 +396,8 @@
     </nav>
     <div class="spacer"></div>
     <div class="user">
-      <span>Главков А.И.</span>
-      <button class="icon-btn" title="Профиль"><span class="icon">⎋</span></button>
+      <span>Alex Miller</span>
+      <button class="icon-btn" title="Profile"><span class="icon">⎋</span></button>
     </div>
   </div>
 
@@ -393,45 +413,51 @@
         </div>
 
         <div class="actions">
-          <!-- Export убран по вашему требованию -->
+          <!-- Export removed per request -->
           <button class="btn primary" id="newOrderBtn">＋ New Order</button>
         </div>
       </div>
 
-      <div class="filters">
-        <div class="field">
-          <label>Capture Date</label>
-          <input id="createDate" class="input" type="date" />
+      <section class="filters-panel" aria-label="Filters">
+        <div class="filters-header">
+          <span class="filters-title">Filters</span>
+          <span class="muted">Refine results before the table</span>
         </div>
-        <div class="field has-icon">
-          <label>Client</label>
-          <span class="field-icon">🔎</span>
-          <input id="clientFilter" class="input with-icon" type="text" placeholder="Начните вводить имя клиента" autocomplete="off" />
-        </div>
-        <div class="field">
-          <label>Min Amount</label>
-          <input id="amountMin" class="input" type="text" inputmode="decimal" />
-        </div>
-        <div class="field">
-          <label><span class="label-with-icon"><span class="label-icon">💡</span>Market Touch</span></label>
-          <select id="marketTouch" class="select">
-            <option value="">All</option>
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Market Exposure</label>
-          <select id="marketExposure" class="select">
-            <option value="">All</option>
-          </select>
-        </div>
+        <div class="filters-grid">
+          <div class="field">
+            <label>Capture Date</label>
+            <input id="createDate" class="input" type="date" />
+          </div>
+          <div class="field has-icon">
+            <label>Client</label>
+            <span class="field-icon">🔎</span>
+            <input id="clientFilter" class="input with-icon" type="text" placeholder="Start typing a client name" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label>Min Amount</label>
+            <input id="amountMin" class="input" type="text" inputmode="decimal" />
+          </div>
+          <div class="field">
+            <label><span class="label-with-icon"><span class="label-icon">💡</span>Market Touch</span></label>
+            <select id="marketTouch" class="select">
+              <option value="">All</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Market Exposure</label>
+            <select id="marketExposure" class="select">
+              <option value="">All</option>
+            </select>
+          </div>
 
-        <div class="filter-actions">
-          <button class="btn small" id="resetBtn">Reset</button>
-          <button class="btn small primary" id="searchBtn">Search</button>
+          <div class="filter-actions">
+            <button class="btn small" id="resetBtn">Reset</button>
+            <button class="btn small primary" id="searchBtn">Search</button>
+          </div>
         </div>
-      </div>
+      </section>
 
       <div class="content">
         <!-- Left sidebar -->
@@ -749,7 +775,7 @@
       toggleAll.classList.toggle('on');
       const on = toggleAll.classList.contains('on');
       toggleAll.setAttribute('aria-checked', on ? "true" : "false");
-      // demo: no extra behavior, but можно привязать фильтр/подгрузку
+      // demo: no extra behavior, but can be wired to fetch/filter
     });
 
     // Init
