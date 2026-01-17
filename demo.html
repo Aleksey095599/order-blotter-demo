@@ -559,6 +559,67 @@
       opacity:1;
       transform:translateX(-50%) translateY(-2px) rotate(45deg);
     }
+    /* Column filter buttons (Blotter table header) */
+    .col-filter-btn{
+      position:relative;
+      margin-left:6px;
+      width:22px;
+      height:22px;
+      border:1px solid transparent;
+      background:transparent;
+      border-radius:6px;
+      color:var(--muted);
+      cursor:pointer;
+      display:inline-grid;
+      place-items:center;
+      font-weight:900;
+      line-height:1;
+    }
+    .col-filter-btn:hover{
+      background:#f3f4f6;
+      border-color:var(--line);
+    }
+    .col-filter-btn.active{
+      color:var(--blue);
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+    .col-filter-btn.active::after{
+      content:"";
+      position:absolute;
+      top:3px;
+      right:3px;
+      width:6px;
+      height:6px;
+      border-radius:999px;
+      background:var(--blue);
+    }
+    /* Popover */
+    .col-filter-popover{
+      position:fixed;
+      z-index:1000;
+      width:260px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:12px;
+      box-shadow:0 10px 25px rgba(15,23,42,.12);
+      padding:10px;
+    }
+    .col-filter-popover .cf-title{
+      font-size:13px;
+      font-weight:800;
+      margin:0 0 8px 0;
+    }
+    .col-filter-popover .cf-actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+      margin-top:10px;
+    }
+    .col-filter-popover .cf-actions .btn{
+      height:32px;
+      font-size:12px;
+    }
     /* Utility */
     .right{margin-left:auto}
     .hidden{display:none !important}
@@ -729,24 +790,6 @@
                 </div>
 
                 <div class="field">
-                  <label>Currency Pair</label>
-                  <select id="blPair" class="select">
-                    <option value="">All</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <label>Created By</label>
-                  <select id="blCreatedBy" class="select">
-                    <option value="">All</option>
-                    <option value="dealer1">dealer1</option>
-                    <option value="dealer2">dealer2</option>
-                    <option value="some_process1">some_process1</option>
-                    <option value="some_process2">some_process2</option>
-                  </select>
-                </div>
-
-                <div class="field">
                   <label>Client</label>
                   <input id="blClient" class="input" type="text" placeholder="Client contains…" autocomplete="off" />
                 </div>
@@ -772,15 +815,6 @@
                 </div>
 
                 <div class="field">
-                  <label>Side</label>
-                  <select id="blSide" class="select">
-                    <option value="">All</option>
-                    <option value="buy">buy</option>
-                    <option value="sell">sell</option>
-                  </select>
-                </div>
-
-                <div class="field">
                   <label>Rate Min</label>
                   <input id="blRateMin" class="input" type="text" inputmode="decimal" />
                 </div>
@@ -788,34 +822,6 @@
                 <div class="field">
                   <label>Rate Max</label>
                   <input id="blRateMax" class="input" type="text" inputmode="decimal" />
-                </div>
-
-                <div class="field">
-                  <label><span class="label-with-icon"><span class="label-icon">💡</span>Market Touch</span></label>
-                  <select id="blMarketTouch" class="select">
-                    <option value="">All</option>
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <label>Market Exposure</label>
-                  <select id="blMarketExposure" class="select">
-                    <option value="">All</option>
-                  </select>
-                </div>
-
-                <div class="field">
-                  <label>Status</label>
-                  <select id="blStatus" class="select">
-                    <option value="">All</option>
-                    <option value="New">New</option>
-                    <option value="Delegated">Delegated</option>
-                    <option value="Execute Pending">Execute Pending</option>
-                    <option value="Executed">Executed</option>
-                    <option value="Cancelled">Cancelled</option>
-                  </select>
                 </div>
               </div>
 
@@ -839,20 +845,54 @@
                   <tr>
                     <th class="checkbox fixed-center"><span class="sr-only">Select</span></th>
                     <th class="fixed-center">Capture Date</th>
-                    <th>Currency Pair</th>
-                    <th>Created By</th>
+                    <th>
+                      Currency Pair
+                      <button class="col-filter-btn" type="button"
+                              data-col-filter="pair"
+                              aria-label="Filter Currency Pair"
+                              title="Filter Currency Pair">⏷</button>
+                    </th>
+                    <th>
+                      Created By
+                      <button class="col-filter-btn" type="button"
+                              data-col-filter="createdBy"
+                              aria-label="Filter Created By"
+                              title="Filter Created By">⏷</button>
+                    </th>
                     <th>Client</th>
                     <th>INN</th>
                     <th class="fixed-center">Valid Till</th>
                     <th class="num">Amount</th>
-                    <th>Side</th>
+                    <th>
+                      Side
+                      <button class="col-filter-btn" type="button"
+                              data-col-filter="side"
+                              aria-label="Filter Side"
+                              title="Filter Side">⏷</button>
+                    </th>
                     <th class="num">Rate</th>
                     <th class="touch-col">
                       <span class="header-icon tooltip-target" data-tooltip="Market Touch Indicator" aria-hidden="true">💡</span>
+                      <button class="col-filter-btn" type="button"
+                              data-col-filter="touch"
+                              aria-label="Filter Market Touch"
+                              title="Filter Market Touch">⏷</button>
                       <span class="sr-only">Market Touch Indicator</span>
                     </th>
-                    <th>Market Exposure</th>
-                    <th>Status</th>
+                    <th>
+                      Market Exposure
+                      <button class="col-filter-btn" type="button"
+                              data-col-filter="exposure"
+                              aria-label="Filter Market Exposure"
+                              title="Filter Market Exposure">⏷</button>
+                    </th>
+                    <th>
+                      Status
+                      <button class="col-filter-btn" type="button"
+                              data-col-filter="status"
+                              aria-label="Filter Status"
+                              title="Filter Status">⏷</button>
+                    </th>
                     <th class="kebab"><span class="sr-only">Actions</span></th>
                   </tr>
                 </thead>
@@ -867,9 +907,13 @@
     </div>
   </div>
 
+  <div id="blotterColFilterPopover" class="col-filter-popover hidden" role="dialog" aria-label="Column filter"></div>
+
   <script>
     // ------- Demo data -------
     const pairCodes = ["USDRUB", "EURRUB", "CNYRUB"];
+    const CREATED_BY_OPTIONS = ["dealer1", "dealer2", "some_process1", "some_process2"];
+    const STATUS_OPTIONS = ["New", "Delegated", "Execute Pending", "Executed", "Cancelled"];
 
     const rows = [
       mkRow({pair:"USDRUB", captured:"05.06.2025, 11:15", client:'ООО "Ромашка"', valid:"06.06.2025, 09:30", sell:null, rate:77.80000, buy:15000000, mt:null, exec:"NT Pro"}),
@@ -995,27 +1039,31 @@
     const marketExposureSelect = document.getElementById('marketExposure');
     const monitorActiveFilters = document.getElementById('monitorActiveFilters');
     const blCaptureDate = document.getElementById('blCaptureDate');
-    const blPair = document.getElementById('blPair');
-    const blCreatedBy = document.getElementById('blCreatedBy');
     const blClient = document.getElementById('blClient');
     const blInn = document.getElementById('blInn');
     const blValidTill = document.getElementById('blValidTill');
     const blAmountMin = document.getElementById('blAmountMin');
     const blAmountMax = document.getElementById('blAmountMax');
-    const blSide = document.getElementById('blSide');
     const blRateMin = document.getElementById('blRateMin');
     const blRateMax = document.getElementById('blRateMax');
-    const blMarketTouch = document.getElementById('blMarketTouch');
-    const blMarketExposure = document.getElementById('blMarketExposure');
-    const blStatus = document.getElementById('blStatus');
 
     const blotterSearchBtn = document.getElementById('blotterSearchBtn');
     const blotterResetBtn = document.getElementById('blotterResetBtn');
     const blotterActiveFilters = document.getElementById('blotterActiveFilters');
+    const blotterColFilterPopover = document.getElementById('blotterColFilterPopover');
+    let openedColFilterKey = null;
 
     let activePair = pairCodes[0];
     let filtered = [...rows];
     const exposureOptions = [...new Set(rows.map(row => row.exec).filter(Boolean))];
+    const blotterColFilters = {
+      pair: "",
+      createdBy: "",
+      side: "",
+      touch: "",
+      exposure: "",
+      status: ""
+    };
 
     function getPairsWithCounts(){
       return pairCodes.map(code => ({
@@ -1054,25 +1102,6 @@
         marketExposureSelect.appendChild(option);
       });
     }
-
-    function initBlotterFilterOptions(){
-      // Currency Pair options
-      pairCodes.forEach(code => {
-        const opt = document.createElement('option');
-        opt.value = code;
-        opt.textContent = code;
-        blPair.appendChild(opt);
-      });
-
-      // Market Exposure options
-      exposureOptions.forEach(exposure => {
-        const opt = document.createElement('option');
-        opt.value = exposure;
-        opt.textContent = exposure;
-        blMarketExposure.appendChild(opt);
-      });
-    }
-
 
     function fmtNum(n){
       if (n === null || n === undefined) return "";
@@ -1145,15 +1174,13 @@
     }
 
     function createdByForRow(r){
-      const candidates = ["dealer1", "dealer2", "some_process1", "some_process2"];
       const h = hashString(`${r.client}|${r.pair}`);
-      return candidates[h % candidates.length];
+      return CREATED_BY_OPTIONS[h % CREATED_BY_OPTIONS.length];
     }
 
     function statusForRow(r){
-      const statuses = ["New", "Delegated", "Execute Pending", "Executed", "Cancelled"];
       const h = hashString(`${r.client}|${r.pair}|${r.captured}|${r.valid}`);
-      return statuses[h % statuses.length];
+      return STATUS_OPTIONS[h % STATUS_OPTIONS.length];
     }
 
     function getAmountAndSide(r){
@@ -1200,6 +1227,82 @@
       const normalized = value.toString().replace(/[^\d.,]/g, "").replace(",", ".");
       const parsed = Number.parseFloat(normalized);
       return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function getBlotterColFilterMeta(){
+      return {
+        pair: { label: "Currency Pair", options: pairCodes.map(v => ({ value: v, label: v })) },
+        createdBy: { label: "Created By", options: CREATED_BY_OPTIONS.map(v => ({ value: v, label: v })) },
+        side: { label: "Side", options: ["buy", "sell"].map(v => ({ value: v, label: v })) },
+        touch: { label: "Market Touch", options: [{ value: "yes", label: "Yes" }, { value: "no", label: "No" }] },
+        exposure: { label: "Market Exposure", options: exposureOptions.map(v => ({ value: v, label: v })) },
+        status: { label: "Status", options: STATUS_OPTIONS.map(v => ({ value: v, label: v })) }
+      };
+    }
+
+    function updateBlotterColFilterIndicators(){
+      document.querySelectorAll('.col-filter-btn[data-col-filter]').forEach(btn => {
+        const key = btn.dataset.colFilter;
+        btn.classList.toggle('active', !!blotterColFilters[key]);
+      });
+    }
+
+    function closeBlotterColFilterPopover(){
+      blotterColFilterPopover.classList.add('hidden');
+      blotterColFilterPopover.innerHTML = "";
+      openedColFilterKey = null;
+    }
+
+    function openBlotterColFilterPopover(key, anchorEl){
+      const meta = getBlotterColFilterMeta()[key];
+      if (!meta) return;
+
+      openedColFilterKey = key;
+
+      const optionsHtml = [
+        `<option value="">All</option>`,
+        ...meta.options.map(o => `<option value="${o.value}">${o.label}</option>`)
+      ].join("");
+
+      blotterColFilterPopover.innerHTML = `
+        <div class="cf-title">${meta.label}</div>
+        <select id="cfSelect" class="select">${optionsHtml}</select>
+        <div class="cf-actions">
+          <button class="btn small" type="button" id="cfClearBtn">Clear</button>
+          <button class="btn small primary" type="button" id="cfApplyBtn">Apply</button>
+        </div>
+      `;
+
+      const rect = anchorEl.getBoundingClientRect();
+      const pad = 8;
+      const width = 260;
+
+      let left = rect.left;
+      if (left + width + pad > window.innerWidth) left = window.innerWidth - width - pad;
+      if (left < pad) left = pad;
+
+      let top = rect.bottom + pad;
+      const heightGuess = 160;
+      if (top + heightGuess + pad > window.innerHeight) top = rect.top - heightGuess - pad;
+      if (top < pad) top = pad;
+
+      blotterColFilterPopover.style.left = `${left}px`;
+      blotterColFilterPopover.style.top = `${top}px`;
+      blotterColFilterPopover.classList.remove('hidden');
+
+      const select = document.getElementById('cfSelect');
+      select.value = blotterColFilters[key] || "";
+
+      document.getElementById('cfClearBtn').onclick = () => {
+        select.value = "";
+      };
+
+      document.getElementById('cfApplyBtn').onclick = () => {
+        blotterColFilters[key] = select.value;
+        updateBlotterColFilterIndicators();
+        closeBlotterColFilterPopover();
+        applyBlotterFilters();
+      };
     }
 
     function yyyyMmDdToDdMmYyyy(value){
@@ -1254,8 +1357,8 @@
 
     function applyBlotterFilters(){
       const capDate = yyyyMmDdToDdMmYyyy(blCaptureDate.value);
-      const pair = blPair.value;
-      const createdByNeedle = blCreatedBy.value;
+      const pair = blotterColFilters.pair;
+      const createdByNeedle = blotterColFilters.createdBy;
 
       const clientNeedleRaw = blClient.value.trim();
       const clientNeedle = clientNeedleRaw.toLowerCase();
@@ -1266,15 +1369,15 @@
       const amountMin = parseOptionalNumber(blAmountMin.value);
       const amountMax = parseOptionalNumber(blAmountMax.value);
 
-      const sideNeedle = blSide.value;
+      const sideNeedle = blotterColFilters.side;
 
       const rateMin = parseOptionalNumber(blRateMin.value);
       const rateMax = parseOptionalNumber(blRateMax.value);
 
-      const touchNeedle = blMarketTouch.value;
-      const exposureNeedle = blMarketExposure.value;
+      const touchNeedle = blotterColFilters.touch;
+      const exposureNeedle = blotterColFilters.exposure;
 
-      const statusNeedle = blStatus.value;
+      const statusNeedle = blotterColFilters.status;
 
       updateBlotterActiveFiltersSummary({
         capDate,
@@ -1444,25 +1547,52 @@
 
     // Init
     renderExposureOptions();
-    initBlotterFilterOptions();
     applyFilters();
+    updateBlotterColFilterIndicators();
+
+    document.querySelectorAll('.col-filter-btn[data-col-filter]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const key = btn.dataset.colFilter;
+
+        if (!blotterColFilterPopover.classList.contains('hidden') && openedColFilterKey === key){
+          closeBlotterColFilterPopover();
+          return;
+        }
+        openBlotterColFilterPopover(key, btn);
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (blotterColFilterPopover.classList.contains('hidden')) return;
+      const isBtn = e.target.closest('.col-filter-btn');
+      const inPopover = blotterColFilterPopover.contains(e.target);
+      if (!isBtn && !inPopover) closeBlotterColFilterPopover();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === "Escape") closeBlotterColFilterPopover();
+    });
 
     blotterSearchBtn.addEventListener('click', applyBlotterFilters);
     blotterResetBtn.addEventListener('click', () => {
+      blotterColFilters.pair = "";
+      blotterColFilters.createdBy = "";
+      blotterColFilters.side = "";
+      blotterColFilters.touch = "";
+      blotterColFilters.exposure = "";
+      blotterColFilters.status = "";
+      updateBlotterColFilterIndicators();
+      closeBlotterColFilterPopover();
       blCaptureDate.value = "";
-      blPair.value = "";
-      blCreatedBy.value = "";
       blClient.value = "";
       blInn.value = "";
       blValidTill.value = "";
       blAmountMin.value = "";
       blAmountMax.value = "";
-      blSide.value = "";
       blRateMin.value = "";
       blRateMax.value = "";
-      blMarketTouch.value = "";
-      blMarketExposure.value = "";
-      blStatus.value = "";
       applyBlotterFilters();
     });
   </script>
