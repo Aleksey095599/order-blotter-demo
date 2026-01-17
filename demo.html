@@ -173,6 +173,29 @@
       justify-content:space-between;
       margin-bottom:12px;
     }
+    /* Filters: split sections (Blotter view) */
+    .filters-split-label{
+      font-size:12px;
+      font-weight:700;
+      color:var(--muted);
+      margin:0 0 8px 0;
+      letter-spacing:0.2px;
+    }
+    .filters-divider{
+      border-top:1px solid var(--line);
+      margin:12px 0;
+    }
+    .active-filters-row{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .active-filters-input{
+      background:#f9fafb;
+      color:#374151;
+      flex:1;
+      min-width:260px;
+    }
     .toolbar-header{
       display:flex;
       align-items:center;
@@ -681,10 +704,11 @@
                 <span class="section-title">Filters</span>
 
                 <div class="filter-actions">
-                  <button class="btn small" id="blotterResetBtn">Reset</button>
                   <button class="btn small primary" id="blotterSearchBtn">Search</button>
                 </div>
               </div>
+
+              <div class="filters-split-label">Search fields</div>
 
               <div class="blotter-filters-grid">
                 <div class="field">
@@ -781,6 +805,19 @@
                     <option value="Cancelled">Cancelled</option>
                   </select>
                 </div>
+              </div>
+
+              <div class="filters-divider"></div>
+
+              <div class="filters-split-label">Active filters</div>
+
+              <div class="active-filters-row">
+                <input id="blotterActiveFilters"
+                       class="input active-filters-input"
+                       type="text"
+                       readonly
+                       value="No filters applied" />
+                <button class="btn small" id="blotterResetBtn">Clear all filters</button>
               </div>
             </section>
 
@@ -961,6 +998,7 @@
 
     const blotterSearchBtn = document.getElementById('blotterSearchBtn');
     const blotterResetBtn = document.getElementById('blotterResetBtn');
+    const blotterActiveFilters = document.getElementById('blotterActiveFilters');
 
     let activePair = pairCodes[0];
     let filtered = [...rows];
@@ -1033,6 +1071,50 @@
       if (n === null || n === undefined) return "";
       if (pair === "EURRUB") return n.toFixed(2);
       return n.toFixed(5);
+    }
+
+    function updateBlotterActiveFiltersSummary(model){
+      if (!blotterActiveFilters) return;
+
+      const parts = [];
+      if (model.capDate) parts.push(`Capture Date=${model.capDate}`);
+      if (model.pair) parts.push(`Currency Pair=${model.pair}`);
+      if (model.createdByNeedle) parts.push(`Created By=${model.createdByNeedle}`);
+      if (model.clientNeedleRaw) parts.push(`Client~"${model.clientNeedleRaw}"`);
+      if (model.innNeedle) parts.push(`INN~"${model.innNeedle}"`);
+      if (model.validDate) parts.push(`Valid Till=${model.validDate}`);
+
+      if (model.amountMin !== null || model.amountMax !== null){
+        if (model.amountMin !== null && model.amountMax !== null){
+          parts.push(`Amount=${fmtNum(model.amountMin)}..${fmtNum(model.amountMax)}`);
+        } else if (model.amountMin !== null){
+          parts.push(`Amount≥${fmtNum(model.amountMin)}`);
+        } else {
+          parts.push(`Amount≤${fmtNum(model.amountMax)}`);
+        }
+      }
+
+      if (model.sideNeedle) parts.push(`Side=${model.sideNeedle}`);
+
+      if (model.rateMin !== null || model.rateMax !== null){
+        if (model.rateMin !== null && model.rateMax !== null){
+          parts.push(`Rate=${model.rateMin}..${model.rateMax}`);
+        } else if (model.rateMin !== null){
+          parts.push(`Rate≥${model.rateMin}`);
+        } else {
+          parts.push(`Rate≤${model.rateMax}`);
+        }
+      }
+
+      if (model.touchNeedle){
+        parts.push(`Market Touch=${model.touchNeedle === "yes" ? "Yes" : "No"}`);
+      }
+      if (model.exposureNeedle) parts.push(`Market Exposure=${model.exposureNeedle}`);
+      if (model.statusNeedle) parts.push(`Status=${model.statusNeedle}`);
+
+      const summary = parts.length ? parts.join(" | ") : "No filters applied";
+      blotterActiveFilters.value = summary;
+      blotterActiveFilters.title = summary;
     }
 
     function hashString(s){
@@ -1162,7 +1244,8 @@
       const pair = blPair.value;
       const createdByNeedle = blCreatedBy.value;
 
-      const clientNeedle = blClient.value.trim().toLowerCase();
+      const clientNeedleRaw = blClient.value.trim();
+      const clientNeedle = clientNeedleRaw.toLowerCase();
       const innNeedle = blInn.value.trim();
 
       const validDate = yyyyMmDdToDdMmYyyy(blValidTill.value);
@@ -1179,6 +1262,23 @@
       const exposureNeedle = blMarketExposure.value;
 
       const statusNeedle = blStatus.value;
+
+      updateBlotterActiveFiltersSummary({
+        capDate,
+        pair,
+        createdByNeedle,
+        clientNeedleRaw,
+        innNeedle,
+        validDate,
+        amountMin,
+        amountMax,
+        sideNeedle,
+        rateMin,
+        rateMax,
+        touchNeedle,
+        exposureNeedle,
+        statusNeedle
+      });
 
       const filteredBlotter = rows.filter(r => {
         const { amount, side } = getAmountAndSide(r);
