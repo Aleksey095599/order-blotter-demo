@@ -371,7 +371,7 @@
       table-layout:fixed;
     }
     col.col-checkbox{width:28px}
-    col.col-captured{width:calc(17ch + 20px)}
+    col.col-captured{width:calc(17ch + 12px)}
     col.col-client{width:180px}
     col.col-valid{width:calc(17ch + 20px)}
     col.col-sell{width:130px}
@@ -406,6 +406,11 @@
       white-space:nowrap;
       color:#111827;
       vertical-align:middle;
+    }
+    .orders-table th:nth-child(2),
+    .orders-table td:nth-child(2){
+      padding-left:6px;
+      padding-right:6px;
     }
     thead th,
     tbody td{
