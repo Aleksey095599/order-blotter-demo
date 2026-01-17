@@ -370,10 +370,10 @@
       font-size:13px;
       table-layout:fixed;
     }
-    col.col-checkbox{width:36px}
-    col.col-captured{width:150px}
+    col.col-checkbox{width:32px}
+    col.col-captured{width:140px}
     col.col-client{width:180px}
-    col.col-valid{width:150px}
+    col.col-valid{width:140px}
     col.col-sell{width:130px}
     col.col-rate{width:100px}
     col.col-touch{width:36px}
@@ -416,7 +416,15 @@
     tbody tr:hover{background:#fafafa}
     .num{font-variant-numeric:tabular-nums; text-align:right}
     .muted{color:var(--muted)}
-    .checkbox{width:36px}
+    .checkbox{
+      width:32px;
+      text-align:center;
+      padding-left:6px;
+      padding-right:6px;
+    }
+    .fixed-center{
+      text-align:center;
+    }
     .touch-col{
       width:36px;
       text-align:center;
@@ -659,10 +667,10 @@
               </colgroup>
               <thead>
                 <tr>
-                  <th class="checkbox resizable" data-min-width="32"><span class="sr-only">Select</span><span class="col-resizer" aria-hidden="true"></span></th>
-                  <th class="resizable" data-min-width="120">Capture Date<span class="col-resizer" aria-hidden="true"></span></th>
+                  <th class="checkbox fixed-center"><span class="sr-only">Select</span></th>
+                  <th class="fixed-center">Capture Date</th>
                   <th class="resizable" data-min-width="140">Client<span class="col-resizer" aria-hidden="true"></span></th>
-                  <th class="resizable" data-min-width="120">Valid Till<span class="col-resizer" aria-hidden="true"></span></th>
+                  <th class="fixed-center">Valid Till</th>
                   <th class="num resizable" data-min-width="110">Sell Amount<span class="col-resizer" aria-hidden="true"></span></th>
                   <th class="num resizable" data-min-width="90">Rate<span class="col-resizer" aria-hidden="true"></span></th>
                   <th class="touch-col resizable" data-min-width="32">
