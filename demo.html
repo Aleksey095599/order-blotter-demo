@@ -159,6 +159,14 @@
       background:#f9fafb;
       box-shadow:0 1px 0 rgba(15,23,42,0.02);
     }
+    .toolbar-panel{
+      margin:0 0 12px 0;
+      padding:12px 14px 12px 14px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#f9fafb;
+      box-shadow:0 1px 0 rgba(15,23,42,0.02);
+    }
     .filters-header{
       display:flex;
       align-items:center;
@@ -166,6 +174,17 @@
       margin-bottom:12px;
     }
     .filters-title{
+      font-size:12px;
+      font-weight:800;
+      color:var(--muted);
+    }
+    .toolbar-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:10px;
+    }
+    .toolbar-title{
       font-size:12px;
       font-weight:800;
       color:var(--muted);
@@ -488,15 +507,20 @@
             </div>
           </section>
 
-          <div class="section-title">Order Toolbar</div>
-          <div class="tablebar">
-            <button class="btn toolbar primary" id="newOrderBtn">＋ New Order</button>
-            <button class="btn toolbar ghost" type="button">Convert to Deal</button>
-            <button class="btn toolbar ghost" type="button">Send to NT Pro</button>
-            <button class="btn toolbar ghost" type="button">Send to NT Pro 2</button>
-            <button class="btn toolbar danger" type="button">Cancel Order</button>
-            <span class="right muted" id="resultHint"></span>
-          </div>
+          <section class="toolbar-panel" aria-label="Order Toolbar">
+            <div class="toolbar-header">
+              <span class="toolbar-title">Order Toolbar</span>
+              <span class="muted">Quick actions for selected rows</span>
+            </div>
+            <div class="tablebar">
+              <button class="btn toolbar primary" id="newOrderBtn">＋ New Order</button>
+              <button class="btn toolbar ghost" type="button">Convert to Deal</button>
+              <button class="btn toolbar ghost" type="button">Send to NT Pro</button>
+              <button class="btn toolbar ghost" type="button">Send to NT Pro 2</button>
+              <button class="btn toolbar danger" type="button">Cancel Order</button>
+              <span class="right muted" id="resultHint"></span>
+            </div>
+          </section>
 
           <div class="table-wrap">
             <table>
