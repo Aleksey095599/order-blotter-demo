@@ -622,14 +622,14 @@
       height:32px;
       font-size:12px;
     }
-    /* Multi-select list inside column filter popover */
+    /* Popover checkbox list */
     .col-filter-popover .cf-list{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
       max-height:220px;
       overflow:auto;
-      padding:4px 2px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:6px;
+      background:#f9fafb;
     }
     .col-filter-popover .cf-item{
       display:flex;
@@ -639,15 +639,13 @@
       border-radius:8px;
       cursor:pointer;
       user-select:none;
-      font-size:13px;
-      font-weight:600;
-      color:#111827;
     }
     .col-filter-popover .cf-item:hover{
-      background:#f3f4f6;
+      background:#fff;
     }
     .col-filter-popover .cf-item input{
-      margin:0;
+      width:14px;
+      height:14px;
     }
     .col-filter-popover .cf-sep{
       height:1px;
@@ -1316,25 +1314,19 @@
 
       openedColFilterKey = key;
 
-      const listHtml = meta.options.map(o => `
-        <label class="cf-item">
-          <input type="checkbox" class="cf-opt" value="${o.value}">
-          <span>${o.label}</span>
-        </label>
-      `).join("");
+      // Draft selection: не мутируем состояние, пока пользователь не нажал Apply
+      const draft = new Set(blotterColFilters[key]);
 
       blotterColFilterPopover.innerHTML = `
         <div class="cf-title">${meta.label}</div>
 
-        <div class="cf-list">
-          <label class="cf-item">
-            <input type="checkbox" id="cfAll">
-            <span>All</span>
-          </label>
-
-          <div class="cf-sep"></div>
-
-          ${listHtml}
+        <div class="cf-list" id="cfList">
+          ${meta.options.map(o => `
+            <label class="cf-item">
+              <input type="checkbox" value="${o.value}" ${draft.has(o.value) ? "checked" : ""} />
+              <span>${o.label}</span>
+            </label>
+          `).join("")}
         </div>
 
         <div class="cf-actions">
@@ -1343,6 +1335,7 @@
         </div>
       `;
 
+      // --- позиционирование (как раньше), но "guess" чуть больше из-за списка ---
       const rect = anchorEl.getBoundingClientRect();
       const pad = 8;
       const width = 260;
@@ -1352,7 +1345,7 @@
       if (left < pad) left = pad;
 
       let top = rect.bottom + pad;
-      const heightGuess = 320;
+      const heightGuess = 280; // было ~160, теперь список может быть выше
       if (top + heightGuess + pad > window.innerHeight) top = rect.top - heightGuess - pad;
       if (top < pad) top = pad;
 
@@ -1360,62 +1353,32 @@
       blotterColFilterPopover.style.top = `${top}px`;
       blotterColFilterPopover.classList.remove('hidden');
 
-      // --- init UI state from Set ---
-      const allCb = document.getElementById("cfAll");
-      const optCbs = Array.from(blotterColFilterPopover.querySelectorAll(".cf-opt"));
-      const currentSet = blotterColFilters[key];
+      // --- wiring чекбоксов ---
+      const checkboxes = blotterColFilterPopover.querySelectorAll('input[type="checkbox"]');
 
-      // If Set is empty -> "All" (no filter)
-      if (currentSet.size === 0){
-        allCb.checked = true;
-        optCbs.forEach(cb => cb.checked = false);
-      } else {
-        allCb.checked = false;
-        optCbs.forEach(cb => cb.checked = currentSet.has(cb.value));
-        // safeguard: if all options checked, treat as "All"
-        if (optCbs.length > 0 && optCbs.every(cb => cb.checked)){
-          allCb.checked = true;
-          optCbs.forEach(cb => cb.checked = false);
-        }
-      }
-
-      // --- behavior: All vs options ---
-      allCb.addEventListener("change", () => {
-        if (allCb.checked){
-          optCbs.forEach(cb => cb.checked = false);
-        }
-      });
-
-      optCbs.forEach(cb => {
-        cb.addEventListener("change", () => {
-          if (cb.checked) allCb.checked = false;
-
-          // if all unchecked, return to All
-          const anyChecked = optCbs.some(x => x.checked);
-          if (!anyChecked){
-            allCb.checked = true;
-          }
+      checkboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+          if (cb.checked) draft.add(cb.value);
+          else draft.delete(cb.value);
         });
       });
 
-      // Clear = return UI to "All" (no auto-apply)
-      document.getElementById("cfClearBtn").onclick = () => {
-        allCb.checked = true;
-        optCbs.forEach(cb => cb.checked = false);
+      document.getElementById('cfClearBtn').onclick = () => {
+        draft.clear();
+        checkboxes.forEach(cb => { cb.checked = false; });
       };
 
-      // Apply = persist selection to Set and filter
-      document.getElementById("cfApplyBtn").onclick = () => {
-        const selected = optCbs.filter(cb => cb.checked).map(cb => cb.value);
-        const total = optCbs.length;
+      document.getElementById('cfApplyBtn').onclick = () => {
+        // Важная UX-деталь:
+        // если пользователь отметил ВСЕ значения — это фактически "All",
+        // поэтому очищаем Set (и индикатор в заголовке погаснет).
+        const isAllSelected = draft.size === meta.options.length;
 
-        // Normalize: All / none / all selected => "no filter" => empty Set
-        const treatAsAll = allCb.checked || selected.length === 0 || (total > 0 && selected.length === total);
+        const target = blotterColFilters[key]; // это Set (сохраняем инстанс)
+        target.clear();
 
-        const targetSet = blotterColFilters[key];
-        targetSet.clear();
-        if (!treatAsAll){
-          selected.forEach(v => targetSet.add(v));
+        if (!isAllSelected){
+          draft.forEach(v => target.add(v));
         }
 
         updateBlotterColFilterIndicators();
