@@ -272,6 +272,16 @@
       font-size:13px;
       border:1px solid transparent;
     }
+    .pair-info{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .pair .bulb{
+      width:16px;
+      height:16px;
+      font-size:11px;
+    }
     .pair:hover{background:#f9fafb; border-color:var(--line)}
     .pair.active{background:#eef2ff; border-color:#c7d2fe}
     .pair .code{font-weight:800}
@@ -605,7 +615,8 @@
     function getPairsWithCounts(){
       return pairCodes.map(code => ({
         code,
-        count: rows.filter(row => row.pair === code).length
+        count: rows.filter(row => row.pair === code).length,
+        hasMarketTouch: rows.some(row => row.pair === code && isMarketTouch(row))
       }));
     }
 
@@ -614,7 +625,13 @@
       getPairsWithCounts().forEach(p => {
         const el = document.createElement('div');
         el.className = "pair" + (p.code === activePair ? " active" : "");
-        el.innerHTML = `<span class="code">${p.code}</span><span class="count">${p.count}</span>`;
+        el.innerHTML = `
+          <span class="pair-info">
+            <span class="code">${p.code}</span>
+            ${p.hasMarketTouch ? `<span class="bulb" title="Market Touch">💡</span>` : ``}
+          </span>
+          <span class="count">${p.count}</span>
+        `;
         el.addEventListener('click', () => {
           activePair = p.code;
           renderPairs();
