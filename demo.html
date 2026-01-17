@@ -411,7 +411,8 @@
     col.col-valid{width:auto}
     col.col-sell{width:auto}
     col.col-rate{width:auto}
-    col.col-touch{width:36px}
+    /* чтобы в заголовке "💡 + ⏷" не резалось */
+    col.col-touch{width:64px}
     col.col-buy{width:auto}
     col.col-exposure{width:auto}
     col.col-actions{width:36px}
@@ -466,7 +467,8 @@
       text-align:center;
     }
     .touch-col{
-      width:36px;
+      min-width:64px;
+      width:64px;
       text-align:center;
       padding-left:6px;
       padding-right:6px;
@@ -722,20 +724,6 @@
                   <label>Min Amount</label>
                   <input id="amountMin" class="input" type="text" inputmode="decimal" />
                 </div>
-                <div class="field">
-                  <label><span class="label-with-icon"><span class="label-icon">💡</span>Market Touch</span></label>
-                  <select id="marketTouch" class="select">
-                    <option value="">All</option>
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
-                  </select>
-                </div>
-                <div class="field">
-                  <label>Market Exposure</label>
-                  <select id="marketExposure" class="select">
-                    <option value="">All</option>
-                  </select>
-                </div>
               </div>
               <div class="filters-divider"></div>
 
@@ -789,10 +777,23 @@
                     <th class="num">Rate</th>
                     <th class="touch-col">
                       <span class="header-icon tooltip-target" data-tooltip="Market Touch Indicator" aria-hidden="true">💡</span>
+
+                      <!-- NEW: column filter for Monitor -->
+                      <button class="col-filter-btn" type="button"
+                              data-monitor-col-filter="touch"
+                              aria-label="Filter Market Touch"
+                              title="Filter Market Touch">⏷</button>
+
                       <span class="sr-only">Market Touch Indicator</span>
                     </th>
                     <th class="num">Buy Amount</th>
-                    <th>Market Exposure</th>
+                    <th>
+                      Market Exposure
+                      <button class="col-filter-btn" type="button"
+                              data-monitor-col-filter="exposure"
+                              aria-label="Filter Market Exposure"
+                              title="Filter Market Exposure">⏷</button>
+                    </th>
                     <th class="kebab"><span class="sr-only">Actions</span></th>
                   </tr>
                 </thead>
@@ -940,6 +941,7 @@
   </div>
 
   <div id="blotterColFilterPopover" class="col-filter-popover hidden" role="dialog" aria-label="Column filter"></div>
+  <div id="monitorColFilterPopover" class="col-filter-popover hidden" role="dialog" aria-label="Column filter"></div>
 
   <script>
     // ------- Demo data -------
@@ -1067,8 +1069,6 @@
     const blotterTbody = document.getElementById('blotterTbody');
     const clientFilterInput = document.getElementById('clientFilter');
     const amountMinInput = document.getElementById('amountMin');
-    const marketTouchSelect = document.getElementById('marketTouch');
-    const marketExposureSelect = document.getElementById('marketExposure');
     const monitorActiveFilters = document.getElementById('monitorActiveFilters');
     const blCaptureDate = document.getElementById('blCaptureDate');
     const blClient = document.getElementById('blClient');
@@ -1097,6 +1097,14 @@
       exposure: new Set(),
       status: new Set()
     };
+    // Monitor header column-filters (single-select UI now, but stored as Set for future multi-select)
+    const monitorColFilters = {
+      touch: new Set(),
+      exposure: new Set()
+    };
+
+    const monitorColFilterPopover = document.getElementById('monitorColFilterPopover');
+    let openedMonitorColFilterKey = null;
 
     function getPairsWithCounts(){
       return pairCodes.map(code => ({
@@ -1124,15 +1132,6 @@
           applyFilters();
         });
         pairListEl.appendChild(el);
-      });
-    }
-
-    function renderExposureOptions(){
-      exposureOptions.forEach(exposure => {
-        const option = document.createElement('option');
-        option.value = exposure;
-        option.textContent = exposure;
-        marketExposureSelect.appendChild(option);
       });
     }
 
@@ -1425,6 +1424,84 @@
       };
     }
 
+    function getMonitorColFilterMeta(){
+      return {
+        touch: {
+          label: "Market Touch",
+          options: [{ value: "yes", label: "Yes" }, { value: "no", label: "No" }]
+        },
+        exposure: {
+          label: "Market Exposure",
+          options: exposureOptions.map(v => ({ value: v, label: v }))
+        }
+      };
+    }
+
+    function updateMonitorColFilterIndicators(){
+      document.querySelectorAll('.col-filter-btn[data-monitor-col-filter]').forEach(btn => {
+        const key = btn.dataset.monitorColFilter;
+        const set = monitorColFilters[key];
+        btn.classList.toggle('active', set instanceof Set && set.size > 0);
+      });
+    }
+
+    function closeMonitorColFilterPopover(){
+      monitorColFilterPopover.classList.add('hidden');
+      monitorColFilterPopover.innerHTML = "";
+      openedMonitorColFilterKey = null;
+    }
+
+    function openMonitorColFilterPopover(key, anchorEl){
+      const meta = getMonitorColFilterMeta()[key];
+      if (!meta) return;
+
+      openedMonitorColFilterKey = key;
+
+      const optionsHtml = [
+        `<option value="">All</option>`,
+        ...meta.options.map(o => `<option value="${o.value}">${o.label}</option>`)
+      ].join("");
+
+      // IMPORTANT: уникальные id, чтобы не конфликтовать с blotter popover
+      monitorColFilterPopover.innerHTML = `
+        <div class="cf-title">${meta.label}</div>
+        <select id="mcfSelect" class="select">${optionsHtml}</select>
+        <div class="cf-actions">
+          <button class="btn small" type="button" id="mcfClearBtn">Clear</button>
+          <button class="btn small primary" type="button" id="mcfApplyBtn">Apply</button>
+        </div>
+      `;
+
+      const rect = anchorEl.getBoundingClientRect();
+      const pad = 8;
+      const width = 260;
+
+      let left = rect.left;
+      if (left + width + pad > window.innerWidth) left = window.innerWidth - width - pad;
+      if (left < pad) left = pad;
+
+      let top = rect.bottom + pad;
+      const heightGuess = 160;
+      if (top + heightGuess + pad > window.innerHeight) top = rect.top - heightGuess - pad;
+      if (top < pad) top = pad;
+
+      monitorColFilterPopover.style.left = `${left}px`;
+      monitorColFilterPopover.style.top = `${top}px`;
+      monitorColFilterPopover.classList.remove('hidden');
+
+      const select = document.getElementById('mcfSelect');
+      select.value = getSingleSelectionFromSet(monitorColFilters[key]); // UI single-select
+
+      document.getElementById('mcfClearBtn').onclick = () => { select.value = ""; };
+
+      document.getElementById('mcfApplyBtn').onclick = () => {
+        setFromSingleSelection(monitorColFilters[key], select.value);
+        updateMonitorColFilterIndicators();
+        closeMonitorColFilterPopover();
+        applyFilters();
+      };
+    }
+
     function yyyyMmDdToDdMmYyyy(value){
       if (!value) return "";
       const parts = value.split("-");
@@ -1583,11 +1660,11 @@
       const minAmount = parseAmount(amountMinInput.value);
       if (minAmount) parts.push(`Min Amount≥${fmtNum(minAmount)}`);
 
-      const touch = marketTouchSelect.value;
-      if (touch) parts.push(`Market Touch=${touch === "yes" ? "Yes" : "No"}`);
+      const touchText = summarizeSet(monitorColFilters.touch, v => (v === "yes" ? "Yes" : "No"));
+      if (touchText) parts.push(`Market Touch=${touchText}`);
 
-      const exposure = marketExposureSelect.value;
-      if (exposure) parts.push(`Market Exposure=${exposure}`);
+      const exposureText = summarizeSet(monitorColFilters.exposure);
+      if (exposureText) parts.push(`Market Exposure=${exposureText}`);
 
       const summary = parts.length ? parts.join(" | ") : "No filters applied";
       monitorActiveFilters.value = summary;
@@ -1601,16 +1678,19 @@
       }
       const clientNeedle = clientFilterInput.value.trim().toLowerCase();
       const minAmount = parseAmount(amountMinInput.value);
-      const marketTouchNeedle = marketTouchSelect.value;
-      const exposureNeedle = marketExposureSelect.value;
+      const touchNeedle = monitorColFilters.touch;      // Set
+      const exposureNeedle = monitorColFilters.exposure;// Set
       filtered = rows.filter(r => {
         const okPair = r.pair === activePair;
         const okClient = !clientNeedle || r.client.toLowerCase().includes(clientNeedle);
         const okAmount = isRowAboveMin(r, minAmount);
-        const okTouch = !marketTouchNeedle
-          || (marketTouchNeedle === "yes" && isMarketTouch(r))
-          || (marketTouchNeedle === "no" && !isMarketTouch(r));
-        const okExposure = !exposureNeedle || r.exec === exposureNeedle;
+        const okTouch =
+          touchNeedle.size === 0
+          || (touchNeedle.has("yes") && isMarketTouch(r))
+          || (touchNeedle.has("no") && !isMarketTouch(r));
+        const okExposure =
+          exposureNeedle.size === 0
+          || exposureNeedle.has(r.exec);
         return okPair && okClient && okAmount && okTouch && okExposure;
       });
       filtered.sort((a, b) => a.rate - b.rate);
@@ -1623,14 +1703,14 @@
     document.getElementById('searchBtn').addEventListener('click', applyFilters);
     clientFilterInput.addEventListener('input', applyFilters);
     amountMinInput.addEventListener('input', applyFilters);
-    marketTouchSelect.addEventListener('change', applyFilters);
-    marketExposureSelect.addEventListener('change', applyFilters);
     document.getElementById('resetBtn').addEventListener('click', () => {
       document.getElementById('createDate').value = "";
       clientFilterInput.value = "";
       amountMinInput.value = "";
-      marketTouchSelect.value = "";
-      marketExposureSelect.value = "";
+      monitorColFilters.touch.clear();
+      monitorColFilters.exposure.clear();
+      updateMonitorColFilterIndicators();
+      closeMonitorColFilterPopover();
       applyFilters();
     });
 
@@ -1645,6 +1725,9 @@
       // UI switch state
       toggleAll.classList.toggle('on', isBlotter);
       toggleAll.setAttribute('aria-checked', isBlotter ? "true" : "false");
+
+      closeBlotterColFilterPopover();
+      closeMonitorColFilterPopover();
 
       // Layout: show/hide sidebar + stretch main area
       currencySidebar.classList.toggle('hidden', isBlotter);
@@ -1667,9 +1750,9 @@
     setViewMode(false);
 
     // Init
-    renderExposureOptions();
     applyFilters();
     updateBlotterColFilterIndicators();
+    updateMonitorColFilterIndicators();
 
     document.querySelectorAll('.col-filter-btn[data-col-filter]').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -1685,15 +1768,41 @@
       });
     });
 
+    document.querySelectorAll('.col-filter-btn[data-monitor-col-filter]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const key = btn.dataset.monitorColFilter;
+
+        if (!monitorColFilterPopover.classList.contains('hidden') && openedMonitorColFilterKey === key){
+          closeMonitorColFilterPopover();
+          return;
+        }
+        openMonitorColFilterPopover(key, btn);
+      });
+    });
+
     document.addEventListener('click', (e) => {
-      if (blotterColFilterPopover.classList.contains('hidden')) return;
-      const isBtn = e.target.closest('.col-filter-btn');
-      const inPopover = blotterColFilterPopover.contains(e.target);
-      if (!isBtn && !inPopover) closeBlotterColFilterPopover();
+      // Blotter popover
+      if (!blotterColFilterPopover.classList.contains('hidden')){
+        const isBlotterBtn = e.target.closest('.col-filter-btn[data-col-filter]');
+        const inBlotter = blotterColFilterPopover.contains(e.target);
+        if (!isBlotterBtn && !inBlotter) closeBlotterColFilterPopover();
+      }
+
+      // Monitor popover
+      if (!monitorColFilterPopover.classList.contains('hidden')){
+        const isMonitorBtn = e.target.closest('.col-filter-btn[data-monitor-col-filter]');
+        const inMonitor = monitorColFilterPopover.contains(e.target);
+        if (!isMonitorBtn && !inMonitor) closeMonitorColFilterPopover();
+      }
     });
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === "Escape") closeBlotterColFilterPopover();
+      if (e.key === "Escape"){
+        closeBlotterColFilterPopover();
+        closeMonitorColFilterPopover();
+      }
     });
 
     blotterSearchBtn.addEventListener('click', applyBlotterFilters);
