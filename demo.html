@@ -735,9 +735,11 @@
 
     function isRowAboveMin(r, minAmount){
       if (!minAmount) return true;
-      const sell = r.sell ?? 0;
-      const buy = r.buy ?? 0;
-      return Math.max(sell, buy) >= minAmount;
+      const sell = r.sell;
+      const buy = r.buy;
+      const sellOk = sell !== null && sell !== undefined && sell >= minAmount;
+      const buyOk = buy !== null && buy !== undefined && buy >= minAmount;
+      return sellOk || buyOk;
     }
 
     function isMarketTouch(r){
