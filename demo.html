@@ -393,6 +393,12 @@
     .num{font-variant-numeric:tabular-nums; text-align:right}
     .muted{color:var(--muted)}
     .checkbox{width:36px}
+    .touch-col{
+      width:36px;
+      text-align:center;
+      padding-left:6px;
+      padding-right:6px;
+    }
     .kebab{
       width:34px;
       text-align:center;
@@ -414,6 +420,17 @@
       color:#b45309;
       font-size:12px;
       font-weight:900;
+    }
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0, 0, 0, 0);
+      white-space:nowrap;
+      border:0;
     }
     /* Utility */
     .right{margin-left:auto}
@@ -529,8 +546,8 @@
                   <th>Valid Till</th>
                   <th class="num">Sell Amount</th>
                   <th class="num">Rate</th>
+                  <th class="touch-col" title="Market Touch Indicator"><span class="sr-only">Market Touch Indicator</span></th>
                   <th class="num">Buy Amount</th>
-                  <th>Market Touch</th>
                   <th>Market Exposure</th>
                   <th class="kebab"></th>
                 </tr>
@@ -757,10 +774,10 @@
           <td>${r.valid}</td>
           <td class="num">${fmtNum(r.sell)}</td>
           <td class="num">${fmtRate(r.rate, r.pair)}</td>
-          <td class="num">${fmtNum(r.buy)}</td>
-          <td>
-            ${r.mt === "bulb" ? `<span class="badge"><span class="bulb">💡</span></span>` : ``}
+          <td class="touch-col">
+            ${r.mt === "bulb" ? `<span class="badge"><span class="bulb" title="Market Touch Indicator">💡</span></span>` : ``}
           </td>
+          <td class="num">${fmtNum(r.buy)}</td>
           <td class="muted">${r.exec}</td>
           <td class="kebab" title="More">⋮</td>
         `;
