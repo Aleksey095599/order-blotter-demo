@@ -677,9 +677,32 @@
             </section>
 
             <div class="table-wrap">
-              <div style="padding:12px;color:var(--muted);background:#fff;border-radius:12px;">
-                Здесь будет полная таблица order_blotter и фильтры по всем колонкам.
-              </div>
+              <table class="orders-table" id="blotterTable">
+                <thead>
+                  <tr>
+                    <th class="checkbox fixed-center"><span class="sr-only">Select</span></th>
+                    <th class="fixed-center">Capture Date</th>
+                    <th>Currency Pair</th>
+                    <th>Created By</th>
+                    <th>Client</th>
+                    <th>INN</th>
+                    <th class="fixed-center">Valid Till</th>
+                    <th class="num">Amount</th>
+                    <th>Side</th>
+                    <th class="num">Rate</th>
+                    <th class="touch-col">
+                      <span class="header-icon tooltip-target" data-tooltip="Market Touch Indicator" aria-hidden="true">💡</span>
+                      <span class="sr-only">Market Touch Indicator</span>
+                    </th>
+                    <th>Market Exposure</th>
+                    <th>Status</th>
+                    <th class="kebab"><span class="sr-only">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody id="blotterTbody">
+                  <!-- rows by JS -->
+                </tbody>
+              </table>
             </div>
           </div>
         </section>
@@ -808,6 +831,7 @@
     // ------- Rendering -------
     const pairListEl = document.getElementById('pairList');
     const tbody = document.getElementById('tbody');
+    const blotterTbody = document.getElementById('blotterTbody');
     const clientFilterInput = document.getElementById('clientFilter');
     const amountMinInput = document.getElementById('amountMin');
     const marketTouchSelect = document.getElementById('marketTouch');
@@ -866,6 +890,70 @@
       if (n === null || n === undefined) return "";
       if (pair === "EURRUB") return n.toFixed(2);
       return n.toFixed(5);
+    }
+
+    function hashString(s){
+      let h = 0;
+      for (let i = 0; i < s.length; i++){
+        h = (h * 31 + s.charCodeAt(i)) >>> 0;
+      }
+      return h;
+    }
+
+    function innForClient(client){
+      const h = hashString(client);
+      // 10 digits: "77" + 8 digits
+      return "77" + String(h % 100000000).padStart(8, "0");
+    }
+
+    function createdByForRow(r){
+      const candidates = ["dealer1", "dealer2", "some_process1", "some_process2"];
+      const h = hashString(`${r.client}|${r.pair}`);
+      return candidates[h % candidates.length];
+    }
+
+    function statusForRow(r){
+      const statuses = ["New", "Delegated", "Execute Pending", "Executed", "Cancelled"];
+      const h = hashString(`${r.client}|${r.pair}|${r.captured}|${r.valid}`);
+      return statuses[h % statuses.length];
+    }
+
+    function getAmountAndSide(r){
+      if (r.buy !== null && r.buy !== undefined) return { amount: r.buy, side: "buy" };
+      if (r.sell !== null && r.sell !== undefined) return { amount: r.sell, side: "sell" };
+      return { amount: null, side: "" };
+    }
+
+    function renderBlotterTable(){
+      if (!blotterTbody) return;
+
+      blotterTbody.innerHTML = "";
+      rows.forEach(r => {
+        const { amount, side } = getAmountAndSide(r);
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="checkbox"><input type="checkbox" /></td>
+          <td class="fixed-center">${r.captured}</td>
+          <td><strong>${r.pair}</strong></td>
+          <td class="muted">${createdByForRow(r)}</td>
+          <td>${r.client}</td>
+          <td class="muted">${innForClient(r.client)}</td>
+          <td class="fixed-center">${r.valid}</td>
+          <td class="num">${fmtNum(amount)}</td>
+          <td>${side}</td>
+          <td class="num">${fmtRate(r.rate, r.pair)}</td>
+          <td class="touch-col">
+            ${r.mt === "bulb"
+              ? `<span class="badge"><span class="bulb tooltip-target" data-tooltip="Market Touch Indicator">💡</span></span>`
+              : ``}
+          </td>
+          <td class="muted">${r.exec}</td>
+          <td>${statusForRow(r)}</td>
+          <td class="kebab" title="More">⋮</td>
+        `;
+        blotterTbody.appendChild(tr);
+      });
     }
 
     function parseAmount(value){
@@ -968,6 +1056,10 @@
 
       monitorView.classList.toggle('hidden', isBlotter);
       blotterView.classList.toggle('hidden', !isBlotter);
+
+      if (isBlotter) {
+        renderBlotterTable();
+      }
     }
 
     toggleAll.addEventListener('click', () => {
