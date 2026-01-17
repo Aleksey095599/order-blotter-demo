@@ -143,7 +143,7 @@
     .filters{
       padding:0 16px 16px 16px;
       display:grid;
-      grid-template-columns: minmax(220px, 0.6fr) minmax(220px, 1fr) minmax(200px, 0.6fr) minmax(200px, 0.7fr) auto;
+      grid-template-columns: minmax(220px, 0.6fr) minmax(220px, 1fr) minmax(170px, 0.6fr) minmax(170px, 0.6fr) minmax(200px, 0.7fr) auto;
       gap:12px;
       align-items:end;
     }
@@ -167,6 +167,16 @@
       color:var(--muted);
       margin-bottom:6px;
       font-weight:700;
+    }
+    .label-with-icon{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+    .label-icon{
+      font-size:12px;
+      line-height:1;
+      color:#b45309;
     }
     .input, .select, .chips{
       height:34px;
@@ -389,8 +399,16 @@
           <input id="clientFilter" class="input with-icon" type="text" placeholder="Начните вводить имя клиента" autocomplete="off" />
         </div>
         <div class="field">
-          <label>Min Amount (Buy/Sell)</label>
-          <input id="amountMin" class="input" type="text" inputmode="decimal" placeholder="1 000 000.00" />
+          <label>Min Amount</label>
+          <input id="amountMin" class="input" type="text" inputmode="decimal" />
+        </div>
+        <div class="field">
+          <label><span class="label-with-icon"><span class="label-icon">💡</span>Market Touch</span></label>
+          <select id="marketTouch" class="select">
+            <option value="">All</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
         </div>
         <div class="field">
           <label>Market Exposure</label>
@@ -460,42 +478,42 @@
     const rows = [
       mkRow({pair:"USDRUB", captured:"05.06.2025, 11:15", client:'ООО "Ромашка"', valid:"06.06.2025, 09:30", sell:null, rate:77.80000, buy:15000000000, mt:"bulb", exec:"NT Pro"}),
       mkRow({pair:"USDRUB", captured:"05.06.2025, 10:25", client:'ООО "Мак"', valid:"06.06.2025, 15:10", sell:4500000, rate:78.50000, buy:null, mt:null, exec:"None"}),
-      mkRow({pair:"USDRUB", captured:"05.06.2025, 12:05", client:'ООО "Василек"', valid:"06.06.2025, 11:45", sell:300000, rate:78.13000, buy:null, mt:null, exec:"NTPro"}),
+      mkRow({pair:"USDRUB", captured:"05.06.2025, 12:05", client:'ООО "Василек"', valid:"06.06.2025, 11:45", sell:300000, rate:78.13000, buy:null, mt:null, exec:"NT Pro"}),
       mkRow({pair:"USDRUB", captured:"05.06.2025, 10:40", client:'ООО "Кактус"', valid:"05.06.2025, 16:05", sell:null, rate:77.70000, buy:17000000000, mt:null, exec:"NT Pro"}),
       mkRow({pair:"USDRUB", captured:"05.06.2025, 10:05", client:'ООО "Кактус"', valid:"05.06.2025, 14:20", sell:null, rate:77.65000, buy:30000000000, mt:null, exec:"Traders"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 10:43", client:'ООО "Ромашка"', valid:"06.06.2025, 03:15", sell:null, rate:91.00649, buy:8937869, mt:null, exec:"None"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:54", client:'ООО "Роза"', valid:"05.06.2025, 16:58", sell:null, rate:91.05002, buy:9328452, mt:null, exec:"NTPro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:54", client:'ООО "Роза"', valid:"05.06.2025, 16:58", sell:null, rate:91.05002, buy:9328452, mt:null, exec:"NT Pro"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 11:02", client:'ООО "Вербена"', valid:"06.06.2025, 16:58", sell:null, rate:91.06420, buy:10684847, mt:null, exec:"Traders"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 11:49", client:'ООО "Лотос"', valid:"05.06.2025, 21:35", sell:null, rate:91.13238, buy:19131404, mt:null, exec:"Traders"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 12:34", client:'ООО "Стрелиция"', valid:"05.06.2025, 15:27", sell:null, rate:91.17131, buy:16407133, mt:null, exec:"Traders"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 12:19", client:'ООО "Барвинок"', valid:"06.06.2025, 06:18", sell:null, rate:91.18182, buy:1680963, mt:null, exec:"None"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 11:51", client:'ООО "Ирис"', valid:"05.06.2025, 18:48", sell:null, rate:91.18865, buy:14563677, mt:null, exec:"Traders"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:58", client:'ООО "Гвоздика"', valid:"06.06.2025, 12:31", sell:null, rate:91.19684, buy:13609728, mt:null, exec:"NTPro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:58", client:'ООО "Гвоздика"', valid:"06.06.2025, 12:31", sell:null, rate:91.19684, buy:13609728, mt:null, exec:"NT Pro"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 12:55", client:'ООО "Мак"', valid:"06.06.2025, 01:19", sell:null, rate:91.22310, buy:14688301, mt:null, exec:"Traders"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 12:05", client:'ООО "Фиалка"', valid:"06.06.2025, 07:37", sell:null, rate:91.24965, buy:12801506, mt:null, exec:"Traders"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:58", client:'ООО "Лилия"', valid:"06.06.2025, 06:37", sell:null, rate:91.26462, buy:19261026, mt:null, exec:"NTPro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:58", client:'ООО "Лилия"', valid:"06.06.2025, 06:37", sell:null, rate:91.26462, buy:19261026, mt:null, exec:"NT Pro"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 11:06", client:'ООО "Тюльпан"', valid:"05.06.2025, 19:15", sell:null, rate:91.27908, buy:3539167, mt:null, exec:"None"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:55", client:'ООО "Клевер"', valid:"06.06.2025, 05:38", sell:null, rate:91.28574, buy:4785216, mt:null, exec:"NTPro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:55", client:'ООО "Клевер"', valid:"06.06.2025, 05:38", sell:null, rate:91.28574, buy:4785216, mt:null, exec:"NT Pro"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 12:46", client:'ООО "Настурция"', valid:"05.06.2025, 20:01", sell:null, rate:91.30568, buy:5520686, mt:null, exec:"None"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 11:32", client:'ООО "Орхидея"', valid:"05.06.2025, 21:40", sell:null, rate:91.31096, buy:11394238, mt:null, exec:"NTPro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 11:32", client:'ООО "Орхидея"', valid:"05.06.2025, 21:40", sell:null, rate:91.31096, buy:11394238, mt:null, exec:"NT Pro"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 12:53", client:'ООО "Гладиолус"', valid:"06.06.2025, 02:11", sell:null, rate:91.32531, buy:12020906, mt:null, exec:"Traders"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 11:49", client:'ООО "Астра"', valid:"05.06.2025, 13:58", sell:null, rate:91.32927, buy:172322, mt:null, exec:"NTPro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 11:49", client:'ООО "Астра"', valid:"05.06.2025, 13:58", sell:null, rate:91.32927, buy:172322, mt:null, exec:"NT Pro"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 12:46", client:'ООО "Гиацинт"', valid:"06.06.2025, 11:54", sell:null, rate:91.34228, buy:8314491, mt:null, exec:"None"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 12:16", client:'ООО "Василек"', valid:"06.06.2025, 16:02", sell:null, rate:91.35730, buy:3670554, mt:null, exec:"None"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:12", client:'ООО "Гиацинт"', valid:"05.06.2025, 17:52", sell:null, rate:91.37980, buy:7404829, mt:null, exec:"NTPro"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:08", client:'ООО "Пион"', valid:"05.06.2025, 13:33", sell:null, rate:91.43728, buy:17056909, mt:null, exec:"NTPro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:12", client:'ООО "Гиацинт"', valid:"05.06.2025, 17:52", sell:null, rate:91.37980, buy:7404829, mt:null, exec:"NT Pro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:08", client:'ООО "Пион"', valid:"05.06.2025, 13:33", sell:null, rate:91.43728, buy:17056909, mt:null, exec:"NT Pro"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 11:39", client:'ООО "Ранункулюс"', valid:"05.06.2025, 22:51", sell:null, rate:91.47890, buy:8182309, mt:"bulb", exec:"Traders"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:37", client:'ООО "Пион"', valid:"06.06.2025, 05:50", sell:null, rate:91.48599, buy:15970338, mt:"bulb", exec:"NTPro"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 11:33", client:'ООО "Нарцисс"', valid:"06.06.2025, 09:33", sell:1557954, rate:91.52904, buy:null, mt:"bulb", exec:"NTPro"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:57", client:'ООО "Жасмин"', valid:"06.06.2025, 11:22", sell:2495870, rate:91.53396, buy:null, mt:null, exec:"NTPro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:37", client:'ООО "Пион"', valid:"06.06.2025, 05:50", sell:null, rate:91.48599, buy:15970338, mt:"bulb", exec:"NT Pro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 11:33", client:'ООО "Нарцисс"', valid:"06.06.2025, 09:33", sell:1557954, rate:91.52904, buy:null, mt:"bulb", exec:"NT Pro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:57", client:'ООО "Жасмин"', valid:"06.06.2025, 11:22", sell:2495870, rate:91.53396, buy:null, mt:null, exec:"NT Pro"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 12:20", client:'ООО "Тюльпан"', valid:"05.06.2025, 21:01", sell:16387807, rate:91.55695, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 11:55", client:'ООО "Нарцисс"', valid:"05.06.2025, 18:37", sell:8482113, rate:91.55709, buy:null, mt:null, exec:"Traders"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 11:02", client:'ООО "Камелия"', valid:"06.06.2025, 15:12", sell:2777374, rate:91.57878, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 10:21", client:'ООО "Гербера"', valid:"06.06.2025, 06:28", sell:12234457, rate:91.58636, buy:null, mt:null, exec:"Traders"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 10:59", client:'ООО "Календула"', valid:"06.06.2025, 11:56", sell:1976966, rate:91.64857, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 11:01", client:'ООО "Космея"', valid:"05.06.2025, 13:22", sell:19840364, rate:91.67617, buy:null, mt:null, exec:"Traders"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:44", client:'ООО "Сирень"', valid:"06.06.2025, 03:35", sell:18788132, rate:91.75891, buy:null, mt:null, exec:"NTPro"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:27", client:'ООО "Лаванда"', valid:"05.06.2025, 13:51", sell:12145349, rate:91.75985, buy:null, mt:null, exec:"NTPro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:44", client:'ООО "Сирень"', valid:"06.06.2025, 03:35", sell:18788132, rate:91.75891, buy:null, mt:null, exec:"NT Pro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:27", client:'ООО "Лаванда"', valid:"05.06.2025, 13:51", sell:12145349, rate:91.75985, buy:null, mt:null, exec:"NT Pro"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 11:03", client:'ООО "Астра"', valid:"05.06.2025, 14:45", sell:15313925, rate:91.76025, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 12:42", client:'ООО "Кампанула"', valid:"05.06.2025, 15:02", sell:15805148, rate:91.76953, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 11:36", client:'ООО "Хризантема"', valid:"06.06.2025, 03:03", sell:1917683, rate:91.82220, buy:null, mt:null, exec:"None"}),
@@ -503,7 +521,7 @@
       mkRow({pair:"EURRUB", captured:"05.06.2025, 11:59", client:'ООО "Бузина"', valid:"06.06.2025, 06:51", sell:8418332, rate:91.90297, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 10:35", client:'ООО "Цикламен"', valid:"06.06.2025, 10:37", sell:18548347, rate:91.95056, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 10:45", client:'ООО "Камелия"', valid:"06.06.2025, 01:34", sell:7272169, rate:91.97128, buy:null, mt:null, exec:"None"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:43", client:'ООО "Примула"', valid:"06.06.2025, 00:32", sell:3853657, rate:91.97721, buy:null, mt:null, exec:"NTPro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:43", client:'ООО "Примула"', valid:"06.06.2025, 00:32", sell:3853657, rate:91.97721, buy:null, mt:null, exec:"NT Pro"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 10:45", client:'ООО "Шафран"', valid:"05.06.2025, 20:25", sell:14298153, rate:92.05535, buy:null, mt:null, exec:"Traders"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 10:18", client:'ООО "Фрезия"', valid:"06.06.2025, 14:01", sell:4319822, rate:92.06541, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 10:52", client:'ООО "Лаванда"', valid:"05.06.2025, 17:48", sell:4803737, rate:92.07257, buy:null, mt:null, exec:"None"}),
@@ -511,53 +529,53 @@
       mkRow({pair:"EURRUB", captured:"05.06.2025, 11:07", client:'ООО "Крокус"', valid:"06.06.2025, 14:15", sell:8916145, rate:92.12274, buy:null, mt:null, exec:"Traders"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 12:31", client:'ООО "Лотос"', valid:"05.06.2025, 20:54", sell:341284, rate:92.17688, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 12:28", client:'ООО "Лилия"', valid:"05.06.2025, 15:39", sell:1166449, rate:92.18099, buy:null, mt:null, exec:"None"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:29", client:'ООО "Гортензия"', valid:"05.06.2025, 16:04", sell:14265337, rate:92.25489, buy:null, mt:null, exec:"NTPro"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:19", client:'ООО "Мята"', valid:"06.06.2025, 12:06", sell:7782011, rate:92.26221, buy:null, mt:null, exec:"NTPro"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:26", client:'ООО "Гербера"', valid:"05.06.2025, 12:18", sell:18239121, rate:92.30429, buy:null, mt:null, exec:"NTPro"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 11:25", client:'ООО "Подсолнух"', valid:"05.06.2025, 19:11", sell:13375203, rate:92.31088, buy:null, mt:null, exec:"NTPro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:29", client:'ООО "Гортензия"', valid:"05.06.2025, 16:04", sell:14265337, rate:92.25489, buy:null, mt:null, exec:"NT Pro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:19", client:'ООО "Мята"', valid:"06.06.2025, 12:06", sell:7782011, rate:92.26221, buy:null, mt:null, exec:"NT Pro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:26", client:'ООО "Гербера"', valid:"05.06.2025, 12:18", sell:18239121, rate:92.30429, buy:null, mt:null, exec:"NT Pro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 11:25", client:'ООО "Подсолнух"', valid:"05.06.2025, 19:11", sell:13375203, rate:92.31088, buy:null, mt:null, exec:"NT Pro"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 11:17", client:'ООО "Жасмин"', valid:"06.06.2025, 02:42", sell:18748490, rate:92.39318, buy:null, mt:null, exec:"None"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:37", client:'ООО "Магнолия"', valid:"05.06.2025, 19:38", sell:1637611, rate:92.40914, buy:null, mt:null, exec:"NTPro"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:57", client:'ООО "Эдельвейс"', valid:"06.06.2025, 06:36", sell:6849509, rate:92.51053, buy:null, mt:null, exec:"NTPro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:37", client:'ООО "Магнолия"', valid:"05.06.2025, 19:38", sell:1637611, rate:92.40914, buy:null, mt:null, exec:"NT Pro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 10:57", client:'ООО "Эдельвейс"', valid:"06.06.2025, 06:36", sell:6849509, rate:92.51053, buy:null, mt:null, exec:"NT Pro"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 10:01", client:'ООО "Гвоздика"', valid:"06.06.2025, 13:40", sell:14280586, rate:92.61164, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 10:20", client:'ООО "Фиалка"', valid:"06.06.2025, 02:29", sell:18565853, rate:92.61604, buy:null, mt:null, exec:"None"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:50", client:'ООО "Одуванчик"', valid:"05.06.2025, 23:43", sell:17134339, rate:92.68334, buy:null, mt:null, exec:"NTPro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:50", client:'ООО "Одуванчик"', valid:"05.06.2025, 23:43", sell:17134339, rate:92.68334, buy:null, mt:null, exec:"NT Pro"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 10:18", client:'ООО "Роза"', valid:"05.06.2025, 11:28", sell:2477578, rate:92.71927, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 11:32", client:'ООО "Орхидея"', valid:"06.06.2025, 16:42", sell:8443522, rate:92.72335, buy:null, mt:null, exec:"Traders"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 10:31", client:'ООО "Ландыш"', valid:"06.06.2025, 11:21", sell:9053167, rate:92.76958, buy:null, mt:null, exec:"None"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:39", client:'ООО "Анемона"', valid:"06.06.2025, 04:16", sell:13501657, rate:92.79565, buy:null, mt:null, exec:"NTPro"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:27", client:'ООО "Петуния"', valid:"06.06.2025, 16:49", sell:119189, rate:92.84487, buy:null, mt:null, exec:"NTPro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:39", client:'ООО "Анемона"', valid:"06.06.2025, 04:16", sell:13501657, rate:92.79565, buy:null, mt:null, exec:"NT Pro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 12:27", client:'ООО "Петуния"', valid:"06.06.2025, 16:49", sell:119189, rate:92.84487, buy:null, mt:null, exec:"NT Pro"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 10:04", client:'ООО "Магнолия"', valid:"05.06.2025, 13:28", sell:8031579, rate:92.85273, buy:null, mt:null, exec:"Traders"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 11:46", client:'ООО "Гладиолус"', valid:"05.06.2025, 21:26", sell:15367547, rate:92.85304, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 12:24", client:'ООО "Колокольчик"', valid:"05.06.2025, 21:34", sell:485239, rate:92.94216, buy:null, mt:null, exec:"None"}),
-      mkRow({pair:"EURRUB", captured:"05.06.2025, 11:25", client:'ООО "Альстромерия"', valid:"06.06.2025, 01:57", sell:12629912, rate:92.99030, buy:null, mt:null, exec:"NTPro"}),
+      mkRow({pair:"EURRUB", captured:"05.06.2025, 11:25", client:'ООО "Альстромерия"', valid:"06.06.2025, 01:57", sell:12629912, rate:92.99030, buy:null, mt:null, exec:"NT Pro"}),
       mkRow({pair:"EURRUB", captured:"05.06.2025, 11:38", client:'ООО "Бегония"', valid:"05.06.2025, 19:38", sell:4741643, rate:92.99465, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:02", client:'ООО "Роза"', valid:"05.06.2025, 12:10", sell:null, rate:11.00250, buy:5500000, mt:null, exec:"None"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:08", client:'ООО "Лилия"', valid:"05.06.2025, 16:40", sell:null, rate:11.02500, buy:25000000, mt:null, exec:"Traders"}),
-      mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:15", client:'ООО "Тюльпан"', valid:"05.06.2025, 13:55", sell:null, rate:11.04750, buy:1200000, mt:null, exec:"NTPro"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:15", client:'ООО "Тюльпан"', valid:"05.06.2025, 13:55", sell:null, rate:11.04750, buy:1200000, mt:null, exec:"NT Pro"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:22", client:'ООО "Орхидея"', valid:"06.06.2025, 09:20", sell:null, rate:11.06000, buy:80000000, mt:null, exec:"Traders"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:29", client:'ООО "Пион"', valid:"05.06.2025, 14:05", sell:null, rate:11.07250, buy:15500000, mt:null, exec:"None"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:34", client:'ООО "Лаванда"', valid:"06.06.2025, 11:30", sell:null, rate:11.08500, buy:35000000, mt:null, exec:"Traders"}),
-      mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:41", client:'ООО "Жасмин"', valid:"05.06.2025, 15:25", sell:null, rate:11.09750, buy:900000, mt:null, exec:"NTPro"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:41", client:'ООО "Жасмин"', valid:"05.06.2025, 15:25", sell:null, rate:11.09750, buy:900000, mt:null, exec:"NT Pro"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:47", client:'ООО "Гербера"', valid:"06.06.2025, 13:15", sell:null, rate:11.11000, buy:60000000, mt:null, exec:"Traders"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:53", client:'ООО "Астра"', valid:"05.06.2025, 17:00", sell:null, rate:11.12250, buy:12300000, mt:null, exec:"None"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 10:58", client:'ООО "Фиалка"', valid:"06.06.2025, 08:40", sell:null, rate:11.13500, buy:22500000, mt:null, exec:"Traders"}),
-      mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:05", client:'ООО "Камелия"', valid:"05.06.2025, 12:45", sell:null, rate:11.14000, buy:18000000, mt:null, exec:"NTPro"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:05", client:'ООО "Камелия"', valid:"05.06.2025, 12:45", sell:null, rate:11.14000, buy:18000000, mt:null, exec:"NT Pro"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:12", client:'ООО "Гвоздика"', valid:"06.06.2025, 16:10", sell:null, rate:11.14250, buy:42000000, mt:null, exec:"Traders"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:18", client:'ООО "Хризантема"', valid:"05.06.2025, 18:20", sell:null, rate:11.14500, buy:7000000, mt:null, exec:"None"}),
-      mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:23", client:'ООО "Ирис"', valid:"06.06.2025, 10:05", sell:null, rate:11.14750, buy:19500000, mt:"bulb", exec:"NTPro"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:23", client:'ООО "Ирис"', valid:"06.06.2025, 10:05", sell:null, rate:11.14750, buy:19500000, mt:"bulb", exec:"NT Pro"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:28", client:'ООО "Лотос"', valid:"06.06.2025, 14:30", sell:30000000, rate:11.15250, buy:null, mt:"bulb", exec:"Traders"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:34", client:'ООО "Нарцисс"', valid:"05.06.2025, 16:05", sell:8500000, rate:11.16500, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:39", client:'ООО "Гиацинт"', valid:"06.06.2025, 09:55", sell:55000000, rate:11.17750, buy:null, mt:null, exec:"Traders"}),
-      mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:45", client:'ООО "Крокус"', valid:"05.06.2025, 19:10", sell:14000000, rate:11.19000, buy:null, mt:null, exec:"NTPro"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:45", client:'ООО "Крокус"', valid:"05.06.2025, 19:10", sell:14000000, rate:11.19000, buy:null, mt:null, exec:"NT Pro"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:50", client:'ООО "Подсолнух"', valid:"06.06.2025, 15:40", sell:26000000, rate:11.20250, buy:null, mt:null, exec:"Traders"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 11:56", client:'ООО "Бегония"', valid:"06.06.2025, 17:00", sell:100000000, rate:11.21500, buy:null, mt:null, exec:"Traders"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:02", client:'ООО "Календула"', valid:"05.06.2025, 16:50", sell:3000000, rate:11.22750, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:07", client:'ООО "Сирень"', valid:"06.06.2025, 12:20", sell:48000000, rate:11.24000, buy:null, mt:null, exec:"Traders"}),
-      mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:12", client:'ООО "Магнолия"', valid:"05.06.2025, 18:45", sell:18500000, rate:11.25250, buy:null, mt:null, exec:"NTPro"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:12", client:'ООО "Магнолия"', valid:"05.06.2025, 18:45", sell:18500000, rate:11.25250, buy:null, mt:null, exec:"NT Pro"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:18", client:'ООО "Ландыш"', valid:"06.06.2025, 07:25", sell:21000000, rate:11.26500, buy:null, mt:null, exec:"Traders"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:24", client:'ООО "Колокольчик"', valid:"05.06.2025, 15:55", sell:6500000, rate:11.27750, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:31", client:'ООО "Примула"', valid:"06.06.2025, 11:05", sell:32000000, rate:11.29000, buy:null, mt:null, exec:"Traders"}),
-      mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:37", client:'ООО "Анемона"', valid:"05.06.2025, 19:35", sell:16200000, rate:11.29750, buy:null, mt:null, exec:"NTPro"}),
+      mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:37", client:'ООО "Анемона"', valid:"05.06.2025, 19:35", sell:16200000, rate:11.29750, buy:null, mt:null, exec:"NT Pro"}),
       mkRow({pair:"CNYRUB", captured:"05.06.2025, 12:44", client:'ООО "Петуния"', valid:"06.06.2025, 13:50", sell:45000000, rate:11.30000, buy:null, mt:null, exec:"Traders"}),
       mkRow({pair:"USDRUB", captured:"05.06.2025, 12:50", client:'ООО "Одуванчик"', valid:"06.06.2025, 16:20", sell:10000000, rate:78.20000, buy:null, mt:null, exec:"Traders"}),
     ];
@@ -577,6 +595,7 @@
     const resultHint = document.getElementById('resultHint');
     const clientFilterInput = document.getElementById('clientFilter');
     const amountMinInput = document.getElementById('amountMin');
+    const marketTouchSelect = document.getElementById('marketTouch');
     const marketExposureSelect = document.getElementById('marketExposure');
 
     let activePair = pairCodes[0];
@@ -641,6 +660,10 @@
       return Math.max(sell, buy) >= minAmount;
     }
 
+    function isMarketTouch(r){
+      return r.mt === "bulb";
+    }
+
     function renderTable(){
       tbody.innerHTML = "";
       filtered.forEach(r => {
@@ -671,13 +694,17 @@
       }
       const clientNeedle = clientFilterInput.value.trim().toLowerCase();
       const minAmount = parseAmount(amountMinInput.value);
+      const marketTouchNeedle = marketTouchSelect.value;
       const exposureNeedle = marketExposureSelect.value;
       filtered = rows.filter(r => {
         const okPair = r.pair === activePair;
         const okClient = !clientNeedle || r.client.toLowerCase().includes(clientNeedle);
         const okAmount = isRowAboveMin(r, minAmount);
+        const okTouch = !marketTouchNeedle
+          || (marketTouchNeedle === "yes" && isMarketTouch(r))
+          || (marketTouchNeedle === "no" && !isMarketTouch(r));
         const okExposure = !exposureNeedle || r.exec === exposureNeedle;
-        return okPair && okClient && okAmount && okExposure;
+        return okPair && okClient && okAmount && okTouch && okExposure;
       });
       filtered.sort((a, b) => a.rate - b.rate);
 
@@ -688,11 +715,13 @@
     document.getElementById('searchBtn').addEventListener('click', applyFilters);
     clientFilterInput.addEventListener('input', applyFilters);
     amountMinInput.addEventListener('input', applyFilters);
+    marketTouchSelect.addEventListener('change', applyFilters);
     marketExposureSelect.addEventListener('change', applyFilters);
     document.getElementById('resetBtn').addEventListener('click', () => {
       document.getElementById('createDate').value = "";
       clientFilterInput.value = "";
       amountMinInput.value = "";
+      marketTouchSelect.value = "";
       marketExposureSelect.value = "";
       applyFilters();
     });
