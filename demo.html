@@ -293,6 +293,10 @@
       grid-template-columns: 220px 1fr;
       min-height:520px;
     }
+    /* When Blotter view is active: sidebar hidden, content full width */
+    .content.no-sidebar{
+      grid-template-columns: 1fr;
+    }
     .main{
       padding:12px;
       display:flex;
@@ -559,7 +563,7 @@
 
       <div class="content">
         <!-- Left sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="currencySidebar">
           <div class="side-title">
             <span class="section-title">Currency Pair</span>
             <span class="icon" title="Refresh">⟳</span>
@@ -929,14 +933,31 @@
       applyFilters();
     });
 
-    // ------- Toggle "Show all Orders" -------
+    // ------- Toggle: Switch to Order Blotter -------
     const toggleAll = document.getElementById('toggleAll');
+    const contentEl = document.querySelector('.content');
+    const currencySidebar = document.getElementById('currencySidebar');
+
+    function setViewMode(isBlotter){
+      // UI switch state
+      toggleAll.classList.toggle('on', isBlotter);
+      toggleAll.setAttribute('aria-checked', isBlotter ? "true" : "false");
+
+      // Layout: show/hide sidebar + stretch main area
+      currencySidebar.classList.toggle('hidden', isBlotter);
+      contentEl.classList.toggle('no-sidebar', isBlotter);
+
+      // На этом шаге мы пока НЕ меняем таблицу/фильтры.
+      // Следующим шагом добавим второй набор (Blotter filters + Blotter table) и будем переключать их здесь же.
+    }
+
     toggleAll.addEventListener('click', () => {
-      toggleAll.classList.toggle('on');
-      const on = toggleAll.classList.contains('on');
-      toggleAll.setAttribute('aria-checked', on ? "true" : "false");
-      // demo: no extra behavior, but can be wired to fetch/filter
+      const isBlotter = !toggleAll.classList.contains('on');
+      setViewMode(isBlotter);
     });
+
+    // Init: по умолчанию Monitor (switch OFF)
+    setViewMode(false);
 
     // Init
     renderExposureOptions();
