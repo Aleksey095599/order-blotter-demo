@@ -575,95 +575,112 @@
 
         <!-- Table -->
         <section class="main">
-          <section class="filters-panel" aria-label="Filters">
-            <div class="filters-header">
-              <span class="section-title">Filters</span>
-            </div>
-            <div class="filters-grid">
-              <div class="field">
-                <label>Capture Date</label>
-                <input id="createDate" class="input" type="date" />
+          <div id="monitorView">
+            <section class="filters-panel" aria-label="Filters">
+              <div class="filters-header">
+                <span class="section-title">Filters</span>
               </div>
-              <div class="field has-icon">
-                <label>Client</label>
-                <span class="field-icon">🔎</span>
-                <input id="clientFilter" class="input with-icon" type="text" placeholder="Start typing a client name" autocomplete="off" />
-              </div>
-              <div class="field">
-                <label>Min Amount</label>
-                <input id="amountMin" class="input" type="text" inputmode="decimal" />
-              </div>
-              <div class="field">
-                <label><span class="label-with-icon"><span class="label-icon">💡</span>Market Touch</span></label>
-                <select id="marketTouch" class="select">
-                  <option value="">All</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
-              </div>
-              <div class="field">
-                <label>Market Exposure</label>
-                <select id="marketExposure" class="select">
-                  <option value="">All</option>
-                </select>
-              </div>
+              <div class="filters-grid">
+                <div class="field">
+                  <label>Capture Date</label>
+                  <input id="createDate" class="input" type="date" />
+                </div>
+                <div class="field has-icon">
+                  <label>Client</label>
+                  <span class="field-icon">🔎</span>
+                  <input id="clientFilter" class="input with-icon" type="text" placeholder="Start typing a client name" autocomplete="off" />
+                </div>
+                <div class="field">
+                  <label>Min Amount</label>
+                  <input id="amountMin" class="input" type="text" inputmode="decimal" />
+                </div>
+                <div class="field">
+                  <label><span class="label-with-icon"><span class="label-icon">💡</span>Market Touch</span></label>
+                  <select id="marketTouch" class="select">
+                    <option value="">All</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Market Exposure</label>
+                  <select id="marketExposure" class="select">
+                    <option value="">All</option>
+                  </select>
+                </div>
 
-              <div class="filter-actions">
-                <button class="btn small" id="resetBtn">Reset</button>
-                <button class="btn small primary" id="searchBtn">Search</button>
+                <div class="filter-actions">
+                  <button class="btn small" id="resetBtn">Reset</button>
+                  <button class="btn small primary" id="searchBtn">Search</button>
+                </div>
+              </div>
+            </section>
+
+            <section class="toolbar-panel" aria-label="Order Toolbar">
+              <div class="toolbar-header">
+                <span class="section-title">Order Toolbar:</span>
+                <span class="section-subtitle">actions for selected rows</span>
+              </div>
+              <div class="tablebar">
+                <button class="btn toolbar primary" id="newOrderBtn">＋ New Order</button>
+                <button class="btn toolbar ghost" type="button">Convert to Deal</button>
+                <button class="btn toolbar ghost" type="button">Send to NT Pro</button>
+                <button class="btn toolbar ghost" type="button">Send to NT Pro 2</button>
+                <button class="btn toolbar danger" type="button">Cancel Order</button>
+              </div>
+            </section>
+
+            <div class="table-wrap">
+              <table class="orders-table">
+                <colgroup>
+                  <col class="col-checkbox" />
+                  <col class="col-captured" />
+                  <col class="col-client" />
+                  <col class="col-valid" />
+                  <col class="col-sell" />
+                  <col class="col-rate" />
+                  <col class="col-touch" />
+                  <col class="col-buy" />
+                  <col class="col-exposure" />
+                  <col class="col-actions" />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th class="checkbox fixed-center"><span class="sr-only">Select</span></th>
+                    <th class="fixed-center">Capture Date</th>
+                    <th>Client</th>
+                    <th class="fixed-center">Valid Till</th>
+                    <th class="num">Sell Amount</th>
+                    <th class="num">Rate</th>
+                    <th class="touch-col">
+                      <span class="header-icon tooltip-target" data-tooltip="Market Touch Indicator" aria-hidden="true">💡</span>
+                      <span class="sr-only">Market Touch Indicator</span>
+                    </th>
+                    <th class="num">Buy Amount</th>
+                    <th>Market Exposure</th>
+                    <th class="kebab"><span class="sr-only">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody id="tbody">
+                  <!-- rows by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="blotterView" class="hidden">
+            <section class="filters-panel" aria-label="Blotter Filters">
+              <div class="filters-header">
+                <span class="section-title">Filters</span>
+              </div>
+              <div class="section-subtitle">Blotter mode — placeholder</div>
+            </section>
+
+            <div class="table-wrap">
+              <div style="padding:12px;color:var(--muted);background:#fff;border-radius:12px;">
+                Здесь будет полная таблица order_blotter и фильтры по всем колонкам.
               </div>
             </div>
-          </section>
-
-          <section class="toolbar-panel" aria-label="Order Toolbar">
-            <div class="toolbar-header">
-              <span class="section-title">Order Toolbar:</span>
-              <span class="section-subtitle">actions for selected rows</span>
-            </div>
-            <div class="tablebar">
-              <button class="btn toolbar primary" id="newOrderBtn">＋ New Order</button>
-              <button class="btn toolbar ghost" type="button">Convert to Deal</button>
-              <button class="btn toolbar ghost" type="button">Send to NT Pro</button>
-              <button class="btn toolbar ghost" type="button">Send to NT Pro 2</button>
-              <button class="btn toolbar danger" type="button">Cancel Order</button>
-            </div>
-          </section>
-
-          <div class="table-wrap">
-            <table class="orders-table">
-              <colgroup>
-                <col class="col-checkbox" />
-                <col class="col-captured" />
-                <col class="col-client" />
-                <col class="col-valid" />
-                <col class="col-sell" />
-                <col class="col-rate" />
-                <col class="col-touch" />
-                <col class="col-buy" />
-                <col class="col-exposure" />
-                <col class="col-actions" />
-              </colgroup>
-              <thead>
-                <tr>
-                  <th class="checkbox fixed-center"><span class="sr-only">Select</span></th>
-                  <th class="fixed-center">Capture Date</th>
-                  <th>Client</th>
-                  <th class="fixed-center">Valid Till</th>
-                  <th class="num">Sell Amount</th>
-                  <th class="num">Rate</th>
-                  <th class="touch-col">
-                    <span class="header-icon tooltip-target" data-tooltip="Market Touch Indicator" aria-hidden="true">💡</span>
-                    <span class="sr-only">Market Touch Indicator</span>
-                  </th>
-                  <th class="num">Buy Amount</th>
-                  <th>Market Exposure</th>
-                  <th class="kebab"><span class="sr-only">Actions</span></th>
-                </tr>
-              </thead>
-              <tbody id="tbody">
-                <!-- rows by JS -->
-              </tbody>
-            </table>
           </div>
         </section>
       </div>
@@ -937,6 +954,8 @@
     const toggleAll = document.getElementById('toggleAll');
     const contentEl = document.querySelector('.content');
     const currencySidebar = document.getElementById('currencySidebar');
+    const monitorView = document.getElementById('monitorView');
+    const blotterView = document.getElementById('blotterView');
 
     function setViewMode(isBlotter){
       // UI switch state
@@ -947,8 +966,8 @@
       currencySidebar.classList.toggle('hidden', isBlotter);
       contentEl.classList.toggle('no-sidebar', isBlotter);
 
-      // На этом шаге мы пока НЕ меняем таблицу/фильтры.
-      // Следующим шагом добавим второй набор (Blotter filters + Blotter table) и будем переключать их здесь же.
+      monitorView.classList.toggle('hidden', isBlotter);
+      blotterView.classList.toggle('hidden', !isBlotter);
     }
 
     toggleAll.addEventListener('click', () => {
