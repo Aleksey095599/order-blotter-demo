@@ -368,7 +368,18 @@
       border-spacing:0;
       min-width:980px;
       font-size:13px;
+      table-layout:fixed;
     }
+    col.col-checkbox{width:36px}
+    col.col-captured{width:150px}
+    col.col-client{width:180px}
+    col.col-valid{width:150px}
+    col.col-sell{width:130px}
+    col.col-rate{width:100px}
+    col.col-touch{width:36px}
+    col.col-buy{width:130px}
+    col.col-exposure{width:150px}
+    col.col-actions{width:36px}
     thead th{
       position:sticky;
       top:0;
@@ -396,6 +407,11 @@
       color:#111827;
       vertical-align:middle;
     }
+    thead th,
+    tbody td{
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
     tbody tr{background:#fff}
     tbody tr:hover{background:#fafafa}
     .num{font-variant-numeric:tabular-nums; text-align:right}
@@ -406,6 +422,40 @@
       text-align:center;
       padding-left:6px;
       padding-right:6px;
+    }
+    .touch-col .header-icon{
+      font-size:14px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    thead th.resizable{
+      position:relative;
+      padding-right:18px;
+    }
+    .col-resizer{
+      position:absolute;
+      top:0;
+      right:-3px;
+      width:6px;
+      height:100%;
+      cursor:col-resize;
+      user-select:none;
+      touch-action:none;
+    }
+    .col-resizer::after{
+      content:"";
+      position:absolute;
+      left:2px;
+      top:8px;
+      bottom:8px;
+      width:1px;
+      background:var(--line2);
+      opacity:0;
+      transition:opacity .12s ease;
+    }
+    thead th.resizable:hover .col-resizer::after{
+      opacity:1;
     }
     .kebab{
       width:34px;
@@ -594,19 +644,35 @@
           </section>
 
           <div class="table-wrap">
-            <table>
+            <table class="orders-table">
+              <colgroup>
+                <col class="col-checkbox" />
+                <col class="col-captured" />
+                <col class="col-client" />
+                <col class="col-valid" />
+                <col class="col-sell" />
+                <col class="col-rate" />
+                <col class="col-touch" />
+                <col class="col-buy" />
+                <col class="col-exposure" />
+                <col class="col-actions" />
+              </colgroup>
               <thead>
                 <tr>
-                  <th class="checkbox"></th>
-                  <th>Capture Date</th>
-                  <th>Client</th>
-                  <th>Valid Till</th>
-                  <th class="num">Sell Amount</th>
-                  <th class="num">Rate</th>
-                  <th class="touch-col tooltip-target" data-tooltip="Market Touch Indicator"><span class="sr-only">Market Touch Indicator</span></th>
-                  <th class="num">Buy Amount</th>
-                  <th>Market Exposure</th>
-                  <th class="kebab"></th>
+                  <th class="checkbox resizable" data-min-width="32"><span class="sr-only">Select</span><span class="col-resizer" aria-hidden="true"></span></th>
+                  <th class="resizable" data-min-width="120">Capture Date<span class="col-resizer" aria-hidden="true"></span></th>
+                  <th class="resizable" data-min-width="140">Client<span class="col-resizer" aria-hidden="true"></span></th>
+                  <th class="resizable" data-min-width="120">Valid Till<span class="col-resizer" aria-hidden="true"></span></th>
+                  <th class="num resizable" data-min-width="110">Sell Amount<span class="col-resizer" aria-hidden="true"></span></th>
+                  <th class="num resizable" data-min-width="90">Rate<span class="col-resizer" aria-hidden="true"></span></th>
+                  <th class="touch-col tooltip-target resizable" data-tooltip="Market Touch Indicator" data-min-width="32">
+                    <span class="header-icon" aria-hidden="true">💡</span>
+                    <span class="sr-only">Market Touch Indicator</span>
+                    <span class="col-resizer" aria-hidden="true"></span>
+                  </th>
+                  <th class="num resizable" data-min-width="110">Buy Amount<span class="col-resizer" aria-hidden="true"></span></th>
+                  <th class="resizable" data-min-width="130">Market Exposure<span class="col-resizer" aria-hidden="true"></span></th>
+                  <th class="kebab"><span class="sr-only">Actions</span></th>
                 </tr>
               </thead>
               <tbody id="tbody">
@@ -842,6 +908,43 @@
       });
     }
 
+    function setupColumnResizing(){
+      const table = document.querySelector('.orders-table');
+      if (!table) return;
+      const cols = Array.from(table.querySelectorAll('colgroup col'));
+      const headerCells = Array.from(table.querySelectorAll('thead th'));
+
+      headerCells.forEach((th, index) => {
+        const resizer = th.querySelector('.col-resizer');
+        if (!resizer || !cols[index]) return;
+
+        let startX = 0;
+        let startWidth = 0;
+
+        const onMouseMove = event => {
+          const delta = event.pageX - startX;
+          const minWidth = Number(th.dataset.minWidth) || 80;
+          const nextWidth = Math.max(minWidth, startWidth + delta);
+          cols[index].style.width = `${nextWidth}px`;
+        };
+
+        const onMouseUp = () => {
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
+          document.body.style.cursor = "";
+        };
+
+        resizer.addEventListener('mousedown', event => {
+          event.preventDefault();
+          startX = event.pageX;
+          startWidth = cols[index].getBoundingClientRect().width;
+          document.body.style.cursor = "col-resize";
+          document.addEventListener('mousemove', onMouseMove);
+          document.addEventListener('mouseup', onMouseUp);
+        });
+      });
+    }
+
     // ------- Filters -------
     function applyFilters(){
       if (!activePair) {
@@ -893,6 +996,7 @@
     // Init
     renderExposureOptions();
     applyFilters();
+    setupColumnResizing();
   </script>
 </body>
 </html>
