@@ -609,7 +609,12 @@
             <section class="filters-panel" aria-label="Filters">
               <div class="filters-header">
                 <span class="section-title">Filters</span>
+
+                <div class="filter-actions">
+                  <button class="btn small primary" id="searchBtn">Search</button>
+                </div>
               </div>
+              <div class="filters-split-label">Search fields</div>
               <div class="filters-grid">
                 <div class="field">
                   <label>Capture Date</label>
@@ -638,11 +643,18 @@
                     <option value="">All</option>
                   </select>
                 </div>
+              </div>
+              <div class="filters-divider"></div>
 
-                <div class="filter-actions">
-                  <button class="btn small" id="resetBtn">Reset</button>
-                  <button class="btn small primary" id="searchBtn">Search</button>
-                </div>
+              <div class="filters-split-label">Active filters</div>
+
+              <div class="active-filters-row">
+                <input id="monitorActiveFilters"
+                       class="input active-filters-input"
+                       type="text"
+                       readonly
+                       value="No filters applied" />
+                <button class="btn small" id="resetBtn">Clear all filters</button>
               </div>
             </section>
 
@@ -981,6 +993,7 @@
     const amountMinInput = document.getElementById('amountMin');
     const marketTouchSelect = document.getElementById('marketTouch');
     const marketExposureSelect = document.getElementById('marketExposure');
+    const monitorActiveFilters = document.getElementById('monitorActiveFilters');
     const blCaptureDate = document.getElementById('blCaptureDate');
     const blPair = document.getElementById('blPair');
     const blCreatedBy = document.getElementById('blCreatedBy');
@@ -1333,6 +1346,29 @@
       renderBlotterTable(filteredBlotter);
     }
 
+    function updateMonitorActiveFiltersSummary(){
+      if (!monitorActiveFilters) return;
+
+      const parts = [];
+
+      if (activePair) parts.push(`Currency Pair=${activePair}`);
+
+      const clientRaw = clientFilterInput.value.trim();
+      if (clientRaw) parts.push(`Client~"${clientRaw}"`);
+
+      const minAmount = parseAmount(amountMinInput.value);
+      if (minAmount) parts.push(`Min Amount≥${fmtNum(minAmount)}`);
+
+      const touch = marketTouchSelect.value;
+      if (touch) parts.push(`Market Touch=${touch === "yes" ? "Yes" : "No"}`);
+
+      const exposure = marketExposureSelect.value;
+      if (exposure) parts.push(`Market Exposure=${exposure}`);
+
+      const summary = parts.length ? parts.join(" | ") : "No filters applied";
+      monitorActiveFilters.value = summary;
+      monitorActiveFilters.title = summary;
+    }
 
     // ------- Filters -------
     function applyFilters(){
@@ -1357,6 +1393,7 @@
 
       renderPairs();
       renderTable();
+      updateMonitorActiveFiltersSummary();
     }
 
     document.getElementById('searchBtn').addEventListener('click', applyFilters);
