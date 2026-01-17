@@ -1056,13 +1056,14 @@
     let activePair = pairCodes[0];
     let filtered = [...rows];
     const exposureOptions = [...new Set(rows.map(row => row.exec).filter(Boolean))];
+    // Column filters now support multi-select (Set). Empty Set = "All"
     const blotterColFilters = {
-      pair: "",
-      createdBy: "",
-      side: "",
-      touch: "",
-      exposure: "",
-      status: ""
+      pair: new Set(),
+      createdBy: new Set(),
+      side: new Set(),
+      touch: new Set(),
+      exposure: new Set(),
+      status: new Set()
     };
 
     function getPairsWithCounts(){
@@ -1120,8 +1121,11 @@
 
       const parts = [];
       if (model.capDate) parts.push(`Capture Date=${model.capDate}`);
-      if (model.pair) parts.push(`Currency Pair=${model.pair}`);
-      if (model.createdByNeedle) parts.push(`Created By=${model.createdByNeedle}`);
+      const pairText = summarizeSet(model.pair);
+      if (pairText) parts.push(`Currency Pair=${pairText}`);
+
+      const createdByText = summarizeSet(model.createdByNeedle);
+      if (createdByText) parts.push(`Created By=${createdByText}`);
       if (model.clientNeedleRaw) parts.push(`Client~"${model.clientNeedleRaw}"`);
       if (model.innNeedle) parts.push(`INN~"${model.innNeedle}"`);
       if (model.validDate) parts.push(`Valid Till=${model.validDate}`);
@@ -1136,7 +1140,8 @@
         }
       }
 
-      if (model.sideNeedle) parts.push(`Side=${model.sideNeedle}`);
+      const sideText = summarizeSet(model.sideNeedle);
+      if (sideText) parts.push(`Side=${sideText}`);
 
       if (model.rateMin !== null || model.rateMax !== null){
         if (model.rateMin !== null && model.rateMax !== null){
@@ -1148,11 +1153,14 @@
         }
       }
 
-      if (model.touchNeedle){
-        parts.push(`Market Touch=${model.touchNeedle === "yes" ? "Yes" : "No"}`);
-      }
-      if (model.exposureNeedle) parts.push(`Market Exposure=${model.exposureNeedle}`);
-      if (model.statusNeedle) parts.push(`Status=${model.statusNeedle}`);
+      const touchText = summarizeSet(model.touchNeedle, v => (v === "yes" ? "Yes" : "No"));
+      if (touchText) parts.push(`Market Touch=${touchText}`);
+
+      const exposureText = summarizeSet(model.exposureNeedle);
+      if (exposureText) parts.push(`Market Exposure=${exposureText}`);
+
+      const statusText = summarizeSet(model.statusNeedle);
+      if (statusText) parts.push(`Status=${statusText}`);
 
       const summary = parts.length ? parts.join(" | ") : "No filters applied";
       blotterActiveFilters.value = summary;
@@ -1229,6 +1237,23 @@
       return Number.isFinite(parsed) ? parsed : 0;
     }
 
+    function setFromSingleSelection(set, value){
+      // Keep the same Set instance (important for predictable state)
+      set.clear();
+      if (value) set.add(value);
+    }
+
+    function getSingleSelectionFromSet(set){
+      if (!set || set.size !== 1) return "";
+      return Array.from(set)[0];
+    }
+
+    function summarizeSet(set, mapFn){
+      if (!set || set.size === 0) return "";
+      const arr = Array.from(set).map(v => (mapFn ? mapFn(v) : v));
+      return arr.length === 1 ? arr[0] : `${arr[0]}+${arr.length - 1}`;
+    }
+
     function getBlotterColFilterMeta(){
       return {
         pair: { label: "Currency Pair", options: pairCodes.map(v => ({ value: v, label: v })) },
@@ -1243,7 +1268,8 @@
     function updateBlotterColFilterIndicators(){
       document.querySelectorAll('.col-filter-btn[data-col-filter]').forEach(btn => {
         const key = btn.dataset.colFilter;
-        btn.classList.toggle('active', !!blotterColFilters[key]);
+        const set = blotterColFilters[key];
+        btn.classList.toggle('active', set instanceof Set && set.size > 0);
       });
     }
 
@@ -1291,14 +1317,15 @@
       blotterColFilterPopover.classList.remove('hidden');
 
       const select = document.getElementById('cfSelect');
-      select.value = blotterColFilters[key] || "";
+      select.value = getSingleSelectionFromSet(blotterColFilters[key]); // show single value (if any)
 
       document.getElementById('cfClearBtn').onclick = () => {
         select.value = "";
       };
 
       document.getElementById('cfApplyBtn').onclick = () => {
-        blotterColFilters[key] = select.value;
+        // still single-select UI; store selection into Set for future multi-select
+        setFromSingleSelection(blotterColFilters[key], select.value);
         updateBlotterColFilterIndicators();
         closeBlotterColFilterPopover();
         applyBlotterFilters();
@@ -1357,8 +1384,8 @@
 
     function applyBlotterFilters(){
       const capDate = yyyyMmDdToDdMmYyyy(blCaptureDate.value);
-      const pair = blotterColFilters.pair;
-      const createdByNeedle = blotterColFilters.createdBy;
+      const pair = blotterColFilters.pair;              // Set
+      const createdByNeedle = blotterColFilters.createdBy; // Set
 
       const clientNeedleRaw = blClient.value.trim();
       const clientNeedle = clientNeedleRaw.toLowerCase();
@@ -1369,15 +1396,15 @@
       const amountMin = parseOptionalNumber(blAmountMin.value);
       const amountMax = parseOptionalNumber(blAmountMax.value);
 
-      const sideNeedle = blotterColFilters.side;
+      const sideNeedle = blotterColFilters.side;        // Set
 
       const rateMin = parseOptionalNumber(blRateMin.value);
       const rateMax = parseOptionalNumber(blRateMax.value);
 
-      const touchNeedle = blotterColFilters.touch;
-      const exposureNeedle = blotterColFilters.exposure;
+      const touchNeedle = blotterColFilters.touch;      // Set
+      const exposureNeedle = blotterColFilters.exposure;// Set
 
-      const statusNeedle = blotterColFilters.status;
+      const statusNeedle = blotterColFilters.status;    // Set
 
       updateBlotterActiveFiltersSummary({
         capDate,
@@ -1404,8 +1431,8 @@
         const status = statusForRow(r);
 
         const okCapture = !capDate || r.captured.startsWith(capDate);
-        const okPair = !pair || r.pair === pair;
-        const okCreatedBy = !createdByNeedle || createdBy === createdByNeedle;
+        const okPair = pair.size === 0 || pair.has(r.pair);
+        const okCreatedBy = createdByNeedle.size === 0 || createdByNeedle.has(createdBy);
 
         const okClient = !clientNeedle || r.client.toLowerCase().includes(clientNeedle);
         const okInn = !innNeedle || inn.includes(innNeedle);
@@ -1415,18 +1442,19 @@
         const okAmountMin = amountMin === null || (amount !== null && amount >= amountMin);
         const okAmountMax = amountMax === null || (amount !== null && amount <= amountMax);
 
-        const okSide = !sideNeedle || side === sideNeedle;
+        const okSide = sideNeedle.size === 0 || sideNeedle.has(side);
 
         const okRateMin = rateMin === null || (r.rate !== null && r.rate >= rateMin);
         const okRateMax = rateMax === null || (r.rate !== null && r.rate <= rateMax);
 
-        const okTouch = !touchNeedle
-          || (touchNeedle === "yes" && isMarketTouch(r))
-          || (touchNeedle === "no" && !isMarketTouch(r));
+        const okTouch =
+          touchNeedle.size === 0
+          || (touchNeedle.has("yes") && isMarketTouch(r))
+          || (touchNeedle.has("no") && !isMarketTouch(r));
 
-        const okExposure = !exposureNeedle || r.exec === exposureNeedle;
+        const okExposure = exposureNeedle.size === 0 || exposureNeedle.has(r.exec);
 
-        const okStatus = !statusNeedle || status === statusNeedle;
+        const okStatus = statusNeedle.size === 0 || statusNeedle.has(status);
 
         return (
           okCapture &&
@@ -1577,12 +1605,12 @@
 
     blotterSearchBtn.addEventListener('click', applyBlotterFilters);
     blotterResetBtn.addEventListener('click', () => {
-      blotterColFilters.pair = "";
-      blotterColFilters.createdBy = "";
-      blotterColFilters.side = "";
-      blotterColFilters.touch = "";
-      blotterColFilters.exposure = "";
-      blotterColFilters.status = "";
+      blotterColFilters.pair.clear();
+      blotterColFilters.createdBy.clear();
+      blotterColFilters.side.clear();
+      blotterColFilters.touch.clear();
+      blotterColFilters.exposure.clear();
+      blotterColFilters.status.clear();
       updateBlotterColFilterIndicators();
       closeBlotterColFilterPopover();
       blCaptureDate.value = "";
