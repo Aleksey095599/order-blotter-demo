@@ -193,9 +193,10 @@
     }
     .filters-grid{
       display:grid;
-      grid-template-columns: minmax(220px, 0.6fr) minmax(220px, 1fr) minmax(170px, 0.6fr) minmax(170px, 0.6fr) minmax(200px, 0.7fr) auto;
+      grid-template-columns: fit-content(220px) fit-content(260px) fit-content(200px) fit-content(200px) fit-content(220px) auto;
       gap:12px;
       align-items:end;
+      justify-content:start;
     }
     .input.with-icon{
       padding-left:30px;
