@@ -156,7 +156,7 @@
       padding:12px 14px 14px 14px;
       border:1px solid var(--line);
       border-radius:12px;
-      background:#f9fafb;
+      background:#ffffff;
       box-shadow:0 1px 0 rgba(15,23,42,0.02);
     }
     .toolbar-panel{
@@ -164,7 +164,7 @@
       padding:12px 14px 12px 14px;
       border:1px solid var(--line);
       border-radius:12px;
-      background:#f9fafb;
+      background:#ffffff;
       box-shadow:0 1px 0 rgba(15,23,42,0.02);
     }
     .filters-header{
@@ -173,27 +173,23 @@
       justify-content:space-between;
       margin-bottom:12px;
     }
-    .filters-title{
-      font-size:12px;
-      font-weight:800;
-      color:var(--muted);
-    }
     .toolbar-header{
       display:flex;
       align-items:center;
-      justify-content:space-between;
+      gap:8px;
       margin-bottom:10px;
     }
-    .toolbar-title{
-      font-size:12px;
-      font-weight:800;
-      color:var(--muted);
-    }
     .section-title{
-      font-size:12px;
-      font-weight:800;
-      color:var(--muted);
+      font-size:14px;
+      font-weight:700;
+      color:#374151;
       padding:4px 2px 2px 2px;
+      letter-spacing:0.2px;
+    }
+    .section-subtitle{
+      font-size:14px;
+      font-weight:500;
+      color:#6b7280;
     }
     .filters-grid{
       display:grid;
@@ -301,6 +297,8 @@
       display:flex;
       flex-direction:column;
       gap:10px;
+      background:#f3f4f6;
+      border-radius:12px;
     }
     .sidebar{
       border-right:1px solid var(--line);
@@ -308,9 +306,9 @@
     }
     .side-title{
       padding:0 14px 10px 14px;
-      font-size:12px;
-      color:var(--muted);
-      font-weight:800;
+      font-size:14px;
+      color:#374151;
+      font-weight:700;
       display:flex;
       align-items:center;
       justify-content:space-between;
@@ -363,7 +361,7 @@
       overflow:auto;
       border:1px solid var(--line);
       border-radius:12px;
-      background:#fff;
+      background:#f3f4f6;
     }
     table{
       width:100%;
@@ -456,7 +454,7 @@
         <!-- Left sidebar -->
         <aside class="sidebar">
           <div class="side-title">
-            <span>Currency Pair</span>
+            <span class="section-title">Currency Pair</span>
             <span class="icon" title="Refresh">⟳</span>
           </div>
           <div class="pair-list" id="pairList">
@@ -468,7 +466,7 @@
         <section class="main">
           <section class="filters-panel" aria-label="Filters">
             <div class="filters-header">
-              <span class="filters-title">Filters</span>
+              <span class="section-title">Filters</span>
               <span class="muted">Refine results before the table</span>
             </div>
             <div class="filters-grid">
@@ -509,8 +507,8 @@
 
           <section class="toolbar-panel" aria-label="Order Toolbar">
             <div class="toolbar-header">
-              <span class="toolbar-title">Order Toolbar</span>
-              <span class="muted">Quick actions for selected rows</span>
+              <span class="section-title">Order Toolbar:</span>
+              <span class="section-subtitle">Quick actions for selected rows</span>
             </div>
             <div class="tablebar">
               <button class="btn toolbar primary" id="newOrderBtn">＋ New Order</button>
@@ -518,7 +516,6 @@
               <button class="btn toolbar ghost" type="button">Send to NT Pro</button>
               <button class="btn toolbar ghost" type="button">Send to NT Pro 2</button>
               <button class="btn toolbar danger" type="button">Cancel Order</button>
-              <span class="right muted" id="resultHint"></span>
             </div>
           </section>
 
@@ -669,7 +666,6 @@
     // ------- Rendering -------
     const pairListEl = document.getElementById('pairList');
     const tbody = document.getElementById('tbody');
-    const resultHint = document.getElementById('resultHint');
     const clientFilterInput = document.getElementById('clientFilter');
     const amountMinInput = document.getElementById('amountMin');
     const marketTouchSelect = document.getElementById('marketTouch');
@@ -768,7 +764,6 @@
         `;
         tbody.appendChild(tr);
       });
-      resultHint.textContent = `Rows: ${filtered.length}`;
     }
 
     // ------- Filters -------
