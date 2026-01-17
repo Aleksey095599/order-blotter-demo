@@ -193,7 +193,7 @@
     }
     .filters-grid{
       display:grid;
-      grid-template-columns: fit-content(220px) fit-content(160px) fit-content(260px) fit-content(200px) fit-content(200px) fit-content(220px) auto;
+      grid-template-columns: fit-content(220px) fit-content(260px) fit-content(200px) fit-content(200px) fit-content(220px) auto;
       gap:12px;
       align-items:end;
       justify-content:start;
@@ -373,7 +373,6 @@
     }
     col.col-checkbox{width:28px}
     col.col-captured{width:auto}
-    col.col-inn{width:auto}
     col.col-client{width:auto}
     col.col-valid{width:auto}
     col.col-sell{width:auto}
@@ -581,10 +580,6 @@
                 <label>Capture Date</label>
                 <input id="createDate" class="input" type="date" />
               </div>
-              <div class="field">
-                <label>INN</label>
-                <input id="innFilter" class="input" type="text" inputmode="numeric" placeholder="10 digits" autocomplete="off" />
-              </div>
               <div class="field has-icon">
                 <label>Client</label>
                 <span class="field-icon">🔎</span>
@@ -635,7 +630,6 @@
               <colgroup>
                 <col class="col-checkbox" />
                 <col class="col-captured" />
-                <col class="col-inn" />
                 <col class="col-client" />
                 <col class="col-valid" />
                 <col class="col-sell" />
@@ -649,7 +643,6 @@
                 <tr>
                   <th class="checkbox fixed-center"><span class="sr-only">Select</span></th>
                   <th class="fixed-center">Capture Date</th>
-                  <th>INN</th>
                   <th>Client</th>
                   <th class="fixed-center">Valid Till</th>
                   <th class="num">Sell Amount</th>
@@ -782,20 +775,8 @@
       mkRow({pair:"USDRUB", captured:"05.06.2025, 12:50", client:'ООО "Одуванчик"', valid:"06.06.2025, 16:20", sell:10000000, rate:78.20000, buy:null, mt:null, exec:"Traders"}),
     ];
 
-    const innRegistry = new Map();
-
-    function getInn(client){
-      if (!innRegistry.has(client)) {
-        const hash = [...client].reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-        const base = Math.abs(hash) % 9000000000;
-        const inn = String(1000000000 + base).padStart(10, "0");
-        innRegistry.set(client, inn);
-      }
-      return innRegistry.get(client);
-    }
-
-    function mkRow({pair, captured, client, valid, sell, rate, buy, mt, exec, inn}){
-      return { pair, captured, client, valid, sell, rate, buy, mt, exec, inn: inn ?? getInn(client), id: cryptoRandomId() };
+    function mkRow({pair, captured, client, valid, sell, rate, buy, mt, exec}){
+      return { pair, captured, client, valid, sell, rate, buy, mt, exec, id: cryptoRandomId() };
     }
 
     function cryptoRandomId(){
@@ -806,7 +787,6 @@
     // ------- Rendering -------
     const pairListEl = document.getElementById('pairList');
     const tbody = document.getElementById('tbody');
-    const innFilterInput = document.getElementById('innFilter');
     const clientFilterInput = document.getElementById('clientFilter');
     const amountMinInput = document.getElementById('amountMin');
     const marketTouchSelect = document.getElementById('marketTouch');
@@ -894,7 +874,6 @@
         tr.innerHTML = `
           <td class="checkbox"><input type="checkbox" /></td>
           <td class="fixed-center">${r.captured}</td>
-          <td>${r.inn}</td>
           <td>${r.client}</td>
           <td>${r.valid}</td>
           <td class="num">${fmtNum(r.sell)}</td>
@@ -916,21 +895,19 @@
       if (!activePair) {
         activePair = pairCodes[0];
       }
-      const innNeedle = innFilterInput.value.trim();
       const clientNeedle = clientFilterInput.value.trim().toLowerCase();
       const minAmount = parseAmount(amountMinInput.value);
       const marketTouchNeedle = marketTouchSelect.value;
       const exposureNeedle = marketExposureSelect.value;
       filtered = rows.filter(r => {
         const okPair = r.pair === activePair;
-        const okInn = !innNeedle || r.inn.includes(innNeedle);
         const okClient = !clientNeedle || r.client.toLowerCase().includes(clientNeedle);
         const okAmount = isRowAboveMin(r, minAmount);
         const okTouch = !marketTouchNeedle
           || (marketTouchNeedle === "yes" && isMarketTouch(r))
           || (marketTouchNeedle === "no" && !isMarketTouch(r));
         const okExposure = !exposureNeedle || r.exec === exposureNeedle;
-        return okPair && okInn && okClient && okAmount && okTouch && okExposure;
+        return okPair && okClient && okAmount && okTouch && okExposure;
       });
       filtered.sort((a, b) => a.rate - b.rate);
 
@@ -939,14 +916,12 @@
     }
 
     document.getElementById('searchBtn').addEventListener('click', applyFilters);
-    innFilterInput.addEventListener('input', applyFilters);
     clientFilterInput.addEventListener('input', applyFilters);
     amountMinInput.addEventListener('input', applyFilters);
     marketTouchSelect.addEventListener('change', applyFilters);
     marketExposureSelect.addEventListener('change', applyFilters);
     document.getElementById('resetBtn').addEventListener('click', () => {
       document.getElementById('createDate').value = "";
-      innFilterInput.value = "";
       clientFilterInput.value = "";
       amountMinInput.value = "";
       marketTouchSelect.value = "";
