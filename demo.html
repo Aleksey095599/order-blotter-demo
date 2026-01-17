@@ -620,6 +620,38 @@
       height:32px;
       font-size:12px;
     }
+    /* Multi-select list inside column filter popover */
+    .col-filter-popover .cf-list{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      max-height:220px;
+      overflow:auto;
+      padding:4px 2px;
+    }
+    .col-filter-popover .cf-item{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 8px;
+      border-radius:8px;
+      cursor:pointer;
+      user-select:none;
+      font-size:13px;
+      font-weight:600;
+      color:#111827;
+    }
+    .col-filter-popover .cf-item:hover{
+      background:#f3f4f6;
+    }
+    .col-filter-popover .cf-item input{
+      margin:0;
+    }
+    .col-filter-popover .cf-sep{
+      height:1px;
+      background:var(--line);
+      margin:4px 2px;
+    }
     /* Utility */
     .right{margin-left:auto}
     .hidden{display:none !important}
@@ -1285,14 +1317,27 @@
 
       openedColFilterKey = key;
 
-      const optionsHtml = [
-        `<option value="">All</option>`,
-        ...meta.options.map(o => `<option value="${o.value}">${o.label}</option>`)
-      ].join("");
+      const listHtml = meta.options.map(o => `
+        <label class="cf-item">
+          <input type="checkbox" class="cf-opt" value="${o.value}">
+          <span>${o.label}</span>
+        </label>
+      `).join("");
 
       blotterColFilterPopover.innerHTML = `
         <div class="cf-title">${meta.label}</div>
-        <select id="cfSelect" class="select">${optionsHtml}</select>
+
+        <div class="cf-list">
+          <label class="cf-item">
+            <input type="checkbox" id="cfAll">
+            <span>All</span>
+          </label>
+
+          <div class="cf-sep"></div>
+
+          ${listHtml}
+        </div>
+
         <div class="cf-actions">
           <button class="btn small" type="button" id="cfClearBtn">Clear</button>
           <button class="btn small primary" type="button" id="cfApplyBtn">Apply</button>
@@ -1308,7 +1353,7 @@
       if (left < pad) left = pad;
 
       let top = rect.bottom + pad;
-      const heightGuess = 160;
+      const heightGuess = 320;
       if (top + heightGuess + pad > window.innerHeight) top = rect.top - heightGuess - pad;
       if (top < pad) top = pad;
 
@@ -1316,16 +1361,64 @@
       blotterColFilterPopover.style.top = `${top}px`;
       blotterColFilterPopover.classList.remove('hidden');
 
-      const select = document.getElementById('cfSelect');
-      select.value = getSingleSelectionFromSet(blotterColFilters[key]); // show single value (if any)
+      // --- init UI state from Set ---
+      const allCb = document.getElementById("cfAll");
+      const optCbs = Array.from(blotterColFilterPopover.querySelectorAll(".cf-opt"));
+      const currentSet = blotterColFilters[key];
 
-      document.getElementById('cfClearBtn').onclick = () => {
-        select.value = "";
+      // If Set is empty -> "All" (no filter)
+      if (currentSet.size === 0){
+        allCb.checked = true;
+        optCbs.forEach(cb => cb.checked = false);
+      } else {
+        allCb.checked = false;
+        optCbs.forEach(cb => cb.checked = currentSet.has(cb.value));
+        // safeguard: if all options checked, treat as "All"
+        if (optCbs.length > 0 && optCbs.every(cb => cb.checked)){
+          allCb.checked = true;
+          optCbs.forEach(cb => cb.checked = false);
+        }
+      }
+
+      // --- behavior: All vs options ---
+      allCb.addEventListener("change", () => {
+        if (allCb.checked){
+          optCbs.forEach(cb => cb.checked = false);
+        }
+      });
+
+      optCbs.forEach(cb => {
+        cb.addEventListener("change", () => {
+          if (cb.checked) allCb.checked = false;
+
+          // if all unchecked, return to All
+          const anyChecked = optCbs.some(x => x.checked);
+          if (!anyChecked){
+            allCb.checked = true;
+          }
+        });
+      });
+
+      // Clear = return UI to "All" (no auto-apply)
+      document.getElementById("cfClearBtn").onclick = () => {
+        allCb.checked = true;
+        optCbs.forEach(cb => cb.checked = false);
       };
 
-      document.getElementById('cfApplyBtn').onclick = () => {
-        // still single-select UI; store selection into Set for future multi-select
-        setFromSingleSelection(blotterColFilters[key], select.value);
+      // Apply = persist selection to Set and filter
+      document.getElementById("cfApplyBtn").onclick = () => {
+        const selected = optCbs.filter(cb => cb.checked).map(cb => cb.value);
+        const total = optCbs.length;
+
+        // Normalize: All / none / all selected => "no filter" => empty Set
+        const treatAsAll = allCb.checked || selected.length === 0 || (total > 0 && selected.length === total);
+
+        const targetSet = blotterColFilters[key];
+        targetSet.clear();
+        if (!treatAsAll){
+          selected.forEach(v => targetSet.add(v));
+        }
+
         updateBlotterColFilterIndicators();
         closeBlotterColFilterPopover();
         applyBlotterFilters();
