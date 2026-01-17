@@ -198,6 +198,13 @@
       align-items:end;
       justify-content:start;
     }
+    .blotter-filters-grid{
+      display:grid;
+      grid-template-columns: repeat(6, fit-content(240px));
+      gap:12px;
+      align-items:end;
+      justify-content:start;
+    }
     .input.with-icon{
       padding-left:30px;
     }
@@ -672,8 +679,109 @@
             <section class="filters-panel" aria-label="Blotter Filters">
               <div class="filters-header">
                 <span class="section-title">Filters</span>
+
+                <div class="filter-actions">
+                  <button class="btn small" id="blotterResetBtn">Reset</button>
+                  <button class="btn small primary" id="blotterSearchBtn">Search</button>
+                </div>
               </div>
-              <div class="section-subtitle">Blotter mode — placeholder</div>
+
+              <div class="blotter-filters-grid">
+                <div class="field">
+                  <label>Capture Date</label>
+                  <input id="blCaptureDate" class="input" type="date" />
+                </div>
+
+                <div class="field">
+                  <label>Currency Pair</label>
+                  <select id="blPair" class="select">
+                    <option value="">All</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label>Created By</label>
+                  <select id="blCreatedBy" class="select">
+                    <option value="">All</option>
+                    <option value="dealer1">dealer1</option>
+                    <option value="dealer2">dealer2</option>
+                    <option value="some_process1">some_process1</option>
+                    <option value="some_process2">some_process2</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label>Client</label>
+                  <input id="blClient" class="input" type="text" placeholder="Client contains…" autocomplete="off" />
+                </div>
+
+                <div class="field">
+                  <label>INN</label>
+                  <input id="blInn" class="input" type="text" placeholder="INN contains…" autocomplete="off" />
+                </div>
+
+                <div class="field">
+                  <label>Valid Till</label>
+                  <input id="blValidTill" class="input" type="date" />
+                </div>
+
+                <div class="field">
+                  <label>Amount Min</label>
+                  <input id="blAmountMin" class="input" type="text" inputmode="decimal" />
+                </div>
+
+                <div class="field">
+                  <label>Amount Max</label>
+                  <input id="blAmountMax" class="input" type="text" inputmode="decimal" />
+                </div>
+
+                <div class="field">
+                  <label>Side</label>
+                  <select id="blSide" class="select">
+                    <option value="">All</option>
+                    <option value="buy">buy</option>
+                    <option value="sell">sell</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label>Rate Min</label>
+                  <input id="blRateMin" class="input" type="text" inputmode="decimal" />
+                </div>
+
+                <div class="field">
+                  <label>Rate Max</label>
+                  <input id="blRateMax" class="input" type="text" inputmode="decimal" />
+                </div>
+
+                <div class="field">
+                  <label><span class="label-with-icon"><span class="label-icon">💡</span>Market Touch</span></label>
+                  <select id="blMarketTouch" class="select">
+                    <option value="">All</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label>Market Exposure</label>
+                  <select id="blMarketExposure" class="select">
+                    <option value="">All</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label>Status</label>
+                  <select id="blStatus" class="select">
+                    <option value="">All</option>
+                    <option value="New">New</option>
+                    <option value="Delegated">Delegated</option>
+                    <option value="Execute Pending">Execute Pending</option>
+                    <option value="Executed">Executed</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+                </div>
+              </div>
             </section>
 
             <div class="table-wrap">
@@ -836,6 +944,23 @@
     const amountMinInput = document.getElementById('amountMin');
     const marketTouchSelect = document.getElementById('marketTouch');
     const marketExposureSelect = document.getElementById('marketExposure');
+    const blCaptureDate = document.getElementById('blCaptureDate');
+    const blPair = document.getElementById('blPair');
+    const blCreatedBy = document.getElementById('blCreatedBy');
+    const blClient = document.getElementById('blClient');
+    const blInn = document.getElementById('blInn');
+    const blValidTill = document.getElementById('blValidTill');
+    const blAmountMin = document.getElementById('blAmountMin');
+    const blAmountMax = document.getElementById('blAmountMax');
+    const blSide = document.getElementById('blSide');
+    const blRateMin = document.getElementById('blRateMin');
+    const blRateMax = document.getElementById('blRateMax');
+    const blMarketTouch = document.getElementById('blMarketTouch');
+    const blMarketExposure = document.getElementById('blMarketExposure');
+    const blStatus = document.getElementById('blStatus');
+
+    const blotterSearchBtn = document.getElementById('blotterSearchBtn');
+    const blotterResetBtn = document.getElementById('blotterResetBtn');
 
     let activePair = pairCodes[0];
     let filtered = [...rows];
@@ -876,6 +1001,24 @@
         option.value = exposure;
         option.textContent = exposure;
         marketExposureSelect.appendChild(option);
+      });
+    }
+
+    function initBlotterFilterOptions(){
+      // Currency Pair options
+      pairCodes.forEach(code => {
+        const opt = document.createElement('option');
+        opt.value = code;
+        opt.textContent = code;
+        blPair.appendChild(opt);
+      });
+
+      // Market Exposure options
+      exposureOptions.forEach(exposure => {
+        const opt = document.createElement('option');
+        opt.value = exposure;
+        opt.textContent = exposure;
+        blMarketExposure.appendChild(opt);
       });
     }
 
@@ -924,11 +1067,12 @@
       return { amount: null, side: "" };
     }
 
-    function renderBlotterTable(){
+    function renderBlotterTable(data){
       if (!blotterTbody) return;
 
       blotterTbody.innerHTML = "";
-      rows.forEach(r => {
+      const source = data || rows;
+      source.forEach(r => {
         const { amount, side } = getAmountAndSide(r);
 
         const tr = document.createElement("tr");
@@ -961,6 +1105,21 @@
       const normalized = value.toString().replace(/[^\d.,]/g, "").replace(",", ".");
       const parsed = Number.parseFloat(normalized);
       return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function yyyyMmDdToDdMmYyyy(value){
+      if (!value) return "";
+      const parts = value.split("-");
+      if (parts.length !== 3) return "";
+      const [y, m, d] = parts;
+      return `${d}.${m}.${y}`;
+    }
+
+    function parseOptionalNumber(value){
+      if (!value || !value.toString().trim()) return null;
+      const normalized = value.toString().replace(/[^\d.,-]/g, "").replace(",", ".");
+      const parsed = Number.parseFloat(normalized);
+      return Number.isFinite(parsed) ? parsed : null;
     }
 
     function isRowAboveMin(r, minAmount){
@@ -996,6 +1155,82 @@
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    function applyBlotterFilters(){
+      const capDate = yyyyMmDdToDdMmYyyy(blCaptureDate.value);
+      const pair = blPair.value;
+      const createdByNeedle = blCreatedBy.value;
+
+      const clientNeedle = blClient.value.trim().toLowerCase();
+      const innNeedle = blInn.value.trim();
+
+      const validDate = yyyyMmDdToDdMmYyyy(blValidTill.value);
+
+      const amountMin = parseOptionalNumber(blAmountMin.value);
+      const amountMax = parseOptionalNumber(blAmountMax.value);
+
+      const sideNeedle = blSide.value;
+
+      const rateMin = parseOptionalNumber(blRateMin.value);
+      const rateMax = parseOptionalNumber(blRateMax.value);
+
+      const touchNeedle = blMarketTouch.value;
+      const exposureNeedle = blMarketExposure.value;
+
+      const statusNeedle = blStatus.value;
+
+      const filteredBlotter = rows.filter(r => {
+        const { amount, side } = getAmountAndSide(r);
+
+        const createdBy = createdByForRow(r);
+        const inn = innForClient(r.client);
+        const status = statusForRow(r);
+
+        const okCapture = !capDate || r.captured.startsWith(capDate);
+        const okPair = !pair || r.pair === pair;
+        const okCreatedBy = !createdByNeedle || createdBy === createdByNeedle;
+
+        const okClient = !clientNeedle || r.client.toLowerCase().includes(clientNeedle);
+        const okInn = !innNeedle || inn.includes(innNeedle);
+
+        const okValid = !validDate || r.valid.startsWith(validDate);
+
+        const okAmountMin = amountMin === null || (amount !== null && amount >= amountMin);
+        const okAmountMax = amountMax === null || (amount !== null && amount <= amountMax);
+
+        const okSide = !sideNeedle || side === sideNeedle;
+
+        const okRateMin = rateMin === null || (r.rate !== null && r.rate >= rateMin);
+        const okRateMax = rateMax === null || (r.rate !== null && r.rate <= rateMax);
+
+        const okTouch = !touchNeedle
+          || (touchNeedle === "yes" && isMarketTouch(r))
+          || (touchNeedle === "no" && !isMarketTouch(r));
+
+        const okExposure = !exposureNeedle || r.exec === exposureNeedle;
+
+        const okStatus = !statusNeedle || status === statusNeedle;
+
+        return (
+          okCapture &&
+          okPair &&
+          okCreatedBy &&
+          okClient &&
+          okInn &&
+          okValid &&
+          okAmountMin &&
+          okAmountMax &&
+          okSide &&
+          okRateMin &&
+          okRateMax &&
+          okTouch &&
+          okExposure &&
+          okStatus
+        );
+      });
+
+      renderBlotterTable(filteredBlotter);
     }
 
 
@@ -1058,7 +1293,7 @@
       blotterView.classList.toggle('hidden', !isBlotter);
 
       if (isBlotter) {
-        renderBlotterTable();
+        applyBlotterFilters();
       }
     }
 
@@ -1072,7 +1307,27 @@
 
     // Init
     renderExposureOptions();
+    initBlotterFilterOptions();
     applyFilters();
+
+    blotterSearchBtn.addEventListener('click', applyBlotterFilters);
+    blotterResetBtn.addEventListener('click', () => {
+      blCaptureDate.value = "";
+      blPair.value = "";
+      blCreatedBy.value = "";
+      blClient.value = "";
+      blInn.value = "";
+      blValidTill.value = "";
+      blAmountMin.value = "";
+      blAmountMax.value = "";
+      blSide.value = "";
+      blRateMin.value = "";
+      blRateMax.value = "";
+      blMarketTouch.value = "";
+      blMarketExposure.value = "";
+      blStatus.value = "";
+      applyBlotterFilters();
+    });
   </script>
 </body>
 </html>
