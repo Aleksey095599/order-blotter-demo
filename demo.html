@@ -167,10 +167,14 @@
     }
     .filters-title{
       font-size:12px;
-      letter-spacing:.08em;
-      text-transform:uppercase;
       font-weight:800;
-      color:#4b5563;
+      color:var(--muted);
+    }
+    .section-title{
+      font-size:12px;
+      font-weight:800;
+      color:var(--muted);
+      padding:4px 2px 2px 2px;
     }
     .filters-grid{
       display:grid;
@@ -484,6 +488,7 @@
             </div>
           </section>
 
+          <div class="section-title">Order Toolbar</div>
           <div class="tablebar">
             <button class="btn toolbar primary" id="newOrderBtn">＋ New Order</button>
             <button class="btn toolbar ghost" type="button">Convert to Deal</button>
