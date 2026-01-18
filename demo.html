@@ -945,6 +945,22 @@
 
             <div class="table-wrap">
               <table class="orders-table" id="blotterTable">
+                <colgroup>
+                  <col class="col-checkbox" />
+                  <col class="col-captured" />
+                  <col class="col-createdby" />
+                  <col class="col-inn" />
+                  <col class="col-client" />
+                  <col class="col-pair" />
+                  <col class="col-amount" />
+                  <col class="col-side" />
+                  <col class="col-rate" />
+                  <col class="col-touch" />
+                  <col class="col-valid" />
+                  <col class="col-exposure" />
+                  <col class="col-status" />
+                  <col class="col-actions" />
+                </colgroup>
                 <thead>
                   <tr>
                     <th class="checkbox fixed-center"><span class="sr-only">Select</span></th>
@@ -956,22 +972,21 @@
                               title="Filter Create Date">⏷</button>
                     </th>
                     <th>
-                      Currency Pair
-                      <button class="col-filter-btn" type="button"
-                              data-col-filter="pair"
-                              aria-label="Filter Currency Pair"
-                              title="Filter Currency Pair">⏷</button>
-                    </th>
-                    <th>
                       Created By
                       <button class="col-filter-btn" type="button"
                               data-col-filter="createdBy"
                               aria-label="Filter Created By"
                               title="Filter Created By">⏷</button>
                     </th>
-                    <th>Client</th>
                     <th>INN</th>
-                    <th class="fixed-center">Valid Till</th>
+                    <th>Client</th>
+                    <th>
+                      Currency Pair
+                      <button class="col-filter-btn" type="button"
+                              data-col-filter="pair"
+                              aria-label="Filter Currency Pair"
+                              title="Filter Currency Pair">⏷</button>
+                    </th>
                     <th class="num">Amount</th>
                     <th>
                       Side
@@ -989,6 +1004,7 @@
                               title="Filter Market Touch">⏷</button>
                       <span class="sr-only">Market Touch Indicator</span>
                     </th>
+                    <th class="fixed-center">Valid Till</th>
                     <th>
                       Market Exposure
                       <button class="col-filter-btn" type="button"
@@ -1338,22 +1354,32 @@
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td class="checkbox"><input type="checkbox" /></td>
+
           <td class="fixed-center">${r.captured}</td>
-          <td><strong>${r.pair}</strong></td>
           <td class="muted">${createdByForRow(r)}</td>
-          <td>${r.client}</td>
           <td class="muted">${innForClient(r.client)}</td>
-          <td class="fixed-center">${r.valid}</td>
+          <td>${r.client}</td>
+
+          <td><strong>${r.pair}</strong></td>
+
           <td class="num">${fmtNum(amount)}</td>
+
           <td>${side}</td>
+
           <td class="num">${fmtRate(r.rate, r.pair)}</td>
+
           <td class="touch-col">
             ${r.mt === "bulb"
               ? `<span class="badge"><span class="bulb tooltip-target" data-tooltip="Market Touch Indicator">💡</span></span>`
               : ``}
           </td>
+
+          <td class="fixed-center">${r.valid}</td>
+
           <td class="muted">${r.exec}</td>
+
           <td>${statusForRow(r)}</td>
+
           <td class="kebab" title="More">⋮</td>
         `;
         blotterTbody.appendChild(tr);
