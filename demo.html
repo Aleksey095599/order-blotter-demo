@@ -750,7 +750,7 @@
               <div class="filters-split-label">Search fields</div>
               <div class="filters-grid">
                 <div class="field">
-                  <label>Capture Date</label>
+                  <label>Create Date</label>
                   <input id="createDate" class="input" type="date" />
                 </div>
                 <div class="field has-icon">
@@ -808,7 +808,7 @@
                 <thead>
                   <tr>
                     <th class="checkbox fixed-center"><span class="sr-only">Select</span></th>
-                    <th class="fixed-center">Capture Date</th>
+                    <th class="fixed-center">Create Date</th>
                     <th>Client</th>
                     <th class="fixed-center">Valid Till</th>
                     <th class="num">Sell Amount</th>
@@ -856,7 +856,7 @@
 
               <div class="blotter-filters-grid">
                 <div class="field">
-                  <label>Capture Date</label>
+                  <label>Create Date</label>
                   <input id="blCaptureDate" class="input" type="date" />
                 </div>
 
@@ -915,7 +915,7 @@
                 <thead>
                   <tr>
                     <th class="checkbox fixed-center"><span class="sr-only">Select</span></th>
-                    <th class="fixed-center">Capture Date</th>
+                    <th class="fixed-center">Create Date</th>
                     <th>
                       Currency Pair
                       <button class="col-filter-btn" type="button"
@@ -1200,7 +1200,7 @@
       if (!blotterActiveFilters) return;
 
       const parts = [];
-      if (model.capDate) parts.push(`Capture Date=${model.capDate}`);
+      if (model.capDate) parts.push(`Create Date=${model.capDate}`);
       const pairText = summarizeSet(model.pair);
       if (pairText) parts.push(`Currency Pair=${pairText}`);
 
