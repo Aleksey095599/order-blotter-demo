@@ -1420,15 +1420,28 @@
 
       openedMonitorColFilterKey = key;
 
-      const optionsHtml = [
-        `<option value="">All</option>`,
-        ...meta.options.map(o => `<option value="${o.value}">${o.label}</option>`)
-      ].join("");
+      const listHtml = meta.options.map(o => `
+        <label class="cf-item">
+          <input type="checkbox" class="mcf-opt" value="${o.value}">
+          <span>${o.label}</span>
+        </label>
+      `).join("");
 
       // IMPORTANT: уникальные id, чтобы не конфликтовать с blotter popover
       monitorColFilterPopover.innerHTML = `
         <div class="cf-title">${meta.label}</div>
-        <select id="mcfSelect" class="select">${optionsHtml}</select>
+
+        <div class="cf-list">
+          <label class="cf-item">
+            <input type="checkbox" id="mcfAll">
+            <span>All</span>
+          </label>
+
+          <div class="cf-sep"></div>
+
+          ${listHtml}
+        </div>
+
         <div class="cf-actions">
           <button class="btn small" type="button" id="mcfClearBtn">Clear</button>
           <button class="btn small primary" type="button" id="mcfApplyBtn">Apply</button>
@@ -1444,7 +1457,7 @@
       if (left < pad) left = pad;
 
       let top = rect.bottom + pad;
-      const heightGuess = 160;
+      const heightGuess = 320;
       if (top + heightGuess + pad > window.innerHeight) top = rect.top - heightGuess - pad;
       if (top < pad) top = pad;
 
@@ -1452,13 +1465,65 @@
       monitorColFilterPopover.style.top = `${top}px`;
       monitorColFilterPopover.classList.remove('hidden');
 
-      const select = document.getElementById('mcfSelect');
-      select.value = getSingleSelectionFromSet(monitorColFilters[key]); // UI single-select
+      // --- init UI state from Set ---
+      const allCb = monitorColFilterPopover.querySelector("#mcfAll");
+      const optCbs = Array.from(monitorColFilterPopover.querySelectorAll(".mcf-opt"));
+      const currentSet = monitorColFilters[key];
 
-      document.getElementById('mcfClearBtn').onclick = () => { select.value = ""; };
+      // If Set is empty -> "All" (no filter)
+      if (currentSet.size === 0){
+        allCb.checked = true;
+        optCbs.forEach(cb => cb.checked = false);
+      } else {
+        allCb.checked = false;
+        optCbs.forEach(cb => cb.checked = currentSet.has(cb.value));
 
-      document.getElementById('mcfApplyBtn').onclick = () => {
-        setFromSingleSelection(monitorColFilters[key], select.value);
+        // safeguard: if all options checked, treat as "All"
+        if (optCbs.length > 0 && optCbs.every(cb => cb.checked)){
+          allCb.checked = true;
+          optCbs.forEach(cb => cb.checked = false);
+        }
+      }
+
+      // --- behavior: All vs options ---
+      allCb.addEventListener("change", () => {
+        if (allCb.checked){
+          optCbs.forEach(cb => cb.checked = false);
+        }
+      });
+
+      optCbs.forEach(cb => {
+        cb.addEventListener("change", () => {
+          if (cb.checked) allCb.checked = false;
+
+          // if all unchecked, return to All
+          const anyChecked = optCbs.some(x => x.checked);
+          if (!anyChecked){
+            allCb.checked = true;
+          }
+        });
+      });
+
+      // Clear = return UI to "All" (no auto-apply)
+      document.getElementById("mcfClearBtn").onclick = () => {
+        allCb.checked = true;
+        optCbs.forEach(cb => cb.checked = false);
+      };
+
+      // Apply = persist selection to Set and filter
+      document.getElementById("mcfApplyBtn").onclick = () => {
+        const selected = optCbs.filter(cb => cb.checked).map(cb => cb.value);
+        const total = optCbs.length;
+
+        // Normalize: All / none / all selected => "no filter" => empty Set
+        const treatAsAll = allCb.checked || selected.length === 0 || (total > 0 && selected.length === total);
+
+        const targetSet = monitorColFilters[key];
+        targetSet.clear();
+        if (!treatAsAll){
+          selected.forEach(v => targetSet.add(v));
+        }
+
         updateMonitorColFilterIndicators();
         closeMonitorColFilterPopover();
         applyFilters();
