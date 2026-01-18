@@ -506,8 +506,8 @@
     col.col-valid{width:auto}
     col.col-sell{width:auto}
     col.col-rate{width:auto}
-    /* default touch column width (Blotter needs space for "💡 + ⏷"; Monitor overrides narrower) */
-    col.col-touch{width:64px}
+    /* default touch column width: keep auto (Monitor has no ⏷, so it will be compact naturally) */
+    col.col-touch{width:auto}
     col.col-buy{width:auto}
     col.col-exposure{width:auto}
     col.col-status{width:auto}
@@ -583,37 +583,16 @@
       text-align:center;
     }
     .touch-col{
-      min-width:64px;
-      width:64px;
+      min-width:0;
+      width:auto;
       text-align:center;
       padding-left:6px;
       padding-right:6px;
     }
 
-    /* Monitor: make 💡 column as narrow as possible and visually "glue" it to Rate */
-    #monitorView col.col-touch{
-      width:28px;
-    }
-    #monitorView .orders-table th.touch-col,
-    #monitorView .orders-table td.touch-col{
-      min-width:28px;
-      width:28px;
-      padding-left:0;
-      padding-right:0;
-      text-align:left;
-    }
-    #monitorView .orders-table th.rate-col,
-    #monitorView .orders-table td.rate-col{
-      border-right:none;   /* remove divider between Rate and 💡 */
-      padding-right:4px;   /* reduce gap so bulb looks attached */
-    }
-    /* Safety-net: in Monitor the Rate column is the 7th column -> remove its right border */
-    #monitorView .orders-table thead th:nth-child(7),
-    #monitorView .orders-table tbody td:nth-child(7){
-      border-right:none;
-    }
     .touch-col .header-icon{
       font-size:14px;
+      width:18px;
       display:inline-flex;
       align-items:center;
       justify-content:center;
