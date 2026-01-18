@@ -215,12 +215,12 @@
       border-top:1px solid var(--line);
       margin:12px 0;
     }
-    .active-filters-row{
+    .applied-filters-row{
       display:flex;
       align-items:center;
       gap:10px;
     }
-    .active-filters-input{
+    .applied-filters-input{
       background:#f9fafb;
       color:#374151;
       flex:1;
@@ -764,11 +764,11 @@
               </div>
               <div class="filters-divider"></div>
 
-              <div class="filters-split-label">Active filters</div>
+              <div class="filters-split-label">Applied filters</div>
 
-              <div class="active-filters-row">
-                <input id="monitorActiveFilters"
-                       class="input active-filters-input"
+              <div class="applied-filters-row">
+                <input id="monitorAppliedFilters"
+                       class="input applied-filters-input"
                        type="text"
                        readonly
                        value="No filters applied" />
@@ -896,11 +896,11 @@
 
               <div class="filters-divider"></div>
 
-              <div class="filters-split-label">Active filters</div>
+              <div class="filters-split-label">Applied filters</div>
 
-              <div class="active-filters-row">
-                <input id="blotterActiveFilters"
-                       class="input active-filters-input"
+              <div class="applied-filters-row">
+                <input id="blotterAppliedFilters"
+                       class="input applied-filters-input"
                        type="text"
                        readonly
                        value="No filters applied" />
@@ -1116,7 +1116,7 @@
     const blotterTbody = document.getElementById('blotterTbody');
     const clientFilterInput = document.getElementById('clientFilter');
     const amountMinInput = document.getElementById('amountMin');
-    const monitorActiveFilters = document.getElementById('monitorActiveFilters');
+    const monitorAppliedFilters = document.getElementById('monitorAppliedFilters');
     const blCaptureDate = document.getElementById('blCaptureDate');
     const blClient = document.getElementById('blClient');
     const blInn = document.getElementById('blInn');
@@ -1128,7 +1128,7 @@
 
     const blotterSearchBtn = document.getElementById('blotterSearchBtn');
     const blotterResetBtn = document.getElementById('blotterResetBtn');
-    const blotterActiveFilters = document.getElementById('blotterActiveFilters');
+    const blotterAppliedFilters = document.getElementById('blotterAppliedFilters');
     const blotterColFilterPopover = document.getElementById('blotterColFilterPopover');
     let openedColFilterKey = null;
 
@@ -1194,8 +1194,8 @@
       return n.toFixed(5);
     }
 
-    function updateBlotterActiveFiltersSummary(model){
-      if (!blotterActiveFilters) return;
+    function updateBlotterAppliedFiltersSummary(model){
+      if (!blotterAppliedFilters) return;
 
       const parts = [];
       if (model.capDate) parts.push(`Create Date=${model.capDate}`);
@@ -1241,8 +1241,8 @@
       if (statusText) parts.push(`Status=${statusText}`);
 
       const summary = parts.length ? parts.join(" | ") : "No filters applied";
-      blotterActiveFilters.value = summary;
-      blotterActiveFilters.title = summary;
+      blotterAppliedFilters.value = summary;
+      blotterAppliedFilters.title = summary;
     }
 
     function hashString(s){
@@ -1653,7 +1653,7 @@
 
       const statusNeedle = blotterColFilters.status;    // Set
 
-      updateBlotterActiveFiltersSummary({
+      updateBlotterAppliedFiltersSummary({
         capDate,
         pair,
         createdByNeedle,
@@ -1724,8 +1724,8 @@
       renderBlotterTable(filteredBlotter);
     }
 
-    function updateMonitorActiveFiltersSummary(){
-      if (!monitorActiveFilters) return;
+    function updateMonitorAppliedFiltersSummary(){
+      if (!monitorAppliedFilters) return;
 
       const parts = [];
 
@@ -1744,8 +1744,8 @@
       if (exposureText) parts.push(`Market Exposure=${exposureText}`);
 
       const summary = parts.length ? parts.join(" | ") : "No filters applied";
-      monitorActiveFilters.value = summary;
-      monitorActiveFilters.title = summary;
+      monitorAppliedFilters.value = summary;
+      monitorAppliedFilters.title = summary;
     }
 
     // ------- Filters -------
@@ -1774,7 +1774,7 @@
 
       renderPairs();
       renderTable();
-      updateMonitorActiveFiltersSummary();
+      updateMonitorAppliedFiltersSummary();
     }
 
     document.getElementById('searchBtn').addEventListener('click', applyFilters);
