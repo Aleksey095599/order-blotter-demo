@@ -743,6 +743,36 @@
       border-radius:999px;
       background:var(--blue);
     }
+    .col-filter-btn .funnel-icon{
+      width:12px;
+      height:12px;
+      display:block;
+      fill:currentColor;
+    }
+
+    /* Blotter: sortable headers (Create Date, Amount, Valid Till, Rate) */
+    #blotterView th.sortable{
+      cursor:pointer;
+      user-select:none;
+    }
+    #blotterView th.sortable:focus-visible{
+      outline:2px solid #93c5fd;
+      outline-offset:-2px;
+      border-radius:6px;
+    }
+    #blotterView th.sortable .sort-indicator{
+      display:inline-block;
+      width:12px;           /* keeps header width stable */
+      text-align:center;
+      margin-left:4px;
+      font-size:11px;
+      line-height:1;
+      color:var(--muted);
+      vertical-align:middle;
+    }
+    #blotterView th.sortable.sorted .sort-indicator{ color:var(--blue); }
+    #blotterView th.sortable.sort-asc .sort-indicator::before{ content:"▲"; }
+    #blotterView th.sortable.sort-desc .sort-indicator::before{ content:"▼"; }
     /* Popover */
     .col-filter-popover{
       position:fixed;
@@ -939,7 +969,11 @@
                       <button class="col-filter-btn" type="button"
                               data-monitor-col-filter="createDate"
                               aria-label="Filter Create Date"
-                              title="Filter Create Date">⏷</button>
+                              title="Filter Create Date">
+                        <svg class="funnel-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                        </svg>
+                      </button>
                     </th>
 
                     <th>
@@ -947,7 +981,11 @@
                       <button class="col-filter-btn" type="button"
                               data-monitor-col-filter="createdBy"
                               aria-label="Filter Created By"
-                              title="Filter Created By">⏷</button>
+                              title="Filter Created By">
+                        <svg class="funnel-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                        </svg>
+                      </button>
                     </th>
                     <th>INN</th>
                     <th>Client Name</th>
@@ -966,7 +1004,11 @@
                       <button class="col-filter-btn" type="button"
                               data-monitor-col-filter="tif"
                               aria-label="Filter Time In Force"
-                              title="Filter Time In Force">⏷</button>
+                              title="Filter Time In Force">
+                        <svg class="funnel-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                        </svg>
+                      </button>
                     </th>
                     <th class="fixed-center">Valid Till</th>
 
@@ -975,7 +1017,11 @@
                       <button class="col-filter-btn" type="button"
                               data-monitor-col-filter="exposure"
                               aria-label="Filter Market Exposure"
-                              title="Filter Market Exposure">⏷</button>
+                              title="Filter Market Exposure">
+                        <svg class="funnel-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                        </svg>
+                      </button>
                     </th>
 
                     <th>
@@ -983,7 +1029,11 @@
                       <button class="col-filter-btn" type="button"
                               data-monitor-col-filter="status"
                               aria-label="Filter Status"
-                              title="Filter Status">⏷</button>
+                              title="Filter Status">
+                        <svg class="funnel-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                        </svg>
+                      </button>
                     </th>
 
                     <th class="kebab"><span class="sr-only">Actions</span></th>
@@ -1080,19 +1130,27 @@
                 <thead>
                   <tr>
                     <th class="checkbox fixed-center"><span class="sr-only">Select</span></th>
-                    <th class="fixed-center">
-                      Create Date
+                    <th class="fixed-center sortable" data-bl-sort="createDate" role="button" tabindex="0" aria-sort="descending" title="Sort by Create Date">
+                      Create Date <span class="sort-indicator" aria-hidden="true"></span>
                       <button class="col-filter-btn" type="button"
                               data-col-filter="createDate"
                               aria-label="Filter Create Date"
-                              title="Filter Create Date">⏷</button>
+                              title="Filter Create Date">
+                        <svg class="funnel-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                        </svg>
+                      </button>
                     </th>
                     <th>
                       Created By
                       <button class="col-filter-btn" type="button"
                               data-col-filter="createdBy"
                               aria-label="Filter Created By"
-                              title="Filter Created By">⏷</button>
+                              title="Filter Created By">
+                        <svg class="funnel-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                        </svg>
+                      </button>
                     </th>
                     <th>INN</th>
                     <th>Client Name</th>
@@ -1101,23 +1159,39 @@
                       <button class="col-filter-btn" type="button"
                               data-col-filter="pair"
                               aria-label="Filter Currency Pair"
-                              title="Filter Currency Pair">⏷</button>
+                              title="Filter Currency Pair">
+                        <svg class="funnel-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                        </svg>
+                      </button>
                     </th>
-                    <th class="num">Amount</th>
+                    <th class="num sortable" data-bl-sort="amount" role="button" tabindex="0" aria-sort="none" title="Sort by Amount">
+                      Amount <span class="sort-indicator" aria-hidden="true"></span>
+                    </th>
                     <th>
                       Side
                       <button class="col-filter-btn" type="button"
                               data-col-filter="side"
                               aria-label="Filter Side"
-                              title="Filter Side">⏷</button>
+                              title="Filter Side">
+                        <svg class="funnel-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                        </svg>
+                      </button>
                     </th>
-                    <th class="num">Rate</th>
+                    <th class="num sortable" data-bl-sort="rate" role="button" tabindex="0" aria-sort="none" title="Sort by Rate">
+                      Rate <span class="sort-indicator" aria-hidden="true"></span>
+                    </th>
                     <th class="touch-col">
                       <span class="header-icon tooltip-target" data-tooltip="Market Touch Indicator" aria-hidden="true">💡</span>
                       <button class="col-filter-btn" type="button"
                               data-col-filter="touch"
                               aria-label="Filter Market Touch"
-                              title="Filter Market Touch">⏷</button>
+                              title="Filter Market Touch">
+                        <svg class="funnel-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                        </svg>
+                      </button>
                       <span class="sr-only">Market Touch Indicator</span>
                     </th>
                     <th class="fixed-center">
@@ -1125,22 +1199,36 @@
                       <button class="col-filter-btn" type="button"
                               data-col-filter="tif"
                               aria-label="Filter Time In Force"
-                              title="Filter Time In Force">⏷</button>
+                              title="Filter Time In Force">
+                        <svg class="funnel-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                        </svg>
+                      </button>
                     </th>
-                    <th class="fixed-center">Valid Till</th>
+                    <th class="fixed-center sortable" data-bl-sort="valid" role="button" tabindex="0" aria-sort="none" title="Sort by Valid Till">
+                      Valid Till <span class="sort-indicator" aria-hidden="true"></span>
+                    </th>
                     <th>
                       Market Exposure
                       <button class="col-filter-btn" type="button"
                               data-col-filter="exposure"
                               aria-label="Filter Market Exposure"
-                              title="Filter Market Exposure">⏷</button>
+                              title="Filter Market Exposure">
+                        <svg class="funnel-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                        </svg>
+                      </button>
                     </th>
                     <th>
                       Status
                       <button class="col-filter-btn" type="button"
                               data-col-filter="status"
                               aria-label="Filter Status"
-                              title="Filter Status">⏷</button>
+                              title="Filter Status">
+                        <svg class="funnel-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                        </svg>
+                      </button>
                     </th>
                     <th class="kebab"><span class="sr-only">Actions</span></th>
                   </tr>
@@ -1346,6 +1434,8 @@
     // Date-range filters for Create Date (stored as ISO YYYY-MM-DD)
     const blotterRangeFilters = { createDateFrom: "", createDateTo: "" };
     const monitorRangeFilters = { createDateFrom: "", createDateTo: "" };
+    // Blotter sorting (embedded in table header). Default: latest first.
+    let blotterSort = { key: "createDate", dir: "desc" };
 
     const monitorColFilterPopover = document.getElementById('monitorColFilterPopover');
     let openedMonitorColFilterKey = null;
@@ -1495,6 +1585,93 @@
       if (r.buy !== null && r.buy !== undefined) return { amount: r.buy, side: "buy" };
       if (r.sell !== null && r.sell !== undefined) return { amount: r.sell, side: "sell" };
       return { amount: null, side: "" };
+    }
+
+    // ------- Blotter sorting -------
+    function ruDateTimeToTs(value){
+      if (!value) return null;
+      // "05.06.2025, 11:15"
+      const parts = value.split(",");
+      if (parts.length < 2) return null;
+      const dmy = parts[0].trim();
+      const hm = parts[1].trim();
+      const dmyParts = dmy.split(".");
+      const hmParts = hm.split(":");
+      if (dmyParts.length !== 3 || hmParts.length !== 2) return null;
+      const [d, m, y] = dmyParts.map(n => Number(n));
+      const [hh, mm] = hmParts.map(n => Number(n));
+      if (![d, m, y, hh, mm].every(Number.isFinite)) return null;
+      const ts = new Date(y, m - 1, d, hh, mm).getTime();
+      return Number.isFinite(ts) ? ts : null;
+    }
+
+    function normalizeRateForSort(rate, pair){
+      if (rate === null || rate === undefined) return null;
+      // IMPORTANT: EURRUB is displayed rounded to 2dp (then formatted to 4),
+      // so sort by that same rounded value to avoid "visually equal but reordered" rows.
+      if (pair === "EURRUB") return Math.round(rate * 100) / 100;
+      return rate;
+    }
+
+    function getBlotterSortValue(r, key){
+      if (!r) return null;
+      if (key === "createDate") return ruDateTimeToTs(r.captured);
+      if (key === "amount") return getAmountAndSide(r).amount;
+      if (key === "valid") return ruDateTimeToTs(r.valid); // null -> nulls last
+      if (key === "rate") return normalizeRateForSort(r.rate, r.pair);
+      return null;
+    }
+
+    function sortBlotterRows(source){
+      const key = blotterSort.key;
+      const dir = blotterSort.dir === "asc" ? 1 : -1;
+
+      const indexed = (source || []).map((r, idx) => ({ r, idx }));
+      indexed.sort((a, b) => {
+        const av = getBlotterSortValue(a.r, key);
+        const bv = getBlotterSortValue(b.r, key);
+
+        const aNull = (av === null || av === undefined || Number.isNaN(av));
+        const bNull = (bv === null || bv === undefined || Number.isNaN(bv));
+
+        // nulls last regardless of direction (especially important for Valid Till when TIF=GTC)
+        if (aNull && bNull) return a.idx - b.idx;
+        if (aNull) return 1;
+        if (bNull) return -1;
+
+        if (av < bv) return -1 * dir;
+        if (av > bv) return 1 * dir;
+        return a.idx - b.idx; // stable tie-breaker
+      });
+      return indexed.map(x => x.r);
+    }
+
+    function updateBlotterSortIndicators(){
+      document.querySelectorAll('#blotterView th.sortable[data-bl-sort]').forEach(th => {
+        const key = th.dataset.blSort;
+        const isActive = key === blotterSort.key;
+
+        th.classList.toggle('sorted', isActive);
+        th.classList.toggle('sort-asc', isActive && blotterSort.dir === "asc");
+        th.classList.toggle('sort-desc', isActive && blotterSort.dir === "desc");
+
+        th.setAttribute('aria-sort', isActive
+          ? (blotterSort.dir === "asc" ? "ascending" : "descending")
+          : "none"
+        );
+      });
+    }
+
+    function setBlotterSort(key){
+      if (!key) return;
+
+      if (blotterSort.key === key){
+        blotterSort.dir = blotterSort.dir === "asc" ? "desc" : "asc";
+      } else {
+        blotterSort.key = key;
+        blotterSort.dir = (key === "createDate") ? "desc" : "asc";
+      }
+      applyBlotterFilters();
     }
 
     function renderBlotterTable(data){
@@ -2112,7 +2289,10 @@
         );
       });
 
-      renderBlotterTable(filteredBlotter);
+      const sortedBlotter = sortBlotterRows(filteredBlotter);
+      updateBlotterSortIndicators();
+      renderBlotterTable(sortedBlotter);
+      updateSelectedOrderActions();
     }
 
     function updateMonitorAppliedFiltersSummary(){
@@ -2320,6 +2500,7 @@
     // Init
     updateBlotterColFilterIndicators();
     updateMonitorColFilterIndicators();
+    updateBlotterSortIndicators();
     setMode("monitor");
     updateSelectedOrderActions();
 
@@ -2348,6 +2529,22 @@
           return;
         }
         openMonitorColFilterPopover(key, btn);
+      });
+    });
+
+    // ------- Blotter: header sorting bindings -------
+    document.querySelectorAll('#blotterView th.sortable[data-bl-sort]').forEach(th => {
+      th.addEventListener('click', (e) => {
+        // Clicking the filter button (or its SVG path) must not trigger sorting
+        if (e.target && e.target.closest && e.target.closest('.col-filter-btn')) return;
+        setBlotterSort(th.dataset.blSort);
+      });
+
+      th.addEventListener('keydown', (e) => {
+        if (e.key === "Enter" || e.key === " "){
+          e.preventDefault();
+          setBlotterSort(th.dataset.blSort);
+        }
       });
     });
 
