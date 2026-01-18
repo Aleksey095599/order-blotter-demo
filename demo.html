@@ -848,7 +848,13 @@
                               title="Filter Create Date">⏷</button>
                     </th>
 
-                    <th>Created By</th>
+                    <th>
+                      Created By
+                      <button class="col-filter-btn" type="button"
+                              data-monitor-col-filter="createdBy"
+                              aria-label="Filter Created By"
+                              title="Filter Created By">⏷</button>
+                    </th>
                     <th>INN</th>
                     <th>Client</th>
 
@@ -875,7 +881,13 @@
                               title="Filter Market Exposure">⏷</button>
                     </th>
 
-                    <th>Status</th>
+                    <th>
+                      Status
+                      <button class="col-filter-btn" type="button"
+                              data-monitor-col-filter="status"
+                              aria-label="Filter Status"
+                              title="Filter Status">⏷</button>
+                    </th>
 
                     <th class="kebab"><span class="sr-only">Actions</span></th>
                   </tr>
@@ -1204,8 +1216,10 @@
     // Monitor header column-filters (single-select UI now, but stored as Set for future multi-select)
     const monitorColFilters = {
       createDate: new Set(),
+      createdBy: new Set(),
       touch: new Set(),
-      exposure: new Set()
+      exposure: new Set(),
+      status: new Set()
     };
     // Date-range filters for Create Date (stored as ISO YYYY-MM-DD)
     const blotterRangeFilters = { createDateFrom: "", createDateTo: "" };
@@ -1581,6 +1595,7 @@
     function getMonitorColFilterMeta(){
       return {
         createDate: { type: "dateRange", label: "Create Date" },
+        createdBy: { label: "Created By", options: CREATED_BY_OPTIONS.map(v => ({ value: v, label: v })) },
         touch: {
           label: "Market Touch",
           options: [{ value: "yes", label: "Yes" }, { value: "no", label: "No" }]
@@ -1588,7 +1603,8 @@
         exposure: {
           label: "Market Exposure",
           options: exposureOptions.map(v => ({ value: v, label: v }))
-        }
+        },
+        status: { label: "Status", options: STATUS_OPTIONS.map(v => ({ value: v, label: v })) }
       };
     }
 
@@ -1991,6 +2007,12 @@
       const exposureText = summarizeSet(monitorColFilters.exposure);
       if (exposureText) parts.push(`Market Exposure=${exposureText}`);
 
+      const createdByText = summarizeSet(monitorColFilters.createdBy);
+      if (createdByText) parts.push(`Created By=${createdByText}`);
+
+      const statusText = summarizeSet(monitorColFilters.status);
+      if (statusText) parts.push(`Status=${statusText}`);
+
       const summary = parts.length ? parts.join(" | ") : "No filters applied";
       monitorAppliedFilters.textContent = summary;
       monitorAppliedFilters.title = summary;
@@ -2006,13 +2028,18 @@
       const minAmount = parseAmount(amountMinInput.value);
       const capFrom = monitorRangeFilters.createDateFrom;
       const capTo = monitorRangeFilters.createDateTo;
+      const createdByNeedle = monitorColFilters.createdBy;
       const touchNeedle = monitorColFilters.touch;      // Set
       const exposureNeedle = monitorColFilters.exposure;// Set
+      const statusNeedle = monitorColFilters.status;
       filtered = rows.filter(r => {
+        const createdBy = createdByForRow(r);
+        const status = statusForRow(r);
         const okPair = r.pair === activePair;
         const okClient = !clientNeedle || r.client.toLowerCase().includes(clientNeedle);
         const okAmount = isRowAboveMin(r, minAmount);
         const okCreateDate = inIsoDateRange(capturedToIsoDate(r.captured), capFrom, capTo);
+        const okCreatedBy = createdByNeedle.size === 0 || createdByNeedle.has(createdBy);
         const okTouch =
           touchNeedle.size === 0
           || (touchNeedle.has("yes") && isMarketTouch(r))
@@ -2020,7 +2047,8 @@
         const okExposure =
           exposureNeedle.size === 0
           || exposureNeedle.has(r.exec);
-        return okPair && okClient && okAmount && okCreateDate && okTouch && okExposure;
+        const okStatus = statusNeedle.size === 0 || statusNeedle.has(status);
+        return okPair && okClient && okAmount && okCreateDate && okCreatedBy && okTouch && okExposure && okStatus;
       });
       filtered.sort((a, b) => a.rate - b.rate);
 
@@ -2037,8 +2065,10 @@
       monitorRangeFilters.createDateTo = "";
       clientFilterInput.value = "";
       amountMinInput.value = "";
+      monitorColFilters.createdBy.clear();
       monitorColFilters.touch.clear();
       monitorColFilters.exposure.clear();
+      monitorColFilters.status.clear();
       updateMonitorColFilterIndicators();
       closeMonitorColFilterPopover();
       applyFilters();
