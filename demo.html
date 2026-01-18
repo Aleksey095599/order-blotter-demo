@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>XIOMA FX — Order Monitor (Demo)</title>
+  <title>XIOMA FX — Order Administration (Demo)</title>
   <style>
     :root{
       --bg:#f6f7fb;
@@ -111,6 +111,36 @@
     }
     .switch.on{background:#60a5fa}
     .switch.on::after{left:20px}
+    /* Mode switch (Monitor / Blotter / History) */
+    .mode-switch{
+      display:inline-flex;
+      align-items:center;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:999px;
+      padding:3px;
+      gap:3px;
+    }
+    .mode-btn{
+      height:28px;
+      padding:0 12px;
+      border-radius:999px;
+      border:1px solid transparent;
+      background:transparent;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .mode-btn:hover{
+      background:#f3f4f6;
+      color:#111827;
+    }
+    .mode-btn.active{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+      color:var(--blue);
+    }
     /* Buttons */
     .btn{
       height:34px;
@@ -683,10 +713,13 @@
     <div class="card">
       <div class="header">
         <div class="hgroup">
-          <h1 class="title">Order Monitor</h1>
+          <h1 class="title">Order Administration</h1>
           <div class="subline">
-            <span id="toggleAll" class="switch" role="switch" aria-checked="false"></span>
-            <span>Switch to Order Blotter</span>
+            <div class="mode-switch" role="tablist" aria-label="Order Administration mode">
+              <button class="mode-btn active" type="button" data-mode="monitor" role="tab" aria-selected="true">Monitor</button>
+              <button class="mode-btn" type="button" data-mode="blotter" role="tab" aria-selected="false">Blotter</button>
+              <button class="mode-btn" type="button" data-mode="history" role="tab" aria-selected="false">History</button>
+            </div>
           </div>
         </div>
       </div>
@@ -939,6 +972,17 @@
                 </tbody>
               </table>
             </div>
+          </div>
+
+          <div id="historyView" class="hidden">
+            <section class="filters-panel" aria-label="History">
+              <div class="filters-header">
+                <span class="section-title">History</span>
+              </div>
+              <div class="muted" style="padding:4px 2px;">
+                History mode is a placeholder. No behavior implemented yet.
+              </div>
+            </section>
           </div>
         </section>
       </div>
@@ -1749,45 +1793,49 @@
       applyFilters();
     });
 
-    // ------- Toggle: Switch to Order Blotter -------
-    const toggleAll = document.getElementById('toggleAll');
+    // ------- Mode switch: Monitor / Blotter / History -------
+    const modeButtons = Array.from(document.querySelectorAll('.mode-btn[data-mode]'));
     const contentEl = document.querySelector('.content');
     const currencySidebar = document.getElementById('currencySidebar');
     const monitorView = document.getElementById('monitorView');
     const blotterView = document.getElementById('blotterView');
+    const historyView = document.getElementById('historyView');
+    let currentMode = "monitor";
 
-    function setViewMode(isBlotter){
-      // UI switch state
-      toggleAll.classList.toggle('on', isBlotter);
-      toggleAll.setAttribute('aria-checked', isBlotter ? "true" : "false");
+    function setMode(mode){
+      currentMode = mode;
 
       closeBlotterColFilterPopover();
       closeMonitorColFilterPopover();
 
+      modeButtons.forEach(btn => {
+        const isActive = btn.dataset.mode === mode;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-selected', isActive ? "true" : "false");
+      });
+
+      const isMonitor = mode === "monitor";
+
       // Layout: show/hide sidebar + stretch main area
-      currencySidebar.classList.toggle('hidden', isBlotter);
-      contentEl.classList.toggle('no-sidebar', isBlotter);
+      currencySidebar.classList.toggle('hidden', !isMonitor);
+      contentEl.classList.toggle('no-sidebar', !isMonitor);
 
-      monitorView.classList.toggle('hidden', isBlotter);
-      blotterView.classList.toggle('hidden', !isBlotter);
+      monitorView.classList.toggle('hidden', mode !== "monitor");
+      blotterView.classList.toggle('hidden', mode !== "blotter");
+      historyView.classList.toggle('hidden', mode !== "history");
 
-      if (isBlotter) {
-        applyBlotterFilters();
-      }
+      if (mode === "monitor") applyFilters();
+      if (mode === "blotter") applyBlotterFilters();
     }
 
-    toggleAll.addEventListener('click', () => {
-      const isBlotter = !toggleAll.classList.contains('on');
-      setViewMode(isBlotter);
+    modeButtons.forEach(btn => {
+      btn.addEventListener('click', () => setMode(btn.dataset.mode));
     });
 
-    // Init: по умолчанию Monitor (switch OFF)
-    setViewMode(false);
-
     // Init
-    applyFilters();
     updateBlotterColFilterIndicators();
     updateMonitorColFilterIndicators();
+    setMode("monitor");
 
     document.querySelectorAll('.col-filter-btn[data-col-filter]').forEach(btn => {
       btn.addEventListener('click', (e) => {
