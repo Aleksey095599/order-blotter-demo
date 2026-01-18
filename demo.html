@@ -798,7 +798,7 @@
                 </div>
                 <div class="field">
                   <label>Min Amount (&gt;=)</label>
-                  <input id="amountMin" class="input" type="text" inputmode="decimal" placeholder="e.g. 1000000" />
+                  <input id="amountMin" class="input" type="text" inputmode="decimal" />
                 </div>
               </div>
               <div class="filters-divider"></div>
@@ -1199,6 +1199,12 @@
     const blRateMin = document.getElementById('blRateMin');
     const blRateMax = document.getElementById('blRateMax');
 
+    [amountMinInput, blAmountMin, blAmountMax].forEach(input => {
+      if (!input) return;
+      input.addEventListener('blur', () => formatAmountInput(input));
+      input.addEventListener('change', () => formatAmountInput(input));
+    });
+
     const blotterSearchBtn = document.getElementById('blotterSearchBtn');
     const blotterResetBtn = document.getElementById('blotterResetBtn');
     const blotterAppliedFilters = document.getElementById('blotterAppliedFilters');
@@ -1264,8 +1270,27 @@
 
     function fmtNum(n){
       if (n === null || n === undefined) return "";
-      const s = Math.round(n).toString();
-      return s.replace(/\B(?=(\d{3})+(?!\d))/g, " ") + ".00";
+      return formatAmountValue(n);
+    }
+
+    const amountFormatter = new Intl.NumberFormat("ru-RU", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    function formatAmountValue(value){
+      if (value === null || value === undefined || Number.isNaN(value)) return "";
+      return amountFormatter.format(value).replace(/\u00A0/g, " ");
+    }
+
+    function normalizeAmountInput(value){
+      return value.toString().replace(/[\s\u00A0]/g, "");
+    }
+
+    function formatAmountInput(input){
+      if (!input) return;
+      const parsed = parseOptionalNumber(input.value);
+      input.value = parsed === null ? "" : formatAmountValue(parsed);
     }
 
     function fmtRate(n, pair){
@@ -1407,7 +1432,7 @@
 
     function parseAmount(value){
       if (!value) return 0;
-      const normalized = value.toString().replace(/[^\d.,]/g, "").replace(",", ".");
+      const normalized = normalizeAmountInput(value).replace(/[^\d.,-]/g, "").replace(",", ".");
       const parsed = Number.parseFloat(normalized);
       return Number.isFinite(parsed) ? parsed : 0;
     }
@@ -1833,7 +1858,7 @@
 
     function parseOptionalNumber(value){
       if (!value || !value.toString().trim()) return null;
-      const normalized = value.toString().replace(/[^\d.,-]/g, "").replace(",", ".");
+      const normalized = normalizeAmountInput(value).replace(/[^\d.,-]/g, "").replace(",", ".");
       const parsed = Number.parseFloat(normalized);
       return Number.isFinite(parsed) ? parsed : null;
     }
