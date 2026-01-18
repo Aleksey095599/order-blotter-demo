@@ -19,6 +19,7 @@
       --shadow: 0 1px 2px rgba(0,0,0,.04);
       --radius: 10px;
       --radius2: 8px;
+      --client-col-max: 260px; /* Client Name: ограничение ширины + ellipsis */
       --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
     }
     *{box-sizing:border-box}
@@ -495,7 +496,7 @@
     col.col-captured{width:auto}
     col.col-createdby{width:auto}
     col.col-inn{width:auto}
-    col.col-client{width:auto}
+    col.col-client{width:var(--client-col-max)}
     col.col-tif{width:auto}
     col.col-valid{width:auto}
     col.col-sell{width:auto}
@@ -542,6 +543,16 @@
     tbody td{
       overflow:hidden;
       text-overflow:ellipsis;
+    }
+
+    /* Client Name: фиксируем вклад колонки в ширину таблицы, остальным колонкам оставляем auto */
+    .cell-ellipsis{
+      display:block;
+      width:var(--client-col-max);
+      max-width:var(--client-col-max);
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
     }
     tbody tr{background:#fff}
     tbody tr:hover{background:#fafafa}
@@ -1126,6 +1137,7 @@
 
     const rows = [
       mkRow({pair:"USDRUB", captured:"05.06.2025, 11:15", client:'ООО "Ромашка"', valid:"06.06.2025, 09:30", sell:null, rate:77.80000, buy:15000000, mt:null, exec:"NT Pro"}),
+      mkRow({pair:"USDRUB", captured:"05.06.2025, 13:46", client:'ООО "Neotinea tridentata (Scop.) R.M.Bateman, Pridgeon & M.W.Chase"', tif:"GTC", valid:null, sell:8000000, rate:78.00000, buy:null, mt:null, exec:"NT Pro"}),
       mkRow({pair:"USDRUB", captured:"05.06.2025, 10:25", client:'ООО "Мак"', tif:"GTC", valid:null, sell:4500000, rate:78.50000, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"USDRUB", captured:"05.06.2025, 12:05", client:'ООО "Василек"', valid:"06.06.2025, 11:45", sell:300000, rate:78.13000, buy:null, mt:null, exec:"NT Pro"}),
       mkRow({pair:"USDRUB", captured:"05.06.2025, 10:40", client:'ООО "Кактус"', valid:"05.06.2025, 16:05", sell:null, rate:77.70000, buy:17000000, mt:null, exec:"NT Pro"}),
@@ -1458,7 +1470,9 @@
           <td class="fixed-center">${r.captured}</td>
           <td class="muted">${createdByForRow(r)}</td>
           <td class="muted">${innForClient(r.client)}</td>
-          <td>${r.client}</td>
+          <td class="client-name">
+            <span class="cell-ellipsis">${r.client}</span>
+          </td>
 
           <td><strong>${r.pair}</strong></td>
 
@@ -1483,6 +1497,9 @@
 
           <td class="kebab" title="More">⋮</td>
         `;
+        // tooltip: полное имя клиента при наведении
+        const clientSpan = tr.querySelector('.client-name .cell-ellipsis');
+        if (clientSpan) clientSpan.title = r.client;
         blotterTbody.appendChild(tr);
       });
     }
@@ -1942,7 +1959,9 @@
           <td class="fixed-center">${r.captured}</td>
           <td class="muted">${createdByForRow(r)}</td>
           <td class="muted">${innForClient(r.client)}</td>
-          <td>${r.client}</td>
+          <td class="client-name">
+            <span class="cell-ellipsis">${r.client}</span>
+          </td>
 
           <td class="num">${fmtNum(r.sell)}</td>
           <td class="num">${fmtRate(r.rate, r.pair)}</td>
@@ -1962,6 +1981,9 @@
 
           <td class="kebab" title="More">⋮</td>
         `;
+        // tooltip: полное имя клиента при наведении
+        const clientSpan = tr.querySelector('.client-name .cell-ellipsis');
+        if (clientSpan) clientSpan.title = r.client;
         tbody.appendChild(tr);
       });
     }
