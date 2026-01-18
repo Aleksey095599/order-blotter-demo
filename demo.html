@@ -986,6 +986,25 @@
               </div>
             </section>
 
+            <section class="toolbar-panel" aria-label="Order Toolbar">
+              <div class="toolbar-header">
+                <span class="section-title">Order Toolbar</span>
+              </div>
+              <div class="tablebar">
+                <div class="toolbar-group">
+                  <button class="btn toolbar primary" type="button">＋ New Order</button>
+                </div>
+
+                <div class="toolbar-group toolbar-selected">
+                  <span class="toolbar-label">Selected orders:</span>
+                  <button class="btn toolbar ghost" type="button">Convert to Deal</button>
+                  <button class="btn toolbar ghost" type="button">Send to NT Pro</button>
+                  <button class="btn toolbar ghost" type="button">Send to NT Pro 2</button>
+                  <button class="btn toolbar danger" type="button">Cancel Order</button>
+                </div>
+              </div>
+            </section>
+
             <div class="table-wrap">
               <table class="orders-table" id="blotterTable">
                 <colgroup>
@@ -2171,23 +2190,33 @@
     let currentMode = "monitor";
 
     // --- Selected orders toolbar: enable actions only when at least one row is selected ---
-    const selectedOrderActionButtons = Array.from(
-      document.querySelectorAll('#monitorView .toolbar-selected button')
-    );
+    const selectedOrderActionButtons = {
+      monitor: Array.from(document.querySelectorAll('#monitorView .toolbar-selected button')),
+      blotter: Array.from(document.querySelectorAll('#blotterView .toolbar-selected button'))
+    };
 
-    function getSelectedMonitorOrdersCount(){
-      if (!tbody) return 0;
-      return tbody.querySelectorAll('input[type="checkbox"]:checked').length;
+    function getSelectedOrdersCount(mode){
+      const bodyEl = mode === "monitor" ? tbody : blotterTbody;
+      if (!bodyEl) return 0;
+      return bodyEl.querySelectorAll('input[type="checkbox"]:checked').length;
     }
 
     function updateSelectedOrderActions(){
-      const hasSelection = getSelectedMonitorOrdersCount() > 0;
-      const shouldEnable = (currentMode === "monitor") && hasSelection;
-      selectedOrderActionButtons.forEach(btn => btn.disabled = !shouldEnable);
+      const hasSelection = getSelectedOrdersCount(currentMode) > 0;
+      Object.entries(selectedOrderActionButtons).forEach(([mode, buttons]) => {
+        const shouldEnable = (mode === currentMode) && hasSelection;
+        buttons.forEach(btn => btn.disabled = !shouldEnable);
+      });
     }
 
     // event delegation (tbody stays the same element even after re-render)
     tbody.addEventListener('change', (e) => {
+      if (e.target && e.target.matches('input[type="checkbox"]')){
+        updateSelectedOrderActions();
+      }
+    });
+
+    blotterTbody.addEventListener('change', (e) => {
       if (e.target && e.target.matches('input[type="checkbox"]')){
         updateSelectedOrderActions();
       }
