@@ -673,6 +673,11 @@
       font-weight:800;
       margin:0 0 8px 0;
     }
+    .col-filter-popover .cf-range{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
     .col-filter-popover .cf-actions{
       display:flex;
       justify-content:flex-end;
@@ -779,10 +784,6 @@
                 </div>
               </div>
               <div class="filters-grid">
-                <div class="field">
-                  <label>Create Date</label>
-                  <input id="createDate" class="input" type="date" />
-                </div>
                 <div class="field has-icon">
                   <label>Client</label>
                   <span class="field-icon">🔎</span>
@@ -832,7 +833,13 @@
                 <thead>
                   <tr>
                     <th class="checkbox fixed-center"><span class="sr-only">Select</span></th>
-                    <th class="fixed-center">Create Date</th>
+                    <th class="fixed-center">
+                      Create Date
+                      <button class="col-filter-btn" type="button"
+                              data-monitor-col-filter="createDate"
+                              aria-label="Filter Create Date"
+                              title="Filter Create Date">⏷</button>
+                    </th>
                     <th>Client</th>
                     <th class="fixed-center">Valid Till</th>
                     <th class="num">Sell Amount</th>
@@ -878,11 +885,6 @@
 
 
               <div class="blotter-filters-grid">
-                <div class="field">
-                  <label>Create Date</label>
-                  <input id="blCaptureDate" class="input" type="date" />
-                </div>
-
                 <div class="field">
                   <label>Client</label>
                   <input id="blClient" class="input" type="text" placeholder="Client contains…" autocomplete="off" />
@@ -932,7 +934,13 @@
                 <thead>
                   <tr>
                     <th class="checkbox fixed-center"><span class="sr-only">Select</span></th>
-                    <th class="fixed-center">Create Date</th>
+                    <th class="fixed-center">
+                      Create Date
+                      <button class="col-filter-btn" type="button"
+                              data-col-filter="createDate"
+                              aria-label="Filter Create Date"
+                              title="Filter Create Date">⏷</button>
+                    </th>
                     <th>
                       Currency Pair
                       <button class="col-filter-btn" type="button"
@@ -1136,7 +1144,6 @@
     const clientFilterInput = document.getElementById('clientFilter');
     const amountMinInput = document.getElementById('amountMin');
     const monitorAppliedFilters = document.getElementById('monitorAppliedFilters');
-    const blCaptureDate = document.getElementById('blCaptureDate');
     const blClient = document.getElementById('blClient');
     const blInn = document.getElementById('blInn');
     const blValidTill = document.getElementById('blValidTill');
@@ -1156,6 +1163,7 @@
     const exposureOptions = [...new Set(rows.map(row => row.exec).filter(Boolean))];
     // Column filters now support multi-select (Set). Empty Set = "All"
     const blotterColFilters = {
+      createDate: new Set(),
       pair: new Set(),
       createdBy: new Set(),
       side: new Set(),
@@ -1165,9 +1173,13 @@
     };
     // Monitor header column-filters (single-select UI now, but stored as Set for future multi-select)
     const monitorColFilters = {
+      createDate: new Set(),
       touch: new Set(),
       exposure: new Set()
     };
+    // Date-range filters for Create Date (stored as ISO YYYY-MM-DD)
+    const blotterRangeFilters = { createDateFrom: "", createDateTo: "" };
+    const monitorRangeFilters = { createDateFrom: "", createDateTo: "" };
 
     const monitorColFilterPopover = document.getElementById('monitorColFilterPopover');
     let openedMonitorColFilterKey = null;
@@ -1217,7 +1229,13 @@
       if (!blotterAppliedFilters) return;
 
       const parts = [];
-      if (model.capDate) parts.push(`Create Date=${model.capDate}`);
+      if (model.capFrom || model.capTo){
+        const fromText = yyyyMmDdToDdMmYyyy(model.capFrom);
+        const toText = yyyyMmDdToDdMmYyyy(model.capTo);
+        if (model.capFrom && model.capTo) parts.push(`Create Date=${fromText}..${toText}`);
+        else if (model.capFrom) parts.push(`Create Date≥${fromText}`);
+        else parts.push(`Create Date≤${toText}`);
+      }
       const pairText = summarizeSet(model.pair);
       if (pairText) parts.push(`Currency Pair=${pairText}`);
 
@@ -1354,6 +1372,7 @@
 
     function getBlotterColFilterMeta(){
       return {
+        createDate: { type: "dateRange", label: "Create Date" },
         pair: { label: "Currency Pair", options: pairCodes.map(v => ({ value: v, label: v })) },
         createdBy: { label: "Created By", options: CREATED_BY_OPTIONS.map(v => ({ value: v, label: v })) },
         side: { label: "Side", options: ["buy", "sell"].map(v => ({ value: v, label: v })) },
@@ -1367,7 +1386,10 @@
       document.querySelectorAll('.col-filter-btn[data-col-filter]').forEach(btn => {
         const key = btn.dataset.colFilter;
         const set = blotterColFilters[key];
-        btn.classList.toggle('active', set instanceof Set && set.size > 0);
+        const isActive =
+          (set instanceof Set && set.size > 0)
+          || (key === "createDate" && (blotterRangeFilters.createDateFrom || blotterRangeFilters.createDateTo));
+        btn.classList.toggle('active', !!isActive);
       });
     }
 
@@ -1382,6 +1404,66 @@
       if (!meta) return;
 
       openedColFilterKey = key;
+
+      if (meta.type === "dateRange"){
+        blotterColFilterPopover.innerHTML = `
+          <div class="cf-title">${meta.label}</div>
+          <div class="cf-range">
+            <div class="field">
+              <label>From</label>
+              <input id="cfDateFrom" class="input" type="date" />
+            </div>
+            <div class="field">
+              <label>To</label>
+              <input id="cfDateTo" class="input" type="date" />
+            </div>
+          </div>
+          <div class="cf-actions">
+            <button class="btn small" type="button" id="cfClearBtn">Clear</button>
+            <button class="btn small primary" type="button" id="cfApplyBtn">Apply</button>
+          </div>
+        `;
+
+        // position
+        const rect = anchorEl.getBoundingClientRect();
+        const pad = 8;
+        const width = 260;
+        let left = rect.left;
+        if (left + width + pad > window.innerWidth) left = window.innerWidth - width - pad;
+        if (left < pad) left = pad;
+        let top = rect.bottom + pad;
+        const heightGuess = 220;
+        if (top + heightGuess + pad > window.innerHeight) top = rect.top - heightGuess - pad;
+        if (top < pad) top = pad;
+        blotterColFilterPopover.style.left = `${left}px`;
+        blotterColFilterPopover.style.top = `${top}px`;
+        blotterColFilterPopover.classList.remove('hidden');
+
+        const fromEl = document.getElementById("cfDateFrom");
+        const toEl = document.getElementById("cfDateTo");
+        fromEl.value = blotterRangeFilters.createDateFrom || "";
+        toEl.value = blotterRangeFilters.createDateTo || "";
+
+        document.getElementById("cfClearBtn").onclick = () => {
+          fromEl.value = "";
+          toEl.value = "";
+        };
+
+        document.getElementById("cfApplyBtn").onclick = () => {
+          let from = fromEl.value;
+          let to = toEl.value;
+          if (from && to && from > to){ const tmp = from; from = to; to = tmp; } // normalize
+
+          blotterRangeFilters.createDateFrom = from;
+          blotterRangeFilters.createDateTo = to;
+
+          updateBlotterColFilterIndicators();
+          closeBlotterColFilterPopover();
+          applyBlotterFilters();
+        };
+
+        return;
+      }
 
       // Draft selection: не мутируем состояние, пока пользователь не нажал Apply
       const draft = new Set(blotterColFilters[key]);
@@ -1458,6 +1540,7 @@
 
     function getMonitorColFilterMeta(){
       return {
+        createDate: { type: "dateRange", label: "Create Date" },
         touch: {
           label: "Market Touch",
           options: [{ value: "yes", label: "Yes" }, { value: "no", label: "No" }]
@@ -1473,7 +1556,10 @@
       document.querySelectorAll('.col-filter-btn[data-monitor-col-filter]').forEach(btn => {
         const key = btn.dataset.monitorColFilter;
         const set = monitorColFilters[key];
-        btn.classList.toggle('active', set instanceof Set && set.size > 0);
+        const isActive =
+          (set instanceof Set && set.size > 0)
+          || (key === "createDate" && (monitorRangeFilters.createDateFrom || monitorRangeFilters.createDateTo));
+        btn.classList.toggle('active', !!isActive);
       });
     }
 
@@ -1488,6 +1574,65 @@
       if (!meta) return;
 
       openedMonitorColFilterKey = key;
+
+      if (meta.type === "dateRange"){
+        monitorColFilterPopover.innerHTML = `
+          <div class="cf-title">${meta.label}</div>
+          <div class="cf-range">
+            <div class="field">
+              <label>From</label>
+              <input id="mcfDateFrom" class="input" type="date" />
+            </div>
+            <div class="field">
+              <label>To</label>
+              <input id="mcfDateTo" class="input" type="date" />
+            </div>
+          </div>
+          <div class="cf-actions">
+            <button class="btn small" type="button" id="mcfClearBtn">Clear</button>
+            <button class="btn small primary" type="button" id="mcfApplyBtn">Apply</button>
+          </div>
+        `;
+
+        const rect = anchorEl.getBoundingClientRect();
+        const pad = 8;
+        const width = 260;
+        let left = rect.left;
+        if (left + width + pad > window.innerWidth) left = window.innerWidth - width - pad;
+        if (left < pad) left = pad;
+        let top = rect.bottom + pad;
+        const heightGuess = 220;
+        if (top + heightGuess + pad > window.innerHeight) top = rect.top - heightGuess - pad;
+        if (top < pad) top = pad;
+        monitorColFilterPopover.style.left = `${left}px`;
+        monitorColFilterPopover.style.top = `${top}px`;
+        monitorColFilterPopover.classList.remove('hidden');
+
+        const fromEl = document.getElementById("mcfDateFrom");
+        const toEl = document.getElementById("mcfDateTo");
+        fromEl.value = monitorRangeFilters.createDateFrom || "";
+        toEl.value = monitorRangeFilters.createDateTo || "";
+
+        document.getElementById("mcfClearBtn").onclick = () => {
+          fromEl.value = "";
+          toEl.value = "";
+        };
+
+        document.getElementById("mcfApplyBtn").onclick = () => {
+          let from = fromEl.value;
+          let to = toEl.value;
+          if (from && to && from > to){ const tmp = from; from = to; to = tmp; }
+
+          monitorRangeFilters.createDateFrom = from;
+          monitorRangeFilters.createDateTo = to;
+
+          updateMonitorColFilterIndicators();
+          closeMonitorColFilterPopover();
+          applyFilters();
+        };
+
+        return;
+      }
 
       const listHtml = meta.options.map(o => `
         <label class="cf-item">
@@ -1607,6 +1752,24 @@
       return `${d}.${m}.${y}`;
     }
 
+    function capturedToIsoDate(captured){
+      if (!captured) return "";
+      // "05.06.2025, 11:15" -> "2025-06-05"
+      const dmy = captured.split(",")[0].trim();
+      const parts = dmy.split(".");
+      if (parts.length !== 3) return "";
+      const [d, m, y] = parts;
+      return `${y}-${m}-${d}`;
+    }
+
+    function inIsoDateRange(isoDate, from, to){
+      if (!from && !to) return true;
+      if (!isoDate) return false;
+      if (from && isoDate < from) return false;
+      if (to && isoDate > to) return false;
+      return true;
+    }
+
     function parseOptionalNumber(value){
       if (!value || !value.toString().trim()) return null;
       const normalized = value.toString().replace(/[^\d.,-]/g, "").replace(",", ".");
@@ -1650,7 +1813,8 @@
     }
 
     function applyBlotterFilters(){
-      const capDate = yyyyMmDdToDdMmYyyy(blCaptureDate.value);
+      const capFrom = blotterRangeFilters.createDateFrom;
+      const capTo = blotterRangeFilters.createDateTo;
       const pair = blotterColFilters.pair;              // Set
       const createdByNeedle = blotterColFilters.createdBy; // Set
 
@@ -1674,7 +1838,8 @@
       const statusNeedle = blotterColFilters.status;    // Set
 
       updateBlotterAppliedFiltersSummary({
-        capDate,
+        capFrom,
+        capTo,
         pair,
         createdByNeedle,
         clientNeedleRaw,
@@ -1697,7 +1862,7 @@
         const inn = innForClient(r.client);
         const status = statusForRow(r);
 
-        const okCapture = !capDate || r.captured.startsWith(capDate);
+        const okCapture = inIsoDateRange(capturedToIsoDate(r.captured), capFrom, capTo);
         const okPair = pair.size === 0 || pair.has(r.pair);
         const okCreatedBy = createdByNeedle.size === 0 || createdByNeedle.has(createdBy);
 
@@ -1751,6 +1916,18 @@
 
       if (activePair) parts.push(`Currency Pair=${activePair}`);
 
+      if (monitorRangeFilters.createDateFrom || monitorRangeFilters.createDateTo){
+        const fromText = yyyyMmDdToDdMmYyyy(monitorRangeFilters.createDateFrom);
+        const toText = yyyyMmDdToDdMmYyyy(monitorRangeFilters.createDateTo);
+        if (monitorRangeFilters.createDateFrom && monitorRangeFilters.createDateTo){
+          parts.push(`Create Date=${fromText}..${toText}`);
+        } else if (monitorRangeFilters.createDateFrom){
+          parts.push(`Create Date≥${fromText}`);
+        } else {
+          parts.push(`Create Date≤${toText}`);
+        }
+      }
+
       const clientRaw = clientFilterInput.value.trim();
       if (clientRaw) parts.push(`Client~"${clientRaw}"`);
 
@@ -1776,12 +1953,15 @@
       }
       const clientNeedle = clientFilterInput.value.trim().toLowerCase();
       const minAmount = parseAmount(amountMinInput.value);
+      const capFrom = monitorRangeFilters.createDateFrom;
+      const capTo = monitorRangeFilters.createDateTo;
       const touchNeedle = monitorColFilters.touch;      // Set
       const exposureNeedle = monitorColFilters.exposure;// Set
       filtered = rows.filter(r => {
         const okPair = r.pair === activePair;
         const okClient = !clientNeedle || r.client.toLowerCase().includes(clientNeedle);
         const okAmount = isRowAboveMin(r, minAmount);
+        const okCreateDate = inIsoDateRange(capturedToIsoDate(r.captured), capFrom, capTo);
         const okTouch =
           touchNeedle.size === 0
           || (touchNeedle.has("yes") && isMarketTouch(r))
@@ -1789,7 +1969,7 @@
         const okExposure =
           exposureNeedle.size === 0
           || exposureNeedle.has(r.exec);
-        return okPair && okClient && okAmount && okTouch && okExposure;
+        return okPair && okClient && okAmount && okCreateDate && okTouch && okExposure;
       });
       filtered.sort((a, b) => a.rate - b.rate);
 
@@ -1802,7 +1982,8 @@
     clientFilterInput.addEventListener('input', applyFilters);
     amountMinInput.addEventListener('input', applyFilters);
     document.getElementById('resetBtn').addEventListener('click', () => {
-      document.getElementById('createDate').value = "";
+      monitorRangeFilters.createDateFrom = "";
+      monitorRangeFilters.createDateTo = "";
       clientFilterInput.value = "";
       amountMinInput.value = "";
       monitorColFilters.touch.clear();
@@ -1909,15 +2090,17 @@
 
     blotterSearchBtn.addEventListener('click', applyBlotterFilters);
     blotterResetBtn.addEventListener('click', () => {
+      blotterColFilters.createDate.clear();
       blotterColFilters.pair.clear();
       blotterColFilters.createdBy.clear();
       blotterColFilters.side.clear();
       blotterColFilters.touch.clear();
       blotterColFilters.exposure.clear();
       blotterColFilters.status.clear();
+      blotterRangeFilters.createDateFrom = "";
+      blotterRangeFilters.createDateTo = "";
       updateBlotterColFilterIndicators();
       closeBlotterColFilterPopover();
-      blCaptureDate.value = "";
       blClient.value = "";
       blInn.value = "";
       blValidTill.value = "";
