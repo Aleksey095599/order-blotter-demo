@@ -180,6 +180,13 @@
       font-size:12px;
     }
     .btn:active{transform:translateY(1px)}
+    .btn:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+    }
+    .btn:disabled:active{
+      transform:none;
+    }
     /* Filters row */
     .filters-panel{
       margin:0 0 12px 0;
@@ -2115,6 +2122,7 @@
       renderPairs();
       renderTable();
       updateMonitorAppliedFiltersSummary();
+      updateSelectedOrderActions();
     }
 
     function bindEnterToSearch(panelSelector, onSearch){
@@ -2162,6 +2170,29 @@
     const historyView = document.getElementById('historyView');
     let currentMode = "monitor";
 
+    // --- Selected orders toolbar: enable actions only when at least one row is selected ---
+    const selectedOrderActionButtons = Array.from(
+      document.querySelectorAll('#monitorView .toolbar-selected button')
+    );
+
+    function getSelectedMonitorOrdersCount(){
+      if (!tbody) return 0;
+      return tbody.querySelectorAll('input[type="checkbox"]:checked').length;
+    }
+
+    function updateSelectedOrderActions(){
+      const hasSelection = getSelectedMonitorOrdersCount() > 0;
+      const shouldEnable = (currentMode === "monitor") && hasSelection;
+      selectedOrderActionButtons.forEach(btn => btn.disabled = !shouldEnable);
+    }
+
+    // event delegation (tbody stays the same element even after re-render)
+    tbody.addEventListener('change', (e) => {
+      if (e.target && e.target.matches('input[type="checkbox"]')){
+        updateSelectedOrderActions();
+      }
+    });
+
     function setMode(mode){
       currentMode = mode;
 
@@ -2186,6 +2217,7 @@
 
       if (mode === "monitor") applyFilters();
       if (mode === "blotter") applyBlotterFilters();
+      updateSelectedOrderActions();
     }
 
     modeButtons.forEach(btn => {
@@ -2196,6 +2228,7 @@
     updateBlotterColFilterIndicators();
     updateMonitorColFilterIndicators();
     setMode("monitor");
+    updateSelectedOrderActions();
 
     document.querySelectorAll('.col-filter-btn[data-col-filter]').forEach(btn => {
       btn.addEventListener('click', (e) => {
