@@ -787,10 +787,14 @@
                 </div>
               </div>
               <div class="filters-grid">
+                <div class="field">
+                  <label>INN</label>
+                  <input id="innFilter" class="input" type="text" placeholder="INN contains..." autocomplete="off" />
+                </div>
                 <div class="field has-icon">
-                  <label>Client</label>
+                  <label>Client Name</label>
                   <span class="field-icon">🔎</span>
-                  <input id="clientFilter" class="input with-icon" type="text" placeholder="Start typing a client name" autocomplete="off" />
+                  <input id="clientFilter" class="input with-icon" type="text" placeholder="Client Name contains..." autocomplete="off" />
                 </div>
                 <div class="field">
                   <label>Min Amount</label>
@@ -856,7 +860,7 @@
                               title="Filter Created By">⏷</button>
                     </th>
                     <th>INN</th>
-                    <th>Client</th>
+                    <th>Client Name</th>
 
                     <th class="num">Sell Amount</th>
                     <th class="num">Rate</th>
@@ -912,13 +916,13 @@
 
               <div class="blotter-filters-grid">
                 <div class="field">
-                  <label>Client</label>
-                  <input id="blClient" class="input" type="text" placeholder="Client contains…" autocomplete="off" />
+                  <label>INN</label>
+                  <input id="blInn" class="input" type="text" placeholder="INN contains..." autocomplete="off" />
                 </div>
 
                 <div class="field">
-                  <label>INN</label>
-                  <input id="blInn" class="input" type="text" placeholder="INN contains…" autocomplete="off" />
+                  <label>Client Name</label>
+                  <input id="blClient" class="input" type="text" placeholder="Client Name contains..." autocomplete="off" />
                 </div>
 
                 <div class="field">
@@ -991,7 +995,7 @@
                               title="Filter Created By">⏷</button>
                     </th>
                     <th>INN</th>
-                    <th>Client</th>
+                    <th>Client Name</th>
                     <th>
                       Currency Pair
                       <button class="col-filter-btn" type="button"
@@ -1184,6 +1188,7 @@
     const tbody = document.getElementById('tbody');
     const blotterTbody = document.getElementById('blotterTbody');
     const clientFilterInput = document.getElementById('clientFilter');
+    const innFilterInput = document.getElementById('innFilter');
     const amountMinInput = document.getElementById('amountMin');
     const monitorAppliedFilters = document.getElementById('monitorAppliedFilters');
     const blClient = document.getElementById('blClient');
@@ -1285,7 +1290,7 @@
 
       const createdByText = summarizeSet(model.createdByNeedle);
       if (createdByText) parts.push(`Created By=${createdByText}`);
-      if (model.clientNeedleRaw) parts.push(`Client~"${model.clientNeedleRaw}"`);
+      if (model.clientNeedleRaw) parts.push(`Client Name~"${model.clientNeedleRaw}"`);
       if (model.innNeedle) parts.push(`INN~"${model.innNeedle}"`);
       if (model.validDate) parts.push(`Valid Till=${model.validDate}`);
 
@@ -1996,7 +2001,10 @@
       }
 
       const clientRaw = clientFilterInput.value.trim();
-      if (clientRaw) parts.push(`Client~"${clientRaw}"`);
+      if (clientRaw) parts.push(`Client Name~"${clientRaw}"`);
+
+      const innRaw = innFilterInput.value.trim();
+      if (innRaw) parts.push(`INN~"${innRaw}"`);
 
       const minAmount = parseAmount(amountMinInput.value);
       if (minAmount) parts.push(`Min Amount≥${fmtNum(minAmount)}`);
@@ -2025,6 +2033,7 @@
         activePair = pairCodes[0];
       }
       const clientNeedle = clientFilterInput.value.trim().toLowerCase();
+      const innNeedle = innFilterInput.value.trim();
       const minAmount = parseAmount(amountMinInput.value);
       const capFrom = monitorRangeFilters.createDateFrom;
       const capTo = monitorRangeFilters.createDateTo;
@@ -2036,6 +2045,8 @@
         const createdBy = createdByForRow(r);
         const status = statusForRow(r);
         const okPair = r.pair === activePair;
+        const inn = innForClient(r.client);
+        const okInn = !innNeedle || inn.includes(innNeedle);
         const okClient = !clientNeedle || r.client.toLowerCase().includes(clientNeedle);
         const okAmount = isRowAboveMin(r, minAmount);
         const okCreateDate = inIsoDateRange(capturedToIsoDate(r.captured), capFrom, capTo);
@@ -2048,7 +2059,7 @@
           exposureNeedle.size === 0
           || exposureNeedle.has(r.exec);
         const okStatus = statusNeedle.size === 0 || statusNeedle.has(status);
-        return okPair && okClient && okAmount && okCreateDate && okCreatedBy && okTouch && okExposure && okStatus;
+        return okPair && okInn && okClient && okAmount && okCreateDate && okCreatedBy && okTouch && okExposure && okStatus;
       });
       filtered.sort((a, b) => a.rate - b.rate);
 
@@ -2064,6 +2075,7 @@
       monitorRangeFilters.createDateFrom = "";
       monitorRangeFilters.createDateTo = "";
       clientFilterInput.value = "";
+      innFilterInput.value = "";
       amountMinInput.value = "";
       monitorColFilters.createdBy.clear();
       monitorColFilters.touch.clear();
