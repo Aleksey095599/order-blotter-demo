@@ -787,9 +787,10 @@
                 </div>
               </div>
               <div class="filters-grid">
-                <div class="field">
+                <div class="field has-icon">
                   <label>INN</label>
-                  <input id="innFilter" class="input" type="text" placeholder="INN contains..." autocomplete="off" />
+                  <span class="field-icon">🔎</span>
+                  <input id="innFilter" class="input with-icon" type="text" placeholder="INN contains..." autocomplete="off" />
                 </div>
                 <div class="field has-icon">
                   <label>Client Name</label>
@@ -915,14 +916,16 @@
 
 
               <div class="blotter-filters-grid">
-                <div class="field">
+                <div class="field has-icon">
                   <label>INN</label>
-                  <input id="blInn" class="input" type="text" placeholder="INN contains..." autocomplete="off" />
+                  <span class="field-icon">🔎</span>
+                  <input id="blInn" class="input with-icon" type="text" placeholder="INN contains..." autocomplete="off" />
                 </div>
 
-                <div class="field">
+                <div class="field has-icon">
                   <label>Client Name</label>
-                  <input id="blClient" class="input" type="text" placeholder="Client Name contains..." autocomplete="off" />
+                  <span class="field-icon">🔎</span>
+                  <input id="blClient" class="input with-icon" type="text" placeholder="Client Name contains..." autocomplete="off" />
                 </div>
 
                 <div class="field">
@@ -2090,9 +2093,26 @@
       updateMonitorAppliedFiltersSummary();
     }
 
+    function bindEnterToSearch(panelSelector, onSearch){
+      const panel = document.querySelector(panelSelector);
+      if (!panel) return;
+
+      panel.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter') return;
+
+        const t = e.target;
+        if (!t) return;
+
+        const isInput = t.tagName === 'INPUT';
+        const isSelect = t.tagName === 'SELECT';
+        if (!isInput && !isSelect) return;
+
+        e.preventDefault();
+        onSearch();
+      });
+    }
+
     document.getElementById('searchBtn').addEventListener('click', applyFilters);
-    clientFilterInput.addEventListener('input', applyFilters);
-    amountMinInput.addEventListener('input', applyFilters);
     document.getElementById('resetBtn').addEventListener('click', () => {
       monitorRangeFilters.createDateFrom = "";
       monitorRangeFilters.createDateTo = "";
@@ -2202,6 +2222,9 @@
         closeMonitorColFilterPopover();
       }
     });
+
+    bindEnterToSearch('#monitorView .filters-panel', applyFilters);
+    bindEnterToSearch('#blotterView .filters-panel', applyBlotterFilters);
 
     blotterSearchBtn.addEventListener('click', applyBlotterFilters);
     blotterResetBtn.addEventListener('click', () => {
