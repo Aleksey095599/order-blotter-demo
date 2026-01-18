@@ -471,6 +471,7 @@
     col.col-createdby{width:auto}
     col.col-inn{width:auto}
     col.col-client{width:auto}
+    col.col-tif{width:auto}
     col.col-valid{width:auto}
     col.col-sell{width:auto}
     col.col-rate{width:auto}
@@ -836,6 +837,7 @@
                   <col class="col-rate" />
                   <col class="col-touch" />
                   <col class="col-buy" />
+                  <col class="col-tif" />
                   <col class="col-valid" />
                   <col class="col-exposure" />
                   <col class="col-status" />
@@ -876,6 +878,13 @@
                     </th>
 
                     <th class="num">Buy Amount</th>
+                    <th class="fixed-center">
+                      Time In Force
+                      <button class="col-filter-btn" type="button"
+                              data-monitor-col-filter="tif"
+                              aria-label="Filter Time In Force"
+                              title="Filter Time In Force">⏷</button>
+                    </th>
                     <th class="fixed-center">Valid Till</th>
 
                     <th>
@@ -960,6 +969,7 @@
                   <col class="col-side" />
                   <col class="col-rate" />
                   <col class="col-touch" />
+                  <col class="col-tif" />
                   <col class="col-valid" />
                   <col class="col-exposure" />
                   <col class="col-status" />
@@ -1007,6 +1017,13 @@
                               aria-label="Filter Market Touch"
                               title="Filter Market Touch">⏷</button>
                       <span class="sr-only">Market Touch Indicator</span>
+                    </th>
+                    <th class="fixed-center">
+                      Time In Force
+                      <button class="col-filter-btn" type="button"
+                              data-col-filter="tif"
+                              aria-label="Filter Time In Force"
+                              title="Filter Time In Force">⏷</button>
                     </th>
                     <th class="fixed-center">Valid Till</th>
                     <th>
@@ -1056,10 +1073,11 @@
     const pairCodes = ["USDRUB", "EURRUB", "CNYRUB"];
     const CREATED_BY_OPTIONS = ["dealer1", "dealer2", "some_process1", "some_process2"];
     const STATUS_OPTIONS = ["New", "Delegated", "Execute Pending", "Executed", "Cancelled"];
+    const TIF_OPTIONS = ["GTC", "GTD"];
 
     const rows = [
       mkRow({pair:"USDRUB", captured:"05.06.2025, 11:15", client:'ООО "Ромашка"', valid:"06.06.2025, 09:30", sell:null, rate:77.80000, buy:15000000, mt:null, exec:"NT Pro"}),
-      mkRow({pair:"USDRUB", captured:"05.06.2025, 10:25", client:'ООО "Мак"', valid:"06.06.2025, 15:10", sell:4500000, rate:78.50000, buy:null, mt:null, exec:"None"}),
+      mkRow({pair:"USDRUB", captured:"05.06.2025, 10:25", client:'ООО "Мак"', tif:"GTC", valid:null, sell:4500000, rate:78.50000, buy:null, mt:null, exec:"None"}),
       mkRow({pair:"USDRUB", captured:"05.06.2025, 12:05", client:'ООО "Василек"', valid:"06.06.2025, 11:45", sell:300000, rate:78.13000, buy:null, mt:null, exec:"NT Pro"}),
       mkRow({pair:"USDRUB", captured:"05.06.2025, 10:40", client:'ООО "Кактус"', valid:"05.06.2025, 16:05", sell:null, rate:77.70000, buy:17000000, mt:null, exec:"NT Pro"}),
       mkRow({pair:"USDRUB", captured:"05.06.2025, 10:05", client:'ООО "Кактус"', valid:"05.06.2025, 14:20", sell:null, rate:77.65000, buy:30000000, mt:null, exec:"Traders"}),
@@ -1162,8 +1180,11 @@
       mkRow({pair:"USDRUB", captured:"05.06.2025, 12:50", client:'ООО "Одуванчик"', valid:"06.06.2025, 16:20", sell:10000000, rate:78.20000, buy:null, mt:null, exec:"Traders"}),
     ];
 
-    function mkRow({pair, captured, client, valid, sell, rate, buy, mt, exec}){
-      return { pair, captured, client, valid, sell, rate, buy, mt, exec, id: cryptoRandomId() };
+    function mkRow({pair, captured, client, valid, sell, rate, buy, mt, exec, tif}){
+      // TIF: "GTC" => Valid Till must be null; "GTD" => Valid Till must be a date/time string
+      const timeInForce = tif || (valid ? "GTD" : "GTC");
+      const validTill = (timeInForce === "GTC") ? null : valid;
+      return { pair, captured, client, tif: timeInForce, valid: validTill, sell, rate, buy, mt, exec, id: cryptoRandomId() };
     }
 
     function cryptoRandomId(){
@@ -1207,6 +1228,7 @@
       side: new Set(),
       touch: new Set(),
       exposure: new Set(),
+      tif: new Set(),
       status: new Set()
     };
     // Monitor header column-filters (single-select UI now, but stored as Set for future multi-select)
@@ -1215,6 +1237,7 @@
       createdBy: new Set(),
       touch: new Set(),
       exposure: new Set(),
+      tif: new Set(),
       status: new Set()
     };
     // Date-range filters for Create Date (stored as ISO YYYY-MM-DD)
@@ -1329,6 +1352,9 @@
       const exposureText = summarizeSet(model.exposureNeedle);
       if (exposureText) parts.push(`Market Exposure=${exposureText}`);
 
+      const tifText = summarizeSet(model.tifNeedle);
+      if (tifText) parts.push(`Time In Force=${tifText}`);
+
       const statusText = summarizeSet(model.statusNeedle);
       if (statusText) parts.push(`Status=${statusText}`);
 
@@ -1399,7 +1425,8 @@
               : ``}
           </td>
 
-          <td class="fixed-center">${r.valid}</td>
+          <td class="fixed-center">${r.tif || ""}</td>
+          <td class="fixed-center">${r.valid || ""}</td>
 
           <td class="muted">${r.exec}</td>
 
@@ -1443,6 +1470,7 @@
         side: { label: "Side", options: ["buy", "sell"].map(v => ({ value: v, label: v })) },
         touch: { label: "Market Touch", options: [{ value: "yes", label: "Yes" }, { value: "no", label: "No" }] },
         exposure: { label: "Market Exposure", options: exposureOptions.map(v => ({ value: v, label: v })) },
+        tif: { label: "Time In Force", options: TIF_OPTIONS.map(v => ({ value: v, label: v })) },
         status: { label: "Status", options: STATUS_OPTIONS.map(v => ({ value: v, label: v })) }
       };
     }
@@ -1615,6 +1643,7 @@
           label: "Market Exposure",
           options: exposureOptions.map(v => ({ value: v, label: v }))
         },
+        tif: { label: "Time In Force", options: TIF_OPTIONS.map(v => ({ value: v, label: v })) },
         status: { label: "Status", options: STATUS_OPTIONS.map(v => ({ value: v, label: v })) }
       };
     }
@@ -1876,7 +1905,8 @@
           </td>
 
           <td class="num">${fmtNum(r.buy)}</td>
-          <td class="fixed-center">${r.valid}</td>
+          <td class="fixed-center">${r.tif || ""}</td>
+          <td class="fixed-center">${r.valid || ""}</td>
 
           <td class="muted">${r.exec}</td>
           <td>${statusForRow(r)}</td>
@@ -1904,6 +1934,7 @@
 
       const touchNeedle = blotterColFilters.touch;      // Set
       const exposureNeedle = blotterColFilters.exposure;// Set
+      const tifNeedle = blotterColFilters.tif;          // Set
 
       const statusNeedle = blotterColFilters.status;    // Set
 
@@ -1919,6 +1950,7 @@
         sideNeedle,
         touchNeedle,
         exposureNeedle,
+        tifNeedle,
         statusNeedle
       });
 
@@ -1947,6 +1979,7 @@
           || (touchNeedle.has("no") && !isMarketTouch(r));
 
         const okExposure = exposureNeedle.size === 0 || exposureNeedle.has(r.exec);
+        const okTif = tifNeedle.size === 0 || tifNeedle.has(r.tif);
 
         const okStatus = statusNeedle.size === 0 || statusNeedle.has(status);
 
@@ -1961,6 +1994,7 @@
           okSide &&
           okTouch &&
           okExposure &&
+          okTif &&
           okStatus
         );
       });
@@ -2002,6 +2036,9 @@
       const exposureText = summarizeSet(monitorColFilters.exposure);
       if (exposureText) parts.push(`Market Exposure=${exposureText}`);
 
+      const tifText = summarizeSet(monitorColFilters.tif);
+      if (tifText) parts.push(`Time In Force=${tifText}`);
+
       const createdByText = summarizeSet(monitorColFilters.createdBy);
       if (createdByText) parts.push(`Created By=${createdByText}`);
 
@@ -2027,6 +2064,7 @@
       const createdByNeedle = monitorColFilters.createdBy;
       const touchNeedle = monitorColFilters.touch;      // Set
       const exposureNeedle = monitorColFilters.exposure;// Set
+      const tifNeedle = monitorColFilters.tif;          // Set
       const statusNeedle = monitorColFilters.status;
       filtered = rows.filter(r => {
         const createdBy = createdByForRow(r);
@@ -2045,8 +2083,9 @@
         const okExposure =
           exposureNeedle.size === 0
           || exposureNeedle.has(r.exec);
+        const okTif = tifNeedle.size === 0 || tifNeedle.has(r.tif);
         const okStatus = statusNeedle.size === 0 || statusNeedle.has(status);
-        return okPair && okInn && okClient && okAmount && okCreateDate && okCreatedBy && okTouch && okExposure && okStatus;
+        return okPair && okInn && okClient && okAmount && okCreateDate && okCreatedBy && okTouch && okExposure && okTif && okStatus;
       });
       filtered.sort((a, b) => a.rate - b.rate);
 
@@ -2084,6 +2123,7 @@
       monitorColFilters.createdBy.clear();
       monitorColFilters.touch.clear();
       monitorColFilters.exposure.clear();
+      monitorColFilters.tif.clear();
       monitorColFilters.status.clear();
       updateMonitorColFilterIndicators();
       closeMonitorColFilterPopover();
@@ -2196,6 +2236,7 @@
       blotterColFilters.side.clear();
       blotterColFilters.touch.clear();
       blotterColFilters.exposure.clear();
+      blotterColFilters.tif.clear();
       blotterColFilters.status.clear();
       blotterRangeFilters.createDateFrom = "";
       blotterRangeFilters.createDateTo = "";
