@@ -28,11 +28,13 @@
       --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
     }
     *{box-sizing:border-box}
+    html, body{height:100%}
     body{
       margin:0;
       font-family:var(--font);
       color:var(--text);
       background:var(--bg);
+      overflow:hidden; /* скроллим внутренние области (таблица/сайдбар), а не всю страницу */
     }
     a{color:inherit; text-decoration:none}
     /* Top nav */
@@ -73,12 +75,18 @@
     /* Page */
     .page{
       padding:18px;
+      height:calc(100vh - 56px); /* topbar = 56px */
+      overflow:hidden;
     }
     .card{
       background:var(--card);
       border:1px solid var(--line);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
     }
     .header{
       padding:16px 16px 10px 16px;
@@ -395,7 +403,9 @@
       border-top:1px solid var(--line);
       display:grid;
       grid-template-columns: 220px 1fr;
-      min-height:520px;
+      flex:1;
+      min-height:0;   /* важно для flex/grid + внутренних скроллов */
+      overflow:hidden;
     }
     /* When Blotter view is active: sidebar hidden, content full width */
     .content.no-sidebar{
@@ -408,10 +418,16 @@
       gap:10px;
       background:#f3f4f6;
       border-radius:12px;
+      flex:1;
+      min-height:0;   /* важно: иначе table-wrap не сможет "ужаться" и начать скроллиться */
+      overflow:hidden;
     }
     .sidebar{
       border-right:1px solid var(--line);
       padding:12px 0;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
     }
     .side-title{
       padding:0 14px 10px 14px;
@@ -423,9 +439,10 @@
       justify-content:space-between;
     }
     .pair-list{
-      max-height:520px;
       overflow:auto;
       padding:0 6px;
+      flex:1;
+      min-height:0;
     }
     .pair{
       display:flex;
@@ -488,6 +505,18 @@
       border:1px solid var(--line);
       border-radius:12px;
       background:#f3f4f6;
+      flex:1;        /* занимает всё оставшееся место под тулбарами */
+      min-height:0;  /* критично для появления вертикального скролла */
+    }
+
+    /* Views: чтобы table-wrap мог быть flex:1 внутри режима */
+    #monitorView,
+    #blotterView,
+    #historyView{
+      display:flex;
+      flex-direction:column;
+      flex:1;
+      min-height:0;
     }
     table{
       width:max-content;
