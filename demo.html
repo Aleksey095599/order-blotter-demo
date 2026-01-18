@@ -254,6 +254,9 @@
       white-space:nowrap;
       user-select:text;
     }
+    .applied-text.is-empty{
+      color:var(--muted);
+    }
     .toolbar-header{
       display:flex;
       align-items:center;
@@ -792,7 +795,7 @@
               </div>
               <div class="filters-divider"></div>
               <div class="applied-bar" aria-live="polite">
-                <span class="applied-label">Applied</span>
+                <span class="applied-label">Applied:</span>
                 <span id="monitorAppliedFilters" class="applied-text" title="">No filters applied</span>
                 <button class="btn small" id="resetBtn">Clear all filters</button>
               </div>
@@ -918,7 +921,7 @@
 
               <div class="filters-divider"></div>
               <div class="applied-bar" aria-live="polite">
-                <span class="applied-label">Applied</span>
+                <span class="applied-label">Applied:</span>
                 <span id="blotterAppliedFilters" class="applied-text" title="">No filters applied</span>
                 <button class="btn small" id="blotterResetBtn">Clear all filters</button>
               </div>
@@ -1259,6 +1262,7 @@
       const summary = parts.length ? parts.join(" | ") : "No filters applied";
       blotterAppliedFilters.textContent = summary;
       blotterAppliedFilters.title = summary;
+      blotterAppliedFilters.classList.toggle('is-empty', !parts.length);
     }
 
     function hashString(s){
@@ -1762,6 +1766,7 @@
       const summary = parts.length ? parts.join(" | ") : "No filters applied";
       monitorAppliedFilters.textContent = summary;
       monitorAppliedFilters.title = summary;
+      monitorAppliedFilters.classList.toggle('is-empty', !parts.length);
     }
 
     // ------- Filters -------
