@@ -226,6 +226,34 @@
       flex:1;
       min-width:260px;
     }
+
+    /* Applied filters (status bar) */
+    .applied-bar{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 10px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:#f9fafb;
+    }
+
+    .applied-label{
+      font-size:12px;
+      font-weight:800;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+
+    .applied-text{
+      flex:1;
+      font-size:12px;
+      color:#111827;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      user-select:text;
+    }
     .toolbar-header{
       display:flex;
       align-items:center;
@@ -763,15 +791,9 @@
                 </div>
               </div>
               <div class="filters-divider"></div>
-
-              <div class="filters-split-label">Applied filters</div>
-
-              <div class="applied-filters-row">
-                <input id="monitorAppliedFilters"
-                       class="input applied-filters-input"
-                       type="text"
-                       readonly
-                       value="No filters applied" />
+              <div class="applied-bar" aria-live="polite">
+                <span class="applied-label">Applied</span>
+                <span id="monitorAppliedFilters" class="applied-text" title="">No filters applied</span>
                 <button class="btn small" id="resetBtn">Clear all filters</button>
               </div>
             </section>
@@ -895,15 +917,9 @@
               </div>
 
               <div class="filters-divider"></div>
-
-              <div class="filters-split-label">Applied filters</div>
-
-              <div class="applied-filters-row">
-                <input id="blotterAppliedFilters"
-                       class="input applied-filters-input"
-                       type="text"
-                       readonly
-                       value="No filters applied" />
+              <div class="applied-bar" aria-live="polite">
+                <span class="applied-label">Applied</span>
+                <span id="blotterAppliedFilters" class="applied-text" title="">No filters applied</span>
                 <button class="btn small" id="blotterResetBtn">Clear all filters</button>
               </div>
             </section>
@@ -1241,7 +1257,7 @@
       if (statusText) parts.push(`Status=${statusText}`);
 
       const summary = parts.length ? parts.join(" | ") : "No filters applied";
-      blotterAppliedFilters.value = summary;
+      blotterAppliedFilters.textContent = summary;
       blotterAppliedFilters.title = summary;
     }
 
@@ -1744,7 +1760,7 @@
       if (exposureText) parts.push(`Market Exposure=${exposureText}`);
 
       const summary = parts.length ? parts.join(" | ") : "No filters applied";
-      monitorAppliedFilters.value = summary;
+      monitorAppliedFilters.textContent = summary;
       monitorAppliedFilters.title = summary;
     }
 
