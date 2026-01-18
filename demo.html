@@ -450,6 +450,24 @@
       color:var(--muted);
       font-size:13px;
       background:#fff;
+      flex-wrap:wrap;
+    }
+    /* Order Toolbar grouping */
+    .toolbar-group{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .toolbar-selected{
+      margin-left:auto;
+      padding-left:12px;
+      border-left:1px solid var(--line);
+    }
+    .toolbar-label{
+      font-size:12px;
+      font-weight:800;
+      color:var(--muted);
+      white-space:nowrap;
     }
     /* Table */
     .table-wrap{
@@ -813,15 +831,21 @@
 
             <section class="toolbar-panel" aria-label="Order Toolbar">
               <div class="toolbar-header">
-                <span class="section-title">Order Toolbar:</span>
-                <span class="section-subtitle">actions for selected rows</span>
+                <span class="section-title">Order Toolbar</span>
+                <span class="section-subtitle">create and row actions</span>
               </div>
               <div class="tablebar">
-                <button class="btn toolbar primary" id="newOrderBtn">＋ New Order</button>
-                <button class="btn toolbar ghost" type="button">Convert to Deal</button>
-                <button class="btn toolbar ghost" type="button">Send to NT Pro</button>
-                <button class="btn toolbar ghost" type="button">Send to NT Pro 2</button>
-                <button class="btn toolbar danger" type="button">Cancel Order</button>
+                <div class="toolbar-group">
+                  <button class="btn toolbar primary" id="newOrderBtn">＋ New Order</button>
+                </div>
+
+                <div class="toolbar-group toolbar-selected">
+                  <span class="toolbar-label">Selected rows:</span>
+                  <button class="btn toolbar ghost" type="button">Convert to Deal</button>
+                  <button class="btn toolbar ghost" type="button">Send to NT Pro</button>
+                  <button class="btn toolbar ghost" type="button">Send to NT Pro 2</button>
+                  <button class="btn toolbar danger" type="button">Cancel Order</button>
+                </div>
               </div>
             </section>
 
