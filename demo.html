@@ -506,7 +506,7 @@
     col.col-valid{width:auto}
     col.col-sell{width:auto}
     col.col-rate{width:auto}
-    /* чтобы в заголовке "💡 + ⏷" не резалось */
+    /* default touch column width (Blotter needs space for "💡 + ⏷"; Monitor overrides narrower) */
     col.col-touch{width:64px}
     col.col-buy{width:auto}
     col.col-exposure{width:auto}
@@ -588,6 +588,24 @@
       text-align:center;
       padding-left:6px;
       padding-right:6px;
+    }
+
+    /* Monitor: make 💡 column as narrow as possible and visually "glue" it to Rate */
+    #monitorView col.col-touch{
+      width:28px;
+    }
+    #monitorView .orders-table th.touch-col,
+    #monitorView .orders-table td.touch-col{
+      min-width:28px;
+      width:28px;
+      padding-left:0;
+      padding-right:0;
+      text-align:left;
+    }
+    #monitorView .orders-table th.rate-col,
+    #monitorView .orders-table td.rate-col{
+      border-right:none;   /* remove divider between Rate and 💡 */
+      padding-right:4px;   /* reduce gap so bulb looks attached */
     }
     .touch-col .header-icon{
       font-size:14px;
@@ -922,14 +940,10 @@
                     <th>Client Name</th>
 
                     <th class="num">Sell Amount</th>
-                    <th class="num">Rate</th>
+                    <th class="num rate-col">Rate</th>
 
                     <th class="touch-col">
                       <span class="header-icon tooltip-target" data-tooltip="Market Touch Indicator" aria-hidden="true">💡</span>
-                      <button class="col-filter-btn" type="button"
-                              data-monitor-col-filter="touch"
-                              aria-label="Filter Market Touch"
-                              title="Filter Market Touch">⏷</button>
                       <span class="sr-only">Market Touch Indicator</span>
                     </th>
 
@@ -1495,7 +1509,7 @@
 
           <td>${side}</td>
 
-          <td class="num">${fmtRate(r.rate, r.pair)}</td>
+          <td class="num rate-col">${fmtRate(r.rate, r.pair)}</td>
 
           <td class="touch-col">
             ${r.mt === "bulb"
