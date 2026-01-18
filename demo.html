@@ -797,8 +797,8 @@
                   <input id="clientFilter" class="input with-icon" type="text" placeholder="Client Name contains..." autocomplete="off" />
                 </div>
                 <div class="field">
-                  <label>Min Amount</label>
-                  <input id="amountMin" class="input" type="text" inputmode="decimal" />
+                  <label>Min Amount (&gt;=)</label>
+                  <input id="amountMin" class="input" type="text" inputmode="decimal" placeholder="e.g. 1000000" />
                 </div>
               </div>
               <div class="filters-divider"></div>
@@ -931,12 +931,12 @@
                 </div>
 
                 <div class="field">
-                  <label>Amount Min</label>
+                  <label>Amount Min (&gt;=)</label>
                   <input id="blAmountMin" class="input" type="text" inputmode="decimal" />
                 </div>
 
                 <div class="field">
-                  <label>Amount Max</label>
+                  <label>Amount Max (&lt;=)</label>
                   <input id="blAmountMax" class="input" type="text" inputmode="decimal" />
                 </div>
 
@@ -1840,11 +1840,8 @@
 
     function isRowAboveMin(r, minAmount){
       if (!minAmount) return true;
-      const sell = r.sell;
-      const buy = r.buy;
-      const sellOk = sell !== null && sell !== undefined && sell >= minAmount;
-      const buyOk = buy !== null && buy !== undefined && buy >= minAmount;
-      return sellOk || buyOk;
+      const { amount } = getAmountAndSide(r);
+      return amount !== null && amount !== undefined && amount >= minAmount;
     }
 
     function isMarketTouch(r){
