@@ -622,8 +622,11 @@
       height:32px;
       font-size:12px;
     }
-    /* Popover checkbox list */
+    /* Column-filter popover checkbox list (shared by Blotter & Monitor) */
     .col-filter-popover .cf-list{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
       max-height:220px;
       overflow:auto;
       border:1px solid var(--line);
@@ -639,6 +642,9 @@
       border-radius:8px;
       cursor:pointer;
       user-select:none;
+      font-size:13px;
+      font-weight:600;
+      color:#111827;
     }
     .col-filter-popover .cf-item:hover{
       background:#fff;
@@ -646,6 +652,7 @@
     .col-filter-popover .cf-item input{
       width:14px;
       height:14px;
+      margin:0;
     }
     .col-filter-popover .cf-sep{
       height:1px;
