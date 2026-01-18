@@ -607,6 +607,11 @@
       border-right:none;   /* remove divider between Rate and 💡 */
       padding-right:4px;   /* reduce gap so bulb looks attached */
     }
+    /* Safety-net: in Monitor the Rate column is the 7th column -> remove its right border */
+    #monitorView .orders-table thead th:nth-child(7),
+    #monitorView .orders-table tbody td:nth-child(7){
+      border-right:none;
+    }
     .touch-col .header-icon{
       font-size:14px;
       display:inline-flex;
@@ -1993,7 +1998,7 @@
           </td>
 
           <td class="num ${r.sell !== null && r.sell !== undefined ? 'side-sell' : ''}">${fmtNum(r.sell)}</td>
-          <td class="num">${fmtRate(r.rate, r.pair)}</td>
+          <td class="num rate-col">${fmtRate(r.rate, r.pair)}</td>
 
           <td class="touch-col">
             ${r.mt === "bulb"
