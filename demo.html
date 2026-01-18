@@ -929,11 +929,6 @@
                 </div>
 
                 <div class="field">
-                  <label>Valid Till</label>
-                  <input id="blValidTill" class="input" type="date" />
-                </div>
-
-                <div class="field">
                   <label>Amount Min (&gt;=)</label>
                   <input id="blAmountMin" class="input" type="text" inputmode="decimal" />
                 </div>
@@ -941,16 +936,6 @@
                 <div class="field">
                   <label>Amount Max (&lt;=)</label>
                   <input id="blAmountMax" class="input" type="text" inputmode="decimal" />
-                </div>
-
-                <div class="field">
-                  <label>Rate Min</label>
-                  <input id="blRateMin" class="input" type="text" inputmode="decimal" />
-                </div>
-
-                <div class="field">
-                  <label>Rate Max</label>
-                  <input id="blRateMax" class="input" type="text" inputmode="decimal" />
                 </div>
               </div>
 
@@ -1196,11 +1181,8 @@
     const monitorAppliedFilters = document.getElementById('monitorAppliedFilters');
     const blClient = document.getElementById('blClient');
     const blInn = document.getElementById('blInn');
-    const blValidTill = document.getElementById('blValidTill');
     const blAmountMin = document.getElementById('blAmountMin');
     const blAmountMax = document.getElementById('blAmountMax');
-    const blRateMin = document.getElementById('blRateMin');
-    const blRateMax = document.getElementById('blRateMax');
 
     [amountMinInput, blAmountMin, blAmountMax].forEach(input => {
       if (!input) return;
@@ -1280,6 +1262,10 @@
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     });
+    const eurRubRateFormatter = new Intl.NumberFormat("ru-RU", {
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 4
+    });
 
     function formatAmountValue(value){
       if (value === null || value === undefined || Number.isNaN(value)) return "";
@@ -1298,7 +1284,10 @@
 
     function fmtRate(n, pair){
       if (n === null || n === undefined) return "";
-      if (pair === "EURRUB") return n.toFixed(2);
+      if (pair === "EURRUB"){
+        const rounded = Math.round(n * 100) / 100;
+        return eurRubRateFormatter.format(rounded);
+      }
       return n.toFixed(5);
     }
 
@@ -1320,7 +1309,6 @@
       if (createdByText) parts.push(`Created By=${createdByText}`);
       if (model.clientNeedleRaw) parts.push(`Client Name~"${model.clientNeedleRaw}"`);
       if (model.innNeedle) parts.push(`INN~"${model.innNeedle}"`);
-      if (model.validDate) parts.push(`Valid Till=${model.validDate}`);
 
       if (model.amountMin !== null || model.amountMax !== null){
         if (model.amountMin !== null && model.amountMax !== null){
@@ -1334,16 +1322,6 @@
 
       const sideText = summarizeSet(model.sideNeedle);
       if (sideText) parts.push(`Side=${sideText}`);
-
-      if (model.rateMin !== null || model.rateMax !== null){
-        if (model.rateMin !== null && model.rateMax !== null){
-          parts.push(`Rate=${model.rateMin}..${model.rateMax}`);
-        } else if (model.rateMin !== null){
-          parts.push(`Rate≥${model.rateMin}`);
-        } else {
-          parts.push(`Rate≤${model.rateMax}`);
-        }
-      }
 
       const touchText = summarizeSet(model.touchNeedle, v => (v === "yes" ? "Yes" : "No"));
       if (touchText) parts.push(`Market Touch=${touchText}`);
@@ -1919,15 +1897,10 @@
       const clientNeedle = clientNeedleRaw.toLowerCase();
       const innNeedle = blInn.value.trim();
 
-      const validDate = yyyyMmDdToDdMmYyyy(blValidTill.value);
-
       const amountMin = parseOptionalNumber(blAmountMin.value);
       const amountMax = parseOptionalNumber(blAmountMax.value);
 
       const sideNeedle = blotterColFilters.side;        // Set
-
-      const rateMin = parseOptionalNumber(blRateMin.value);
-      const rateMax = parseOptionalNumber(blRateMax.value);
 
       const touchNeedle = blotterColFilters.touch;      // Set
       const exposureNeedle = blotterColFilters.exposure;// Set
@@ -1941,12 +1914,9 @@
         createdByNeedle,
         clientNeedleRaw,
         innNeedle,
-        validDate,
         amountMin,
         amountMax,
         sideNeedle,
-        rateMin,
-        rateMax,
         touchNeedle,
         exposureNeedle,
         statusNeedle
@@ -1966,15 +1936,10 @@
         const okClient = !clientNeedle || r.client.toLowerCase().includes(clientNeedle);
         const okInn = !innNeedle || inn.includes(innNeedle);
 
-        const okValid = !validDate || r.valid.startsWith(validDate);
-
         const okAmountMin = amountMin === null || (amount !== null && amount >= amountMin);
         const okAmountMax = amountMax === null || (amount !== null && amount <= amountMax);
 
         const okSide = sideNeedle.size === 0 || sideNeedle.has(side);
-
-        const okRateMin = rateMin === null || (r.rate !== null && r.rate >= rateMin);
-        const okRateMax = rateMax === null || (r.rate !== null && r.rate <= rateMax);
 
         const okTouch =
           touchNeedle.size === 0
@@ -1991,12 +1956,9 @@
           okCreatedBy &&
           okClient &&
           okInn &&
-          okValid &&
           okAmountMin &&
           okAmountMax &&
           okSide &&
-          okRateMin &&
-          okRateMax &&
           okTouch &&
           okExposure &&
           okStatus
@@ -2241,11 +2203,8 @@
       closeBlotterColFilterPopover();
       blClient.value = "";
       blInn.value = "";
-      blValidTill.value = "";
       blAmountMin.value = "";
       blAmountMax.value = "";
-      blRateMin.value = "";
-      blRateMax.value = "";
       applyBlotterFilters();
     });
   </script>
