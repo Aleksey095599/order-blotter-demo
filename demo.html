@@ -395,7 +395,8 @@
       display:flex;
       gap:10px;
       justify-content:flex-end;
-      align-items:center;
+      align-items:flex-end;
+      flex-direction:column;
     }
     .btn.small{height:34px}
     /* Main layout */
@@ -905,6 +906,7 @@
 
                 <div class="filter-actions">
                   <button class="btn small primary" id="searchBtn">Search</button>
+                  <button class="btn small" id="resetBtn">Clear all filters</button>
                 </div>
               </div>
               <div class="filters-grid">
@@ -927,7 +929,6 @@
               <div class="applied-bar" aria-live="polite">
                 <span class="applied-label">Applied:</span>
                 <span id="monitorAppliedFilters" class="applied-text" title="">No filters applied</span>
-                <button class="btn small" id="resetBtn">Clear all filters</button>
               </div>
             </section>
 
@@ -1071,6 +1072,7 @@
 
                 <div class="filter-actions">
                   <button class="btn small primary" id="blotterSearchBtn">Search</button>
+                  <button class="btn small" id="blotterResetBtn">Clear all filters</button>
                 </div>
               </div>
 
@@ -1103,7 +1105,6 @@
               <div class="applied-bar" aria-live="polite">
                 <span class="applied-label">Applied:</span>
                 <span id="blotterAppliedFilters" class="applied-text" title="">No filters applied</span>
-                <button class="btn small" id="blotterResetBtn">Clear all filters</button>
               </div>
             </section>
 
