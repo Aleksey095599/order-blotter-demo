@@ -2178,7 +2178,7 @@
     // Create Date in data model is stored as r.captured ("DD.MM.YYYY, HH:MM").
     // Prefer this naming in UI-related code for consistency with column title.
     function createDateToIsoDate(captured){
-      return capturedToIsoDate(captured);
+      return ruDateTimeToIsoDate(captured);
     }
 
     // Create Date timestamp helper for sorting/ordering logic (align naming with UI column).
@@ -2186,14 +2186,20 @@
       return ruDateTimeToTs(captured);
     }
 
-    function capturedToIsoDate(captured){
-      if (!captured) return "";
-      // "05.06.2025, 11:15" -> "2025-06-05"
-      const dmy = captured.split(",")[0].trim();
+    // "DD.MM.YYYY, HH:MM" -> "YYYY-MM-DD"
+    function ruDateTimeToIsoDate(value){
+      if (!value) return "";
+      const dmy = value.split(",")[0].trim();
       const parts = dmy.split(".");
       if (parts.length !== 3) return "";
       const [d, m, y] = parts;
       return `${y}-${m}-${d}`;
+    }
+
+    // Backward-compatible alias (deprecated naming: "captured" is Create Date in UI)
+    function capturedToIsoDate(captured){
+      if (!captured) return "";
+      return ruDateTimeToIsoDate(captured);
     }
 
     function inIsoDateRange(isoDate, from, to){
