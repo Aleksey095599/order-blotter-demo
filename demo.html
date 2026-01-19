@@ -1495,8 +1495,8 @@
     // Date-range filters for Create Date (stored as ISO YYYY-MM-DD)
     const blotterRangeFilters = { createDateFrom: "", createDateTo: "", validTillFrom: "", validTillTo: "" };
     const monitorRangeFilters = { createDateFrom: "", createDateTo: "", validTillFrom: "", validTillTo: "" };
-    // Blotter sorting (embedded in table header). Default: latest first.
-    let blotterSort = { key: "createDate", dir: "desc" };
+    // Blotter sorting (embedded in table header). Default: earliest first.
+    let blotterSort = { key: "createDate", dir: "asc" };
 
     const monitorColFilterPopover = document.getElementById('monitorColFilterPopover');
     let openedMonitorColFilterKey = null;
@@ -1759,7 +1759,7 @@
         blotterSort.dir = blotterSort.dir === "asc" ? "desc" : "asc";
       } else {
         blotterSort.key = key;
-        blotterSort.dir = (key === "createDate") ? "desc" : "asc";
+        blotterSort.dir = "asc";
       }
       applyBlotterFilters();
     }
