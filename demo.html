@@ -568,6 +568,7 @@
     col.col-createdby{width:auto}
     col.col-inn{width:auto}
     col.col-client{width:var(--client-col-max)}
+    col.col-vdc{width:auto}
     col.col-tif{width:auto}
     col.col-valid{width:auto}
     col.col-sell{width:auto}
@@ -1000,6 +1001,7 @@
                   <col class="col-rate" />
                   <col class="col-touch" />
                   <col class="col-buy" />
+                  <col class="col-vdc" />
                   <col class="col-tif" />
                   <col class="col-valid" />
                   <col class="col-exposure" />
@@ -1045,6 +1047,7 @@
                     </th>
 
                     <th class="num">Buy Amount</th>
+                    <th class="fixed-center">Value Date Code</th>
                     <th class="fixed-center">
                       Time In Force
                       <button class="col-filter-btn" type="button"
@@ -1177,6 +1180,7 @@
                   <col class="col-side" />
                   <col class="col-rate" />
                   <col class="col-touch" />
+                  <col class="col-vdc" />
                   <col class="col-tif" />
                   <col class="col-valid" />
                   <col class="col-exposure" />
@@ -1254,6 +1258,9 @@
                         </svg>
                       </button>
                       <span class="sr-only">Market Touch Indicator</span>
+                    </th>
+                    <th class="fixed-center sortable" data-bl-sort="vdc" role="button" tabindex="0" aria-sort="none">
+                      Value Date Code <span class="sort-indicator" aria-hidden="true"></span>
                     </th>
                     <th class="fixed-center sortable" data-bl-sort="tif" role="button" tabindex="0" aria-sort="none">
                       Time In Force <span class="sort-indicator" aria-hidden="true"></span>
@@ -1444,7 +1451,9 @@
       // TIF: "GTC" => Valid Till must be null; "GTD" => Valid Till must be a date/time string
       const timeInForce = tif || (valid ? "GTD" : "GTC");
       const validTill = (timeInForce === "GTC") ? null : valid;
-      return { pair, captured, client, tif: timeInForce, valid: validTill, sell, rate, buy, mt, exec, id: cryptoRandomId() };
+      const id = cryptoRandomId();
+      const vdc = pickValueDateCode(`${client}|${pair}|${captured}|${id}`);
+      return { pair, captured, client, tif: timeInForce, valid: validTill, vdc, sell, rate, buy, mt, exec, id };
     }
 
     function cryptoRandomId(){
@@ -1662,6 +1671,17 @@
       return h;
     }
 
+    // Value Date Code distribution:
+    // 85% TOD, 10% TOM, 3% SPOT, 2% BRKN
+    function pickValueDateCode(seed){
+      const h = hashString(String(seed || ""));
+      const p = h % 100; // 0..99
+      if (p < 85) return "TOD";
+      if (p < 95) return "TOM";
+      if (p < 98) return "SPOT";
+      return "BRKN";
+    }
+
     function innForClient(client){
       const h = hashString(client);
       // 10 digits: "77" + 8 digits
@@ -1722,6 +1742,7 @@
       if (key === "valid") return ruDateTimeToTs(r.valid); // null -> nulls last
       if (key === "rate") return normalizeRateForSort(r.rate, r.pair);
       if (key === "touch") return isMarketTouch(r) ? 1 : 0;
+      if (key === "vdc") return r.vdc || "";
       if (key === "tif") return r.tif || "";
       if (key === "exposure") return marketExposureForRow(r) || "";
       if (key === "status") return statusForRow(r) || "";
@@ -1814,6 +1835,7 @@
               : ``}
           </td>
 
+          <td class="fixed-center">${r.vdc || ""}</td>
           <td class="fixed-center">${r.tif || ""}</td>
           <td class="fixed-center">${r.valid || ""}</td>
 
@@ -2329,6 +2351,7 @@
           </td>
 
           <td class="num ${r.buy !== null && r.buy !== undefined ? 'side-buy' : ''}">${fmtNum(r.buy)}</td>
+          <td class="fixed-center">${r.vdc || ""}</td>
           <td class="fixed-center">${r.tif || ""}</td>
           <td class="fixed-center">${r.valid || ""}</td>
 
