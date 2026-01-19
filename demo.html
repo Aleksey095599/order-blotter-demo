@@ -664,6 +664,22 @@
       align-items:center;
       justify-content:center;
     }
+    .info-icon{
+      width:16px;
+      height:16px;
+      margin-left:6px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid var(--line2);
+      background:#f9fafb;
+      color:#6b7280;
+      font-size:11px;
+      font-weight:800;
+      line-height:1;
+      cursor:help;
+    }
     .kebab{
       width:34px;
       text-align:center;
@@ -1048,7 +1064,9 @@
 
                     <th class="num">Buy Amount</th>
                     <th class="fixed-center">
-                      Value Date Code
+                      VD Code
+                      <span class="info-icon tooltip-target" data-tooltip="Value Date Code" aria-hidden="true">i</span>
+                      <span class="sr-only">Value Date Code</span>
                       <button class="col-filter-btn" type="button"
                               data-monitor-col-filter="vdc"
                               aria-label="Filter Value Date Code"
@@ -1059,7 +1077,9 @@
                       </button>
                     </th>
                     <th class="fixed-center">
-                      Time In Force
+                      TIF
+                      <span class="info-icon tooltip-target" data-tooltip="Time In Force" aria-hidden="true">i</span>
+                      <span class="sr-only">Time In Force</span>
                       <button class="col-filter-btn" type="button"
                               data-monitor-col-filter="tif"
                               aria-label="Filter Time In Force"
@@ -1270,7 +1290,10 @@
                       <span class="sr-only">Market Touch Indicator</span>
                     </th>
                     <th class="fixed-center sortable" data-bl-sort="vdc" role="button" tabindex="0" aria-sort="none">
-                      Value Date Code <span class="sort-indicator" aria-hidden="true"></span>
+                      VD Code
+                      <span class="info-icon tooltip-target" data-tooltip="Value Date Code" aria-hidden="true">i</span>
+                      <span class="sr-only">Value Date Code</span>
+                      <span class="sort-indicator" aria-hidden="true"></span>
                       <button class="col-filter-btn" type="button"
                               data-col-filter="vdc"
                               aria-label="Filter Value Date Code"
@@ -1281,7 +1304,10 @@
                       </button>
                     </th>
                     <th class="fixed-center sortable" data-bl-sort="tif" role="button" tabindex="0" aria-sort="none">
-                      Time In Force <span class="sort-indicator" aria-hidden="true"></span>
+                      TIF
+                      <span class="info-icon tooltip-target" data-tooltip="Time In Force" aria-hidden="true">i</span>
+                      <span class="sr-only">Time In Force</span>
+                      <span class="sort-indicator" aria-hidden="true"></span>
                       <button class="col-filter-btn" type="button"
                               data-col-filter="tif"
                               aria-label="Filter Time In Force"
