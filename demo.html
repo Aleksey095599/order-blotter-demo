@@ -1462,15 +1462,27 @@
     let openedMonitorColFilterKey = null;
 
     function getPairsWithCounts(){
+      // Single pass over rows (performance-friendly; same output)
+      const stats = Object.create(null);
+      pairCodes.forEach(code => {
+        stats[code] = { count: 0, hasMarketTouch: false };
+      });
+      for (const row of rows){
+        const s = stats[row.pair];
+        if (!s) continue;
+        s.count += 1;
+        if (!s.hasMarketTouch && isMarketTouch(row)) s.hasMarketTouch = true;
+      }
       return pairCodes.map(code => ({
         code,
-        count: rows.filter(row => row.pair === code).length,
-        hasMarketTouch: rows.some(row => row.pair === code && isMarketTouch(row))
+        count: stats[code] ? stats[code].count : 0,
+        hasMarketTouch: stats[code] ? stats[code].hasMarketTouch : false
       }));
     }
 
     function renderPairs(){
       pairListEl.innerHTML = "";
+      const frag = document.createDocumentFragment();
       getPairsWithCounts().forEach(p => {
         const el = document.createElement('div');
         el.className = "pair" + (p.code === activePair ? " active" : "");
@@ -1486,8 +1498,9 @@
           renderPairs();
           applyFilters();
         });
-        pairListEl.appendChild(el);
+        frag.appendChild(el);
       });
+      pairListEl.appendChild(frag);
     }
 
     function fmtNum(n){
