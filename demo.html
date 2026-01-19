@@ -1441,7 +1441,7 @@
       tif: new Set(),
       status: new Set()
     };
-    // Monitor header column-filters (single-select UI now, but stored as Set for future multi-select)
+    // Monitor header column-filters (checkbox UI; stored as Set. Empty Set = "All")
     const monitorColFilters = {
       createDate: new Set(),
       createdBy: new Set(),
@@ -1756,17 +1756,6 @@
       const normalized = normalizeAmountInput(value).replace(/[^\d.,-]/g, "").replace(",", ".");
       const parsed = Number.parseFloat(normalized);
       return Number.isFinite(parsed) ? parsed : 0;
-    }
-
-    function setFromSingleSelection(set, value){
-      // Keep the same Set instance (important for predictable state)
-      set.clear();
-      if (value) set.add(value);
-    }
-
-    function getSingleSelectionFromSet(set){
-      if (!set || set.size !== 1) return "";
-      return Array.from(set)[0];
     }
 
     function summarizeSet(set, mapFn){
