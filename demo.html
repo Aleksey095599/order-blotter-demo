@@ -2378,6 +2378,92 @@
       return marketTouchFlagForRow(r) === "bulb";
     }
 
+    // ------- Monitor: auto-scroll to sell/buy boundary on first open -------
+    // Goal: show the "closest to market" area (end of Sell side + beginning of Buy side)
+    // so user immediately sees both sides without manual scrolling.
+    const MONITOR_SELL_CONTEXT_ROWS = 3;
+    let monitorAutoScrolled = false;
+
+    function hasSellSide(r){
+      return r && r.sell !== null && r.sell !== undefined;
+    }
+
+    function hasBuySide(r){
+      return r && r.buy !== null && r.buy !== undefined;
+    }
+
+    // Finds a clean boundary where Sell side ends and Buy side begins (in the current ordering).
+    // Returns { lastSellIdx, firstBuyIdx } where lastSellIdx < firstBuyIdx, or null.
+    function findSellBuyBoundary(data){
+      if (!Array.isArray(data) || data.length < 2) return null;
+
+      let lastSellIdx = -1;
+      let firstBuyIdx = -1;
+
+      for (let i = 0; i < data.length; i++){
+        const r = data[i];
+        if (firstBuyIdx === -1 && hasBuySide(r)) firstBuyIdx = i;
+        if (hasSellSide(r)) lastSellIdx = i;
+      }
+
+      if (lastSellIdx === -1 || firstBuyIdx === -1) return null;
+      if (lastSellIdx >= firstBuyIdx) return null;
+      return { lastSellIdx, firstBuyIdx };
+    }
+
+    // Fallback: find the first side switch in the list.
+    function findFirstSideSwitchIndex(data){
+      if (!Array.isArray(data) || data.length < 2) return -1;
+      let prev = "";
+      for (let i = 0; i < data.length; i++){
+        const r = data[i];
+        const side = hasSellSide(r) ? "sell" : hasBuySide(r) ? "buy" : "";
+        if (!side) continue;
+        if (!prev){ prev = side; continue; }
+        if (side !== prev) return i;
+        prev = side;
+      }
+      return -1;
+    }
+
+    function autoScrollMonitorToSellBuyBoundary(sellContextRows = MONITOR_SELL_CONTEXT_ROWS){
+      const wrap = document.querySelector('#monitorView .table-wrap');
+      const table = document.querySelector('#monitorView .orders-table');
+      if (!wrap || !table || !tbody) return;
+
+      if (!Array.isArray(filtered) || filtered.length < 2) return;
+
+      let startIdx = 0;
+      const boundary = findSellBuyBoundary(filtered);
+
+      if (boundary){
+        const desired = Number.isFinite(sellContextRows) ? Math.max(1, Math.floor(sellContextRows)) : MONITOR_SELL_CONTEXT_ROWS;
+        startIdx = Math.max(0, boundary.lastSellIdx - (desired - 1));
+      } else {
+        // If data isn't cleanly grouped, try a best-effort boundary.
+        const switchIdx = findFirstSideSwitchIndex(filtered);
+        if (switchIdx < 0) return;
+        const desired = Number.isFinite(sellContextRows) ? Math.max(1, Math.floor(sellContextRows)) : MONITOR_SELL_CONTEXT_ROWS;
+        startIdx = Math.max(0, switchIdx - desired);
+      }
+
+      const trs = tbody.querySelectorAll('tr');
+      if (!trs || !trs.length) return;
+      const targetTr = trs[Math.min(startIdx, trs.length - 1)];
+      if (!targetTr) return;
+
+      // Keep horizontal scroll (table is wide).
+      const prevLeft = wrap.scrollLeft;
+
+      const thead = table.querySelector('thead');
+      const headerH = thead ? thead.getBoundingClientRect().height : 0;
+      // Small padding so the target row isn't glued to the sticky header.
+      const top = Math.max(0, targetTr.offsetTop - headerH - 4);
+
+      wrap.scrollTop = top;
+      wrap.scrollLeft = prevLeft;
+    }
+
     function renderTable(){
       tbody.innerHTML = "";
       const frag = document.createDocumentFragment();
@@ -2762,7 +2848,14 @@
       blotterView.classList.toggle('hidden', mode !== "blotter");
       historyView.classList.toggle('hidden', mode !== "history");
 
-      if (mode === "monitor") applyFilters();
+      if (mode === "monitor"){
+        applyFilters();
+        // Only on first open / page load, to avoid unexpected jumps during user work.
+        if (!monitorAutoScrolled){
+          monitorAutoScrolled = true;
+          requestAnimationFrame(() => autoScrollMonitorToSellBuyBoundary(MONITOR_SELL_CONTEXT_ROWS));
+        }
+      }
       if (mode === "blotter") applyBlotterFilters();
       updateSelectedOrderActions();
     }
