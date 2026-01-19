@@ -769,6 +769,28 @@
       opacity:1;
       transform:translateX(-50%) translateY(-2px) rotate(45deg);
     }
+
+    /* Tooltips for header "i" icons must render ABOVE toolbars (table-wrap has overflow:auto).
+       Use a small JS "portal" tooltip for these (class .js-tooltip). */
+    .tooltip-target.js-tooltip::after,
+    .tooltip-target.js-tooltip::before{
+      display:none;
+    }
+    .floating-tooltip{
+      position:fixed;
+      z-index:9999;
+      background:#f9fafb;
+      color:#111827;
+      border:1px solid var(--line);
+      border-radius:8px;
+      padding:6px 10px;
+      font-size:12px;
+      font-weight:600;
+      box-shadow:0 10px 25px rgba(15,23,42,.16);
+      white-space:nowrap;
+      pointer-events:none;
+    }
+    .floating-tooltip.hidden{ display:none; }
     /* Column filter buttons (Blotter table header) */
     .col-filter-btn{
       position:relative;
@@ -1072,8 +1094,8 @@
 
                     <th class="num">Buy Amount</th>
                     <th class="fixed-center">
-                      VD Code
-                      <span class="info-icon tooltip-target" data-tooltip="Value Date Code" aria-hidden="true">i</span>
+                      VD
+                      <span class="info-icon tooltip-target js-tooltip" data-tooltip="Value Date Code" aria-hidden="true">i</span>
                       <span class="sr-only">Value Date Code</span>
                       <button class="col-filter-btn" type="button"
                               data-monitor-col-filter="vdc"
@@ -1086,7 +1108,7 @@
                     </th>
                     <th class="fixed-center">
                       TIF
-                      <span class="info-icon tooltip-target" data-tooltip="Time In Force" aria-hidden="true">i</span>
+                      <span class="info-icon tooltip-target js-tooltip" data-tooltip="Time In Force" aria-hidden="true">i</span>
                       <span class="sr-only">Time In Force</span>
                       <button class="col-filter-btn" type="button"
                               data-monitor-col-filter="tif"
@@ -1298,8 +1320,8 @@
                       <span class="sr-only">Market Touch Indicator</span>
                     </th>
                     <th class="fixed-center sortable" data-bl-sort="vdc" role="button" tabindex="0" aria-sort="none">
-                      VD Code
-                      <span class="info-icon tooltip-target" data-tooltip="Value Date Code" aria-hidden="true">i</span>
+                      VD
+                      <span class="info-icon tooltip-target js-tooltip" data-tooltip="Value Date Code" aria-hidden="true">i</span>
                       <span class="sr-only">Value Date Code</span>
                       <span class="sort-indicator" aria-hidden="true"></span>
                       <button class="col-filter-btn" type="button"
@@ -1313,7 +1335,7 @@
                     </th>
                     <th class="fixed-center sortable" data-bl-sort="tif" role="button" tabindex="0" aria-sort="none">
                       TIF
-                      <span class="info-icon tooltip-target" data-tooltip="Time In Force" aria-hidden="true">i</span>
+                      <span class="info-icon tooltip-target js-tooltip" data-tooltip="Time In Force" aria-hidden="true">i</span>
                       <span class="sr-only">Time In Force</span>
                       <span class="sort-indicator" aria-hidden="true"></span>
                       <button class="col-filter-btn" type="button"
@@ -2971,6 +2993,83 @@
       blAmountMax.value = "";
       applyBlotterFilters();
     });
+
+    // ------- Floating tooltip for header "i" icons (not clipped by table-wrap) -------
+    (function initFloatingHeaderTooltips(){
+      const tip = document.createElement('div');
+      tip.className = 'floating-tooltip hidden';
+      document.body.appendChild(tip);
+
+      let active = null;
+      let hideTimer = null;
+
+      function position(){
+        if (!active || tip.classList.contains('hidden')) return;
+
+        // Ensure we measure after text is set and element is visible
+        const rect = active.getBoundingClientRect();
+        const pad = 10;
+        const gap = 8;
+
+        const tipRect = tip.getBoundingClientRect();
+        let left = rect.left + rect.width / 2 - tipRect.width / 2;
+        left = Math.max(pad, Math.min(left, window.innerWidth - tipRect.width - pad));
+
+        let top = rect.top - gap - tipRect.height;
+        if (top < pad) top = rect.bottom + gap; // fallback below if not enough room
+
+        tip.style.left = `${left}px`;
+        tip.style.top = `${top}px`;
+      }
+
+      function show(el){
+        const text = el && el.getAttribute('data-tooltip');
+        if (!text) return;
+        active = el;
+        tip.textContent = text;
+        tip.classList.remove('hidden');
+        requestAnimationFrame(position);
+      }
+
+      function hide(){
+        active = null;
+        tip.classList.add('hidden');
+      }
+
+      function scheduleHide(){
+        window.clearTimeout(hideTimer);
+        hideTimer = window.setTimeout(hide, 60);
+      }
+
+      document.addEventListener('mouseover', (e) => {
+        const el = e.target && e.target.closest && e.target.closest('.js-tooltip[data-tooltip]');
+        if (!el) return;
+        window.clearTimeout(hideTimer);
+        show(el);
+      });
+
+      document.addEventListener('mouseout', (e) => {
+        const el = e.target && e.target.closest && e.target.closest('.js-tooltip[data-tooltip]');
+        if (!el) return;
+        scheduleHide();
+      });
+
+      document.addEventListener('focusin', (e) => {
+        const el = e.target && e.target.closest && e.target.closest('.js-tooltip[data-tooltip]');
+        if (!el) return;
+        window.clearTimeout(hideTimer);
+        show(el);
+      });
+
+      document.addEventListener('focusout', (e) => {
+        const el = e.target && e.target.closest && e.target.closest('.js-tooltip[data-tooltip]');
+        if (!el) return;
+        scheduleHide();
+      });
+
+      window.addEventListener('scroll', position, true);
+      window.addEventListener('resize', position);
+    })();
   </script>
 </body>
 </html>
