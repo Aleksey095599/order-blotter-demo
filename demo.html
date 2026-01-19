@@ -826,7 +826,7 @@
       border-radius:999px;
       background:var(--blue);
     }
-    /* Blotter: sortable headers (all columns) */
+    /* Blotter: sortable headers (Create Date / Client Name / Amount / Valid Till) */
     #blotterView th.sortable{
       cursor:pointer;
       user-select:none;
@@ -838,17 +838,19 @@
     }
     #blotterView th.sortable .sort-indicator{
       display:inline-block;
-      width:12px;           /* keeps header width stable */
       text-align:center;
       margin-left:4px;
       font-size:11px;
       line-height:1;
-      color:var(--muted);
       vertical-align:middle;
     }
-    #blotterView th.sortable.sorted .sort-indicator{ color:var(--blue); }
-    #blotterView th.sortable.sort-asc .sort-indicator::before{ content:"▲"; }
-    #blotterView th.sortable.sort-desc .sort-indicator::before{ content:"▼"; }
+    /* show grey ▲▼ for sortable-but-not-active */
+    #blotterView th.sortable:not(.sorted) .sort-indicator{ color:var(--muted); opacity:.85; }
+    #blotterView th.sortable:not(.sorted) .sort-indicator::before{ content:"\25B2\25BC"; } /* ▲▼ */
+    /* active sort */
+    #blotterView th.sortable.sorted .sort-indicator{ color:var(--blue); opacity:1; }
+    #blotterView th.sortable.sort-asc .sort-indicator::before{ content:"\25B2"; }  /* ▲ */
+    #blotterView th.sortable.sort-desc .sort-indicator::before{ content:"\25BC"; } /* ▼ */
 
     /* Monitor: show default sort on Rate (non-interactive) */
     #monitorView th.rate-sorted .sort-indicator{
@@ -1261,8 +1263,8 @@
                         </svg>
                       </button>
                     </th>
-                    <th class="sortable" data-bl-sort="createdBy" role="button" tabindex="0" aria-sort="none">
-                      Created By <span class="sort-indicator" aria-hidden="true"></span>
+                    <th>
+                      Created By
                       <button class="col-filter-btn" type="button"
                               data-col-filter="createdBy"
                               aria-label="Filter Created By"
@@ -1272,14 +1274,12 @@
                         </svg>
                       </button>
                     </th>
-                    <th class="sortable" data-bl-sort="inn" role="button" tabindex="0" aria-sort="none">
-                      INN <span class="sort-indicator" aria-hidden="true"></span>
-                    </th>
+                    <th>INN</th>
                     <th class="sortable" data-bl-sort="client" role="button" tabindex="0" aria-sort="none">
                       Client Name <span class="sort-indicator" aria-hidden="true"></span>
                     </th>
-                    <th class="sortable" data-bl-sort="pair" role="button" tabindex="0" aria-sort="none">
-                      Currency Pair <span class="sort-indicator" aria-hidden="true"></span>
+                    <th>
+                      Currency Pair
                       <button class="col-filter-btn" type="button"
                               data-col-filter="pair"
                               aria-label="Filter Currency Pair"
@@ -1292,8 +1292,8 @@
                     <th class="num sortable" data-bl-sort="amount" role="button" tabindex="0" aria-sort="none">
                       Amount <span class="sort-indicator" aria-hidden="true"></span>
                     </th>
-                    <th class="sortable" data-bl-sort="side" role="button" tabindex="0" aria-sort="none">
-                      Side <span class="sort-indicator" aria-hidden="true"></span>
+                    <th>
+                      Side
                       <button class="col-filter-btn" type="button"
                               data-col-filter="side"
                               aria-label="Filter Side"
@@ -1303,12 +1303,9 @@
                         </svg>
                       </button>
                     </th>
-                    <th class="num sortable" data-bl-sort="rate" role="button" tabindex="0" aria-sort="none">
-                      Rate <span class="sort-indicator" aria-hidden="true"></span>
-                    </th>
-                    <th class="touch-col sortable" data-bl-sort="touch" role="button" tabindex="0" aria-sort="none">
+                    <th class="num">Rate</th>
+                    <th class="touch-col">
                       <span class="header-icon tooltip-target" data-tooltip="Market Touch Indicator" aria-hidden="true">💡</span>
-                      <span class="sort-indicator" aria-hidden="true"></span>
                       <button class="col-filter-btn" type="button"
                               data-col-filter="touch"
                               aria-label="Filter Market Touch"
@@ -1319,11 +1316,10 @@
                       </button>
                       <span class="sr-only">Market Touch Indicator</span>
                     </th>
-                    <th class="fixed-center sortable" data-bl-sort="vdc" role="button" tabindex="0" aria-sort="none">
+                    <th class="fixed-center">
                       VD
                       <span class="info-icon tooltip-target js-tooltip" data-tooltip="Value Date Code" aria-hidden="true">i</span>
                       <span class="sr-only">Value Date Code</span>
-                      <span class="sort-indicator" aria-hidden="true"></span>
                       <button class="col-filter-btn" type="button"
                               data-col-filter="vdc"
                               aria-label="Filter Value Date Code"
@@ -1333,11 +1329,10 @@
                         </svg>
                       </button>
                     </th>
-                    <th class="fixed-center sortable" data-bl-sort="tif" role="button" tabindex="0" aria-sort="none">
+                    <th class="fixed-center">
                       TIF
                       <span class="info-icon tooltip-target js-tooltip" data-tooltip="Time In Force" aria-hidden="true">i</span>
                       <span class="sr-only">Time In Force</span>
-                      <span class="sort-indicator" aria-hidden="true"></span>
                       <button class="col-filter-btn" type="button"
                               data-col-filter="tif"
                               aria-label="Filter Time In Force"
@@ -1358,8 +1353,8 @@
                         </svg>
                       </button>
                     </th>
-                    <th class="sortable" data-bl-sort="exposure" role="button" tabindex="0" aria-sort="none">
-                      Market Exposure <span class="sort-indicator" aria-hidden="true"></span>
+                    <th>
+                      Market Exposure
                       <button class="col-filter-btn" type="button"
                               data-col-filter="exposure"
                               aria-label="Filter Market Exposure"
@@ -1369,8 +1364,8 @@
                         </svg>
                       </button>
                     </th>
-                    <th class="sortable" data-bl-sort="status" role="button" tabindex="0" aria-sort="none">
-                      Status <span class="sort-indicator" aria-hidden="true"></span>
+                    <th>
+                      Status
                       <button class="col-filter-btn" type="button"
                               data-col-filter="status"
                               aria-label="Filter Status"
