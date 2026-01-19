@@ -1047,7 +1047,17 @@
                     </th>
 
                     <th class="num">Buy Amount</th>
-                    <th class="fixed-center">Value Date Code</th>
+                    <th class="fixed-center">
+                      Value Date Code
+                      <button class="col-filter-btn" type="button"
+                              data-monitor-col-filter="vdc"
+                              aria-label="Filter Value Date Code"
+                              title="Filter Value Date Code">
+                        <svg class="funnel-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                        </svg>
+                      </button>
+                    </th>
                     <th class="fixed-center">
                       Time In Force
                       <button class="col-filter-btn" type="button"
@@ -1261,6 +1271,14 @@
                     </th>
                     <th class="fixed-center sortable" data-bl-sort="vdc" role="button" tabindex="0" aria-sort="none">
                       Value Date Code <span class="sort-indicator" aria-hidden="true"></span>
+                      <button class="col-filter-btn" type="button"
+                              data-col-filter="vdc"
+                              aria-label="Filter Value Date Code"
+                              title="Filter Value Date Code">
+                        <svg class="funnel-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                        </svg>
+                      </button>
                     </th>
                     <th class="fixed-center sortable" data-bl-sort="tif" role="button" tabindex="0" aria-sort="none">
                       Time In Force <span class="sort-indicator" aria-hidden="true"></span>
@@ -1340,6 +1358,7 @@
     const CREATED_BY_OPTIONS = ["dealer1", "dealer2", "some_process1", "some_process2"];
     const STATUS_OPTIONS = ["New", "Delegated", "Execute Pending", "Executed", "Cancelled"];
     const TIF_OPTIONS = ["GTC", "GTD"];
+    const VDC_OPTIONS = ["TOD", "TOM", "SPOT", "BRKN"];
 
     const rows = [
       mkRow({pair:"USDRUB", captured:"05.06.2025, 11:15", client:'ООО "Ромашка"', valid:"06.06.2025, 09:30", sell:null, rate:77.80000, buy:15000000, mt:null, exec:"NT Pro"}),
@@ -1504,6 +1523,7 @@
       pair: new Set(),
       createdBy: new Set(),
       side: new Set(),
+      vdc: new Set(),
       touch: new Set(),
       exposure: new Set(),
       tif: new Set(),
@@ -1512,6 +1532,7 @@
     // Monitor header column-filters (checkbox UI; stored as Set. Empty Set = "All")
     const monitorColFilters = {
       createdBy: new Set(),
+      vdc: new Set(),
       touch: new Set(),
       exposure: new Set(),
       tif: new Set(),
@@ -1653,6 +1674,9 @@
 
       const tifText = summarizeSet(model.tifNeedle);
       if (tifText) parts.push(`Time In Force=${tifText}`);
+
+      const vdcText = summarizeSet(model.vdcNeedle);
+      if (vdcText) parts.push(`Value Date Code=${vdcText}`);
 
       const statusText = summarizeSet(model.statusNeedle);
       if (statusText) parts.push(`Status=${statusText}`);
@@ -1870,6 +1894,7 @@
       return {
         createDate: { type: "dateRange", label: "Create Date" },
         validTill: { type: "dateRange", label: "Valid Till" },
+        vdc: { label: "Value Date Code", options: VDC_OPTIONS.map(v => ({ value: v, label: v })) },
         pair: { label: "Currency Pair", options: pairCodes.map(v => ({ value: v, label: v })) },
         createdBy: { label: "Created By", options: CREATED_BY_OPTIONS.map(v => ({ value: v, label: v })) },
         side: { label: "Side", options: ["buy", "sell"].map(v => ({ value: v, label: v })) },
@@ -2050,6 +2075,7 @@
       return {
         createDate: { type: "dateRange", label: "Create Date" },
         validTill: { type: "dateRange", label: "Valid Till" },
+        vdc: { label: "Value Date Code", options: VDC_OPTIONS.map(v => ({ value: v, label: v })) },
         createdBy: { label: "Created By", options: CREATED_BY_OPTIONS.map(v => ({ value: v, label: v })) },
         touch: {
           label: "Market Touch",
@@ -2375,6 +2401,7 @@
       const validTillTo = blotterRangeFilters.validTillTo;
       const pair = blotterColFilters.pair;              // Set
       const createdByNeedle = blotterColFilters.createdBy; // Set
+      const vdcNeedle = blotterColFilters.vdc;          // Set
 
       const clientNeedleRaw = blClient.value.trim();
       const clientNeedle = clientNeedleRaw.toLowerCase();
@@ -2398,6 +2425,7 @@
         validTillTo,
         pair,
         createdByNeedle,
+        vdcNeedle,
         clientNeedleRaw,
         innNeedle,
         amountMin,
@@ -2420,6 +2448,7 @@
         const okValidTill = inIsoDateRange(ruDateTimeToIsoDate(r.valid), validTillFrom, validTillTo);
         const okPair = pair.size === 0 || pair.has(r.pair);
         const okCreatedBy = createdByNeedle.size === 0 || createdByNeedle.has(createdBy);
+        const okVdc = vdcNeedle.size === 0 || vdcNeedle.has(r.vdc);
 
         const okClient = !clientNeedle || r.client.toLowerCase().includes(clientNeedle);
         const okInn = !innNeedle || inn.includes(innNeedle);
@@ -2444,6 +2473,7 @@
           okValidTill &&
           okPair &&
           okCreatedBy &&
+          okVdc &&
           okClient &&
           okInn &&
           okAmountMin &&
@@ -2514,6 +2544,9 @@
       const createdByText = summarizeSet(monitorColFilters.createdBy);
       if (createdByText) parts.push(`Created By=${createdByText}`);
 
+      const vdcText = summarizeSet(monitorColFilters.vdc);
+      if (vdcText) parts.push(`Value Date Code=${vdcText}`);
+
       const statusText = summarizeSet(monitorColFilters.status);
       if (statusText) parts.push(`Status=${statusText}`);
 
@@ -2536,6 +2569,7 @@
       const validTillFrom = monitorRangeFilters.validTillFrom;
       const validTillTo = monitorRangeFilters.validTillTo;
       const createdByNeedle = monitorColFilters.createdBy;
+      const vdcNeedle = monitorColFilters.vdc;
       const touchNeedle = monitorColFilters.touch;      // Set
       const exposureNeedle = monitorColFilters.exposure;// Set
       const tifNeedle = monitorColFilters.tif;          // Set
@@ -2551,6 +2585,7 @@
         const okCreateDate = inIsoDateRange(createDateToIsoDate(r.captured), createDateFrom, createDateTo);
         const okValidTill = inIsoDateRange(ruDateTimeToIsoDate(r.valid), validTillFrom, validTillTo);
         const okCreatedBy = createdByNeedle.size === 0 || createdByNeedle.has(createdBy);
+        const okVdc = vdcNeedle.size === 0 || vdcNeedle.has(r.vdc);
         const okTouch =
           touchNeedle.size === 0
           || (touchNeedle.has("yes") && isMarketTouch(r))
@@ -2560,7 +2595,7 @@
           || exposureNeedle.has(marketExposureForRow(r));
         const okTif = tifNeedle.size === 0 || tifNeedle.has(r.tif);
         const okStatus = statusNeedle.size === 0 || statusNeedle.has(status);
-        return okPair && okInn && okClient && okAmount && okCreateDate && okValidTill && okCreatedBy && okTouch && okExposure && okTif && okStatus;
+        return okPair && okInn && okClient && okAmount && okCreateDate && okValidTill && okCreatedBy && okVdc && okTouch && okExposure && okTif && okStatus;
       });
       // Monitor: default sorting by Rate (DESC), cannot be changed in UI
       filtered.sort((a, b) => {
@@ -2627,6 +2662,7 @@
       innFilterInput.value = "";
       amountMinInput.value = "";
       monitorColFilters.createdBy.clear();
+      monitorColFilters.vdc.clear();
       monitorColFilters.touch.clear();
       monitorColFilters.exposure.clear();
       monitorColFilters.tif.clear();
@@ -2791,6 +2827,7 @@
       blotterColFilters.pair.clear();
       blotterColFilters.createdBy.clear();
       blotterColFilters.side.clear();
+      blotterColFilters.vdc.clear();
       blotterColFilters.touch.clear();
       blotterColFilters.exposure.clear();
       blotterColFilters.tif.clear();
