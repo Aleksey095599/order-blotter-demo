@@ -1925,9 +1925,14 @@
 
           <td class="kebab" title="More">⋮</td>
         `;
-        // tooltip: полное имя клиента при наведении
+        // tooltip (same style as TIF/VD): full client name on hover only when truncated
         const clientSpan = tr.querySelector('.client-name .cell-ellipsis');
-        if (clientSpan) clientSpan.title = r.client;
+        if (clientSpan){
+          clientSpan.removeAttribute('title');
+          clientSpan.classList.add('js-tooltip');
+          clientSpan.setAttribute('data-tooltip', r.client);
+          clientSpan.setAttribute('data-tooltip-mode', 'truncate');
+        }
         frag.appendChild(tr);
       });
       blotterTbody.appendChild(frag);
@@ -2527,9 +2532,14 @@
 
           <td class="kebab" title="More">⋮</td>
         `;
-        // tooltip: полное имя клиента при наведении
+        // tooltip (same style as TIF/VD): full client name on hover only when truncated
         const clientSpan = tr.querySelector('.client-name .cell-ellipsis');
-        if (clientSpan) clientSpan.title = r.client;
+        if (clientSpan){
+          clientSpan.removeAttribute('title');
+          clientSpan.classList.add('js-tooltip');
+          clientSpan.setAttribute('data-tooltip', r.client);
+          clientSpan.setAttribute('data-tooltip-mode', 'truncate');
+        }
         frag.appendChild(tr);
       });
       tbody.appendChild(frag);
@@ -3025,6 +3035,12 @@
       function show(el){
         const text = el && el.getAttribute('data-tooltip');
         if (!text) return;
+
+        // If tooltip is meant only for truncated text (ellipsis), do nothing when it fits.
+        if (el.dataset.tooltipMode === "truncate"){
+          // scrollWidth/clientWidth works for block/inline-block elements (like .cell-ellipsis)
+          if (el.scrollWidth <= el.clientWidth) return;
+        }
         active = el;
         tip.textContent = text;
         tip.classList.remove('hidden');
