@@ -212,16 +212,16 @@
     }
     /* Filters row */
     .filters-panel{
-      margin:0 0 12px 0;
-      padding:12px 14px 14px 14px;
+      margin:0 0 10px 0;
+      padding:10px 14px 10px 14px;
       border:1px solid var(--line);
       border-radius:12px;
       background:#ffffff;
       box-shadow:0 1px 0 rgba(15,23,42,0.02);
     }
     .toolbar-panel{
-      margin:0 0 12px 0;
-      padding:12px 14px 12px 14px;
+      margin:0 0 10px 0;
+      padding:10px 14px;
       border:1px solid var(--line);
       border-radius:12px;
       background:#ffffff;
@@ -233,19 +233,19 @@
       justify-content:space-between;
       gap:12px;
       flex-wrap:wrap; /* prevents awkward spacing on narrow widths */
-      margin-bottom:12px;
+      margin-bottom:8px;
     }
     /* Filters: split sections (Blotter view) */
     .filters-split-label{
       font-size:12px;
       font-weight:700;
       color:var(--muted);
-      margin:0 0 8px 0;
+      margin:0 0 6px 0;
       letter-spacing:0.2px;
     }
     .filters-divider{
       border-top:1px solid var(--line);
-      margin:12px 0;
+      margin:10px 0;
     }
     .applied-filters-row{
       display:flex;
@@ -263,8 +263,8 @@
     .applied-bar{
       display:flex;
       align-items:center;
-      gap:10px;
-      padding:10px 10px;
+      gap:8px;
+      padding:8px 10px;
       border:1px solid var(--line);
       border-radius:10px;
       background:#f9fafb;
@@ -293,7 +293,7 @@
       display:flex;
       align-items:center;
       gap:8px;
-      margin-bottom:10px;
+      margin-bottom:8px;
     }
     .section-title{
       font-size:14px;
@@ -310,17 +310,24 @@
     .filters-grid{
       display:grid;
       grid-template-columns: fit-content(220px) fit-content(260px) fit-content(200px) fit-content(200px) fit-content(220px) auto;
-      gap:12px;
+      gap:10px;
       align-items:end;
       justify-content:start;
     }
     .blotter-filters-grid{
       display:grid;
       grid-template-columns: repeat(6, fit-content(240px));
-      gap:12px;
+      gap:10px;
       align-items:end;
       justify-content:start;
     }
+ 
+    /* Compact density specifically for toolbars (keeps the rest of UI unchanged) */
+    .filters-panel .field label{ margin-bottom:5px; }
+    .filters-panel .field-icon{ bottom:9px; }
+    .filters-panel .input,
+    .filters-panel .select,
+    .filters-panel .chips{ height:34px; }
     .input.with-icon{
       padding-left:30px;
     }
@@ -485,11 +492,11 @@
     .pair .count{color:var(--muted); font-variant-numeric:tabular-nums}
     /* Table toolbar */
     .tablebar{
-      padding:10px 12px;
+      padding:8px 12px;
       border-radius:12px;
       display:flex;
       align-items:center;
-      gap:10px;
+      gap:8px;
       color:var(--muted);
       font-size:13px;
       background:#fff;
