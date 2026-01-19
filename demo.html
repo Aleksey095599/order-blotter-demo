@@ -222,6 +222,8 @@
       display:flex;
       align-items:center;
       justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap; /* prevents awkward spacing on narrow widths */
       margin-bottom:12px;
     }
     /* Filters: split sections (Blotter view) */
@@ -392,11 +394,12 @@
       flex:1;
     }
     .filter-actions{
+      margin-left:auto;           /* pins the group to the right */
       display:flex;
       gap:10px;
       justify-content:flex-end;
-      align-items:flex-end;
-      flex-direction:column;
+      align-items:center;         /* same baseline/height; no extra vertical whitespace */
+      flex-direction:row;         /* keep buttons in one row */
     }
     .btn.small{height:34px}
     /* Main layout */
