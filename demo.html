@@ -1522,11 +1522,11 @@
       if (!blotterAppliedFilters) return;
 
       const parts = [];
-      if (model.capFrom || model.capTo){
-        const fromText = yyyyMmDdToDdMmYyyy(model.capFrom);
-        const toText = yyyyMmDdToDdMmYyyy(model.capTo);
-        if (model.capFrom && model.capTo) parts.push(`Create Date=${fromText}..${toText}`);
-        else if (model.capFrom) parts.push(`Create Date≥${fromText}`);
+      if (model.createDateFrom || model.createDateTo){
+        const fromText = yyyyMmDdToDdMmYyyy(model.createDateFrom);
+        const toText = yyyyMmDdToDdMmYyyy(model.createDateTo);
+        if (model.createDateFrom && model.createDateTo) parts.push(`Create Date=${fromText}..${toText}`);
+        else if (model.createDateFrom) parts.push(`Create Date≥${fromText}`);
         else parts.push(`Create Date≤${toText}`);
       }
       const pairText = summarizeSet(model.pair);
@@ -2150,6 +2150,12 @@
       return `${d}.${m}.${y}`;
     }
 
+    // Create Date in data model is stored as r.captured ("DD.MM.YYYY, HH:MM").
+    // Prefer this naming in UI-related code for consistency with column title.
+    function createDateToIsoDate(captured){
+      return capturedToIsoDate(captured);
+    }
+
     function capturedToIsoDate(captured){
       if (!captured) return "";
       // "05.06.2025, 11:15" -> "2025-06-05"
@@ -2225,8 +2231,8 @@
     }
 
     function applyBlotterFilters(){
-      const capFrom = blotterRangeFilters.createDateFrom;
-      const capTo = blotterRangeFilters.createDateTo;
+      const createDateFrom = blotterRangeFilters.createDateFrom;
+      const createDateTo = blotterRangeFilters.createDateTo;
       const pair = blotterColFilters.pair;              // Set
       const createdByNeedle = blotterColFilters.createdBy; // Set
 
@@ -2246,8 +2252,8 @@
       const statusNeedle = blotterColFilters.status;    // Set
 
       updateBlotterAppliedFiltersSummary({
-        capFrom,
-        capTo,
+        createDateFrom,
+        createDateTo,
         pair,
         createdByNeedle,
         clientNeedleRaw,
@@ -2268,7 +2274,7 @@
         const inn = innForClient(r.client);
         const status = statusForRow(r);
 
-        const okCapture = inIsoDateRange(capturedToIsoDate(r.captured), capFrom, capTo);
+        const okCapture = inIsoDateRange(createDateToIsoDate(r.captured), createDateFrom, createDateTo);
         const okPair = pair.size === 0 || pair.has(r.pair);
         const okCreatedBy = createdByNeedle.size === 0 || createdByNeedle.has(createdBy);
 
@@ -2384,7 +2390,7 @@
         const okInn = !innNeedle || inn.includes(innNeedle);
         const okClient = !clientNeedle || r.client.toLowerCase().includes(clientNeedle);
         const okAmount = isRowAboveMin(r, minAmount);
-        const okCreateDate = inIsoDateRange(capturedToIsoDate(r.captured), capFrom, capTo);
+        const okCreateDate = inIsoDateRange(createDateToIsoDate(r.captured), capFrom, capTo);
         const okCreatedBy = createdByNeedle.size === 0 || createdByNeedle.has(createdBy);
         const okTouch =
           touchNeedle.size === 0
