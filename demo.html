@@ -89,21 +89,30 @@
       overflow:hidden;
     }
     .header{
-      padding:16px 16px 10px 16px;
+      padding:14px 16px;
       display:flex;
-      align-items:flex-start;
+      align-items:center;
+      justify-content:space-between;
       gap:16px;
+      flex-wrap:wrap; /* tidy on narrow widths */
     }
-    .hgroup{display:flex; flex-direction:column; gap:8px}
+    .hgroup{display:flex; flex-direction:column; gap:0}
     .title{
       font-size:18px;
       font-weight:800;
       margin:0;
     }
-    .subline{
-      display:flex; align-items:center; gap:10px;
-      color:var(--muted);
+    .header-actions{
+      margin-left:auto;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .mode-label{
       font-size:13px;
+      font-weight:600;
+      color:var(--muted);
+      white-space:nowrap;
     }
     /* Switch */
     .switch{
@@ -873,12 +882,15 @@
     <div class="user"></div>
   </div>
 
-  <div class="page">
-    <div class="card">
-      <div class="header">
-        <div class="hgroup">
-          <h1 class="title">Order Administration</h1>
-          <div class="subline">
+    <div class="page">
+      <div class="card">
+        <div class="header">
+          <div class="hgroup">
+            <h1 class="title">Order Administration</h1>
+          </div>
+
+          <div class="header-actions" aria-label="Mode selection">
+            <span class="mode-label">Mode:</span>
             <div class="mode-switch" role="tablist" aria-label="Order Administration mode">
               <button class="mode-btn active" type="button" data-mode="monitor" role="tab" aria-selected="true">Monitor</button>
               <button class="mode-btn" type="button" data-mode="blotter" role="tab" aria-selected="false">Blotter</button>
@@ -886,7 +898,6 @@
             </div>
           </div>
         </div>
-      </div>
 
       <div class="content">
         <!-- Left sidebar -->
