@@ -1001,6 +1001,7 @@
                 <div class="order-toolbar-right">
                   <button class="btn primary" id="newOrderBtn" type="button">＋ New Order</button>
                   <button class="btn" id="refreshOrdersBtn" type="button" title="Refresh orders">⟳ Refresh</button>
+                  <button class="btn" id="jumpToMidBtn" type="button" title="Jump to sell/buy boundary">Jump to mid</button>
                 </div>
               </div>
             </section>
@@ -2378,11 +2379,10 @@
       return marketTouchFlagForRow(r) === "bulb";
     }
 
-    // ------- Monitor: auto-scroll to sell/buy boundary on first open -------
-    // Goal: show the "closest to market" area (end of Sell side + beginning of Buy side)
-    // so user immediately sees both sides without manual scrolling.
+    // ------- Monitor: scroll helper for "Jump to mid" (sell/buy boundary) -------
+    // Goal: quickly bring user to the "closest to market" area (end of Sell side + beginning of Buy side)
+    // without any automatic jumps on page load.
     const MONITOR_SELL_CONTEXT_ROWS = 3;
-    let monitorAutoScrolled = false;
 
     function hasSellSide(r){
       return r && r.sell !== null && r.sell !== undefined;
@@ -2784,6 +2784,14 @@
       applyFilters();
     });
 
+    // Jump to mid (sell/buy boundary) — explicit user action (safer than auto-scroll)
+    const jumpToMidBtn = document.getElementById('jumpToMidBtn');
+    if (jumpToMidBtn){
+      jumpToMidBtn.addEventListener('click', () => {
+        requestAnimationFrame(() => autoScrollMonitorToSellBuyBoundary(MONITOR_SELL_CONTEXT_ROWS));
+      });
+    }
+
     // ------- Mode switch: Monitor / Blotter / History -------
     const modeButtons = Array.from(document.querySelectorAll('.mode-btn[data-mode]'));
     const contentEl = document.querySelector('.content');
@@ -2848,14 +2856,7 @@
       blotterView.classList.toggle('hidden', mode !== "blotter");
       historyView.classList.toggle('hidden', mode !== "history");
 
-      if (mode === "monitor"){
-        applyFilters();
-        // Only on first open / page load, to avoid unexpected jumps during user work.
-        if (!monitorAutoScrolled){
-          monitorAutoScrolled = true;
-          requestAnimationFrame(() => autoScrollMonitorToSellBuyBoundary(MONITOR_SELL_CONTEXT_ROWS));
-        }
-      }
+      if (mode === "monitor") applyFilters();
       if (mode === "blotter") applyBlotterFilters();
       updateSelectedOrderActions();
     }
