@@ -502,6 +502,23 @@
       background:#fff;
       flex-wrap:wrap;
     }
+    /* Order toolbar layout: actions left, New/Refresh right (square buttons) */
+    .tablebar.order-toolbar{
+      justify-content:space-between;
+    }
+    .order-toolbar-left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .order-toolbar-right{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-left:auto;
+      flex-wrap:wrap;
+    }
     /* Order Toolbar grouping */
     .toolbar-group{
       display:flex;
@@ -956,18 +973,16 @@
               <div class="toolbar-header">
                 <span class="section-title">Order Toolbar</span>
               </div>
-              <div class="tablebar">
-                <div class="toolbar-group">
-                  <button class="btn toolbar" id="refreshOrdersBtn" type="button" title="Refresh orders">⟳ Refresh</button>
-                  <button class="btn toolbar primary" id="newOrderBtn">＋ New Order</button>
-                </div>
-
-                <div class="toolbar-group toolbar-selected">
-                  <span class="toolbar-label">Selected orders:</span>
+              <div class="tablebar order-toolbar">
+                <div class="order-toolbar-left">
                   <button class="btn toolbar ghost" type="button">Convert to Deal</button>
                   <button class="btn toolbar ghost" type="button">Send to NT Pro</button>
                   <button class="btn toolbar ghost" type="button">Send to NT Pro 2</button>
                   <button class="btn toolbar danger" type="button">Cancel Order</button>
+                </div>
+                <div class="order-toolbar-right">
+                  <button class="btn primary" id="newOrderBtn" type="button">＋ New Order</button>
+                  <button class="btn" id="refreshOrdersBtn" type="button" title="Refresh orders">⟳ Refresh</button>
                 </div>
               </div>
             </section>
@@ -1133,18 +1148,16 @@
               <div class="toolbar-header">
                 <span class="section-title">Order Toolbar</span>
               </div>
-              <div class="tablebar">
-                <div class="toolbar-group">
-                  <button class="btn toolbar" type="button" title="Refresh orders">⟳ Refresh</button>
-                  <button class="btn toolbar primary" type="button">＋ New Order</button>
-                </div>
-
-                <div class="toolbar-group toolbar-selected">
-                  <span class="toolbar-label">Selected orders:</span>
+              <div class="tablebar order-toolbar">
+                <div class="order-toolbar-left">
                   <button class="btn toolbar ghost" type="button">Convert to Deal</button>
                   <button class="btn toolbar ghost" type="button">Send to NT Pro</button>
                   <button class="btn toolbar ghost" type="button">Send to NT Pro 2</button>
                   <button class="btn toolbar danger" type="button">Cancel Order</button>
+                </div>
+                <div class="order-toolbar-right">
+                  <button class="btn primary" type="button">＋ New Order</button>
+                  <button class="btn" type="button" title="Refresh orders">⟳ Refresh</button>
                 </div>
               </div>
             </section>
