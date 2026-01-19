@@ -1436,7 +1436,6 @@
     };
     // Monitor header column-filters (checkbox UI; stored as Set. Empty Set = "All")
     const monitorColFilters = {
-      createDate: new Set(),
       createdBy: new Set(),
       touch: new Set(),
       exposure: new Set(),
@@ -1950,11 +1949,15 @@
     function updateMonitorColFilterIndicators(){
       document.querySelectorAll('.col-filter-btn[data-monitor-col-filter]').forEach(btn => {
         const key = btn.dataset.monitorColFilter;
+        // Create Date is a dateRange filter, its single source of truth is monitorRangeFilters.
+        if (key === "createDate"){
+          const isActive = !!(monitorRangeFilters.createDateFrom || monitorRangeFilters.createDateTo);
+          btn.classList.toggle('active', isActive);
+          return;
+        }
         const set = monitorColFilters[key];
-        const isActive =
-          (set instanceof Set && set.size > 0)
-          || (key === "createDate" && (monitorRangeFilters.createDateFrom || monitorRangeFilters.createDateTo));
-        btn.classList.toggle('active', !!isActive);
+        const isActive = (set instanceof Set && set.size > 0);
+        btn.classList.toggle('active', isActive);
       });
     }
 
