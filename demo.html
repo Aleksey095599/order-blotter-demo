@@ -2622,8 +2622,8 @@
 
     // --- Selected orders toolbar: enable actions only when at least one row is selected ---
     const selectedOrderActionButtons = {
-      monitor: Array.from(document.querySelectorAll('#monitorView .toolbar-selected button')),
-      blotter: Array.from(document.querySelectorAll('#blotterView .toolbar-selected button'))
+      monitor: Array.from(document.querySelectorAll('#monitorView .order-toolbar-left button')),
+      blotter: Array.from(document.querySelectorAll('#blotterView .order-toolbar-left button'))
     };
 
     function getSelectedOrdersCount(mode){
