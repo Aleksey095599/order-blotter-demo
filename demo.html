@@ -1433,7 +1433,6 @@
     const exposureOptions = [...new Set(rows.map(row => row.exec).filter(Boolean))];
     // Column filters now support multi-select (Set). Empty Set = "All"
     const blotterColFilters = {
-      createDate: new Set(),
       pair: new Set(),
       createdBy: new Set(),
       side: new Set(),
@@ -1792,10 +1791,14 @@
     function updateBlotterColFilterIndicators(){
       document.querySelectorAll('.col-filter-btn[data-col-filter]').forEach(btn => {
         const key = btn.dataset.colFilter;
+        // Create Date is a dateRange filter, its single source of truth is blotterRangeFilters.
+        if (key === "createDate"){
+          const isActive = !!(blotterRangeFilters.createDateFrom || blotterRangeFilters.createDateTo);
+          btn.classList.toggle('active', isActive);
+          return;
+        }
         const set = blotterColFilters[key];
-        const isActive =
-          (set instanceof Set && set.size > 0)
-          || (key === "createDate" && (blotterRangeFilters.createDateFrom || blotterRangeFilters.createDateTo));
+        const isActive = (set instanceof Set && set.size > 0);
         btn.classList.toggle('active', !!isActive);
       });
     }
@@ -2617,7 +2620,6 @@
 
     blotterSearchBtn.addEventListener('click', applyBlotterFilters);
     blotterResetBtn.addEventListener('click', () => {
-      blotterColFilters.createDate.clear();
       blotterColFilters.pair.clear();
       blotterColFilters.createdBy.clear();
       blotterColFilters.side.clear();
