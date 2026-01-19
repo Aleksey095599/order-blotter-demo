@@ -1018,7 +1018,17 @@
                         </svg>
                       </button>
                     </th>
-                    <th class="fixed-center">Valid Till</th>
+                    <th class="fixed-center">
+                      Valid Till
+                      <button class="col-filter-btn" type="button"
+                              data-monitor-col-filter="validTill"
+                              aria-label="Filter Valid Till"
+                              title="Filter Valid Till">
+                        <svg class="funnel-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                        </svg>
+                      </button>
+                    </th>
 
                     <th>
                       Market Exposure
@@ -1220,6 +1230,14 @@
                     </th>
                     <th class="fixed-center sortable" data-bl-sort="valid" role="button" tabindex="0" aria-sort="none">
                       Valid Till <span class="sort-indicator" aria-hidden="true"></span>
+                      <button class="col-filter-btn" type="button"
+                              data-col-filter="validTill"
+                              aria-label="Filter Valid Till"
+                              title="Filter Valid Till">
+                        <svg class="funnel-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                        </svg>
+                      </button>
                     </th>
                     <th class="sortable" data-bl-sort="exposure" role="button" tabindex="0" aria-sort="none">
                       Market Exposure <span class="sort-indicator" aria-hidden="true"></span>
@@ -1453,8 +1471,8 @@
       status: new Set()
     };
     // Date-range filters for Create Date (stored as ISO YYYY-MM-DD)
-    const blotterRangeFilters = { createDateFrom: "", createDateTo: "" };
-    const monitorRangeFilters = { createDateFrom: "", createDateTo: "" };
+    const blotterRangeFilters = { createDateFrom: "", createDateTo: "", validTillFrom: "", validTillTo: "" };
+    const monitorRangeFilters = { createDateFrom: "", createDateTo: "", validTillFrom: "", validTillTo: "" };
     // Blotter sorting (embedded in table header). Default: latest first.
     let blotterSort = { key: "createDate", dir: "desc" };
 
@@ -1551,6 +1569,13 @@
         if (model.createDateFrom && model.createDateTo) parts.push(`Create Date=${fromText}..${toText}`);
         else if (model.createDateFrom) parts.push(`Create Date≥${fromText}`);
         else parts.push(`Create Date≤${toText}`);
+      }
+      if (model.validTillFrom || model.validTillTo){
+        const fromText = yyyyMmDdToDdMmYyyy(model.validTillFrom);
+        const toText = yyyyMmDdToDdMmYyyy(model.validTillTo);
+        if (model.validTillFrom && model.validTillTo) parts.push(`Valid Till=${fromText}..${toText}`);
+        else if (model.validTillFrom) parts.push(`Valid Till≥${fromText}`);
+        else parts.push(`Valid Till≤${toText}`);
       }
       const pairText = summarizeSet(model.pair);
       if (pairText) parts.push(`Currency Pair=${pairText}`);
@@ -1784,6 +1809,7 @@
     function getBlotterColFilterMeta(){
       return {
         createDate: { type: "dateRange", label: "Create Date" },
+        validTill: { type: "dateRange", label: "Valid Till" },
         pair: { label: "Currency Pair", options: pairCodes.map(v => ({ value: v, label: v })) },
         createdBy: { label: "Created By", options: CREATED_BY_OPTIONS.map(v => ({ value: v, label: v })) },
         side: { label: "Side", options: ["buy", "sell"].map(v => ({ value: v, label: v })) },
@@ -1797,9 +1823,11 @@
     function updateBlotterColFilterIndicators(){
       document.querySelectorAll('.col-filter-btn[data-col-filter]').forEach(btn => {
         const key = btn.dataset.colFilter;
-        // Create Date is a dateRange filter, its single source of truth is blotterRangeFilters.
-        if (key === "createDate"){
-          const isActive = !!(blotterRangeFilters.createDateFrom || blotterRangeFilters.createDateTo);
+        // Date-range filters (Create Date / Valid Till) are stored separately from multi-select column filters.
+        if (key === "createDate" || key === "validTill"){
+          const fromKey = (key === "createDate") ? "createDateFrom" : "validTillFrom";
+          const toKey = (key === "createDate") ? "createDateTo" : "validTillTo";
+          const isActive = !!(blotterRangeFilters[fromKey] || blotterRangeFilters[toKey]);
           btn.classList.toggle('active', isActive);
           return;
         }
@@ -1855,10 +1883,14 @@
         blotterColFilterPopover.style.top = `${top}px`;
         blotterColFilterPopover.classList.remove('hidden');
 
+        const rangeMap = (key === "createDate")
+          ? { from: "createDateFrom", to: "createDateTo" }
+          : { from: "validTillFrom", to: "validTillTo" };
+
         const fromEl = document.getElementById("cfDateFrom");
         const toEl = document.getElementById("cfDateTo");
-        fromEl.value = blotterRangeFilters.createDateFrom || "";
-        toEl.value = blotterRangeFilters.createDateTo || "";
+        fromEl.value = blotterRangeFilters[rangeMap.from] || "";
+        toEl.value = blotterRangeFilters[rangeMap.to] || "";
 
         document.getElementById("cfClearBtn").onclick = () => {
           fromEl.value = "";
@@ -1870,8 +1902,8 @@
           let to = toEl.value;
           if (from && to && from > to){ const tmp = from; from = to; to = tmp; } // normalize
 
-          blotterRangeFilters.createDateFrom = from;
-          blotterRangeFilters.createDateTo = to;
+          blotterRangeFilters[rangeMap.from] = from;
+          blotterRangeFilters[rangeMap.to] = to;
 
           updateBlotterColFilterIndicators();
           closeBlotterColFilterPopover();
@@ -1957,6 +1989,7 @@
     function getMonitorColFilterMeta(){
       return {
         createDate: { type: "dateRange", label: "Create Date" },
+        validTill: { type: "dateRange", label: "Valid Till" },
         createdBy: { label: "Created By", options: CREATED_BY_OPTIONS.map(v => ({ value: v, label: v })) },
         touch: {
           label: "Market Touch",
@@ -1974,9 +2007,11 @@
     function updateMonitorColFilterIndicators(){
       document.querySelectorAll('.col-filter-btn[data-monitor-col-filter]').forEach(btn => {
         const key = btn.dataset.monitorColFilter;
-        // Create Date is a dateRange filter, its single source of truth is monitorRangeFilters.
-        if (key === "createDate"){
-          const isActive = !!(monitorRangeFilters.createDateFrom || monitorRangeFilters.createDateTo);
+        // Date-range filters (Create Date / Valid Till) are stored separately from multi-select column filters.
+        if (key === "createDate" || key === "validTill"){
+          const fromKey = (key === "createDate") ? "createDateFrom" : "validTillFrom";
+          const toKey = (key === "createDate") ? "createDateTo" : "validTillTo";
+          const isActive = !!(monitorRangeFilters[fromKey] || monitorRangeFilters[toKey]);
           btn.classList.toggle('active', isActive);
           return;
         }
@@ -2031,10 +2066,14 @@
         monitorColFilterPopover.style.top = `${top}px`;
         monitorColFilterPopover.classList.remove('hidden');
 
+        const rangeMap = (key === "createDate")
+          ? { from: "createDateFrom", to: "createDateTo" }
+          : { from: "validTillFrom", to: "validTillTo" };
+
         const fromEl = document.getElementById("mcfDateFrom");
         const toEl = document.getElementById("mcfDateTo");
-        fromEl.value = monitorRangeFilters.createDateFrom || "";
-        toEl.value = monitorRangeFilters.createDateTo || "";
+        fromEl.value = monitorRangeFilters[rangeMap.from] || "";
+        toEl.value = monitorRangeFilters[rangeMap.to] || "";
 
         document.getElementById("mcfClearBtn").onclick = () => {
           fromEl.value = "";
@@ -2046,8 +2085,8 @@
           let to = toEl.value;
           if (from && to && from > to){ const tmp = from; from = to; to = tmp; }
 
-          monitorRangeFilters.createDateFrom = from;
-          monitorRangeFilters.createDateTo = to;
+          monitorRangeFilters[rangeMap.from] = from;
+          monitorRangeFilters[rangeMap.to] = to;
 
           updateMonitorColFilterIndicators();
           closeMonitorColFilterPopover();
@@ -2271,6 +2310,8 @@
     function applyBlotterFilters(){
       const createDateFrom = blotterRangeFilters.createDateFrom;
       const createDateTo = blotterRangeFilters.createDateTo;
+      const validTillFrom = blotterRangeFilters.validTillFrom;
+      const validTillTo = blotterRangeFilters.validTillTo;
       const pair = blotterColFilters.pair;              // Set
       const createdByNeedle = blotterColFilters.createdBy; // Set
 
@@ -2292,6 +2333,8 @@
       updateBlotterAppliedFiltersSummary({
         createDateFrom,
         createDateTo,
+        validTillFrom,
+        validTillTo,
         pair,
         createdByNeedle,
         clientNeedleRaw,
@@ -2313,6 +2356,7 @@
         const status = statusForRow(r);
 
         const okCapture = inIsoDateRange(createDateToIsoDate(r.captured), createDateFrom, createDateTo);
+        const okValidTill = inIsoDateRange(ruDateTimeToIsoDate(r.valid), validTillFrom, validTillTo);
         const okPair = pair.size === 0 || pair.has(r.pair);
         const okCreatedBy = createdByNeedle.size === 0 || createdByNeedle.has(createdBy);
 
@@ -2336,6 +2380,7 @@
 
         return (
           okCapture &&
+          okValidTill &&
           okPair &&
           okCreatedBy &&
           okClient &&
@@ -2372,6 +2417,18 @@
           parts.push(`Create Date≥${fromText}`);
         } else {
           parts.push(`Create Date≤${toText}`);
+        }
+      }
+
+      if (monitorRangeFilters.validTillFrom || monitorRangeFilters.validTillTo){
+        const fromText = yyyyMmDdToDdMmYyyy(monitorRangeFilters.validTillFrom);
+        const toText = yyyyMmDdToDdMmYyyy(monitorRangeFilters.validTillTo);
+        if (monitorRangeFilters.validTillFrom && monitorRangeFilters.validTillTo){
+          parts.push(`Valid Till=${fromText}..${toText}`);
+        } else if (monitorRangeFilters.validTillFrom){
+          parts.push(`Valid Till≥${fromText}`);
+        } else {
+          parts.push(`Valid Till≤${toText}`);
         }
       }
 
@@ -2415,6 +2472,8 @@
       const minAmount = parseAmount(amountMinInput.value);
       const createDateFrom = monitorRangeFilters.createDateFrom;
       const createDateTo = monitorRangeFilters.createDateTo;
+      const validTillFrom = monitorRangeFilters.validTillFrom;
+      const validTillTo = monitorRangeFilters.validTillTo;
       const createdByNeedle = monitorColFilters.createdBy;
       const touchNeedle = monitorColFilters.touch;      // Set
       const exposureNeedle = monitorColFilters.exposure;// Set
@@ -2429,6 +2488,7 @@
         const okClient = !clientNeedle || r.client.toLowerCase().includes(clientNeedle);
         const okAmount = isRowAboveMin(r, minAmount);
         const okCreateDate = inIsoDateRange(createDateToIsoDate(r.captured), createDateFrom, createDateTo);
+        const okValidTill = inIsoDateRange(ruDateTimeToIsoDate(r.valid), validTillFrom, validTillTo);
         const okCreatedBy = createdByNeedle.size === 0 || createdByNeedle.has(createdBy);
         const okTouch =
           touchNeedle.size === 0
@@ -2439,7 +2499,7 @@
           || exposureNeedle.has(marketExposureForRow(r));
         const okTif = tifNeedle.size === 0 || tifNeedle.has(r.tif);
         const okStatus = statusNeedle.size === 0 || statusNeedle.has(status);
-        return okPair && okInn && okClient && okAmount && okCreateDate && okCreatedBy && okTouch && okExposure && okTif && okStatus;
+        return okPair && okInn && okClient && okAmount && okCreateDate && okValidTill && okCreatedBy && okTouch && okExposure && okTif && okStatus;
       });
       // Monitor: default sorting by Rate (DESC), cannot be changed in UI
       filtered.sort((a, b) => {
@@ -2500,6 +2560,8 @@
     document.getElementById('resetBtn').addEventListener('click', () => {
       monitorRangeFilters.createDateFrom = "";
       monitorRangeFilters.createDateTo = "";
+      monitorRangeFilters.validTillFrom = "";
+      monitorRangeFilters.validTillTo = "";
       clientFilterInput.value = "";
       innFilterInput.value = "";
       amountMinInput.value = "";
@@ -2674,6 +2736,8 @@
       blotterColFilters.status.clear();
       blotterRangeFilters.createDateFrom = "";
       blotterRangeFilters.createDateTo = "";
+      blotterRangeFilters.validTillFrom = "";
+      blotterRangeFilters.validTillTo = "";
       updateBlotterColFilterIndicators();
       closeBlotterColFilterPopover();
       blClient.value = "";
