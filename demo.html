@@ -1396,6 +1396,16 @@
       return Math.random().toString(16).slice(2,10);
     }
 
+    // ------- Row field aliases (UI-column aligned naming) -------
+    // Data model uses: r.exec (Market Exposure), r.mt (Market Touch marker).
+    // UI uses: "Market Exposure", "Market Touch". Keep a single source of truth here.
+    function marketExposureForRow(r){
+      return r && r.exec ? r.exec : "";
+    }
+    function marketTouchFlagForRow(r){
+      return r && r.mt ? r.mt : null;
+    }
+
     // ------- Rendering -------
     const pairListEl = document.getElementById('pairList');
     const tbody = document.getElementById('tbody');
@@ -1423,7 +1433,7 @@
 
     let activePair = pairCodes[0];
     let filtered = [...rows];
-    const exposureOptions = [...new Set(rows.map(row => row.exec).filter(Boolean))];
+    const exposureOptions = [...new Set(rows.map(row => marketExposureForRow(row)).filter(Boolean))];
     // Column filters now support multi-select (Set). Empty Set = "All"
     const blotterColFilters = {
       pair: new Set(),
@@ -1637,7 +1647,7 @@
       if (key === "rate") return normalizeRateForSort(r.rate, r.pair);
       if (key === "touch") return isMarketTouch(r) ? 1 : 0;
       if (key === "tif") return r.tif || "";
-      if (key === "exposure") return r.exec || "";
+      if (key === "exposure") return marketExposureForRow(r) || "";
       if (key === "status") return statusForRow(r) || "";
       return null;
     }
@@ -1730,7 +1740,7 @@
           <td class="fixed-center">${r.tif || ""}</td>
           <td class="fixed-center">${r.valid || ""}</td>
 
-          <td class="muted">${r.exec}</td>
+          <td class="muted">${marketExposureForRow(r)}</td>
 
           <td>${statusForRow(r)}</td>
 
@@ -2188,7 +2198,7 @@
     }
 
     function isMarketTouch(r){
-      return r.mt === "bulb";
+      return marketTouchFlagForRow(r) === "bulb";
     }
 
     function renderTable(){
@@ -2218,7 +2228,7 @@
           <td class="fixed-center">${r.tif || ""}</td>
           <td class="fixed-center">${r.valid || ""}</td>
 
-          <td class="muted">${r.exec}</td>
+          <td class="muted">${marketExposureForRow(r)}</td>
           <td>${statusForRow(r)}</td>
 
           <td class="kebab" title="More">⋮</td>
@@ -2291,7 +2301,7 @@
           || (touchNeedle.has("yes") && isMarketTouch(r))
           || (touchNeedle.has("no") && !isMarketTouch(r));
 
-        const okExposure = exposureNeedle.size === 0 || exposureNeedle.has(r.exec);
+        const okExposure = exposureNeedle.size === 0 || exposureNeedle.has(marketExposureForRow(r));
         const okTif = tifNeedle.size === 0 || tifNeedle.has(r.tif);
 
         const okStatus = statusNeedle.size === 0 || statusNeedle.has(status);
@@ -2398,7 +2408,7 @@
           || (touchNeedle.has("no") && !isMarketTouch(r));
         const okExposure =
           exposureNeedle.size === 0
-          || exposureNeedle.has(r.exec);
+          || exposureNeedle.has(marketExposureForRow(r));
         const okTif = tifNeedle.size === 0 || tifNeedle.has(r.tif);
         const okStatus = statusNeedle.size === 0 || statusNeedle.has(status);
         return okPair && okInn && okClient && okAmount && okCreateDate && okCreatedBy && okTouch && okExposure && okTif && okStatus;
