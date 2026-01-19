@@ -1636,7 +1636,7 @@
 
     function getBlotterSortValue(r, key){
       if (!r) return null;
-      if (key === "createDate") return ruDateTimeToTs(r.captured);
+      if (key === "createDate") return createDateToTs(r.captured);
       if (key === "createdBy") return createdByForRow(r);
       if (key === "inn") return innForClient(r.client);
       if (key === "client") return r.client || "";
@@ -1732,7 +1732,7 @@
           <td class="num rate-col">${fmtRate(r.rate, r.pair)}</td>
 
           <td class="touch-col">
-            ${r.mt === "bulb"
+            ${isMarketTouch(r)
               ? `<span class="badge"><span class="bulb tooltip-target" data-tooltip="Market Touch Indicator">💡</span></span>`
               : ``}
           </td>
@@ -2166,6 +2166,11 @@
       return capturedToIsoDate(captured);
     }
 
+    // Create Date timestamp helper for sorting/ordering logic (align naming with UI column).
+    function createDateToTs(captured){
+      return ruDateTimeToTs(captured);
+    }
+
     function capturedToIsoDate(captured){
       if (!captured) return "";
       // "05.06.2025, 11:15" -> "2025-06-05"
@@ -2219,7 +2224,7 @@
           <td class="num rate-col">${fmtRate(r.rate, r.pair)}</td>
 
           <td class="touch-col">
-            ${r.mt === "bulb"
+            ${isMarketTouch(r)
               ? `<span class="badge"><span class="bulb tooltip-target" data-tooltip="Market Touch Indicator">💡</span></span>`
               : ``}
           </td>
