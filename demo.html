@@ -1047,8 +1047,8 @@
                   <col class="col-client" />
                   <col class="col-sell" />
                   <col class="col-rate" />
-                  <col class="col-touch" />
                   <col class="col-buy" />
+                  <col class="col-touch" />
                   <col class="col-vdc" />
                   <col class="col-tif" />
                   <col class="col-valid" />
@@ -1089,12 +1089,19 @@
                     <th class="num">Sell Amount</th>
                     <th class="num rate-col rate-sorted">Rate <span class="sort-indicator" aria-hidden="true"></span></th>
 
+                    <th class="num">Buy Amount</th>
                     <th class="touch-col">
                       <span class="header-icon tooltip-target" data-tooltip="Market Touch Indicator" aria-hidden="true">💡</span>
+                      <button class="col-filter-btn" type="button"
+                              data-monitor-col-filter="touch"
+                              aria-label="Filter Market Touch"
+                              title="Filter Market Touch">
+                        <svg class="funnel-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M3 4h18l-7 8v6l-4 2v-8z"></path>
+                        </svg>
+                      </button>
                       <span class="sr-only">Market Touch Indicator</span>
                     </th>
-
-                    <th class="num">Buy Amount</th>
                     <th class="fixed-center">
                       VD
                       <span class="info-icon tooltip-target js-tooltip" data-tooltip="Value Date Code" aria-hidden="true">i</span>
@@ -2511,13 +2518,12 @@
           <td class="num ${r.sell !== null && r.sell !== undefined ? 'side-sell' : ''}">${fmtNum(r.sell)}</td>
           <td class="num rate-col">${fmtRate(r.rate, r.pair)}</td>
 
+          <td class="num ${r.buy !== null && r.buy !== undefined ? 'side-buy' : ''}">${fmtNum(r.buy)}</td>
           <td class="touch-col">
             ${isMarketTouch(r)
               ? `<span class="badge"><span class="bulb tooltip-target" data-tooltip="Market Touch Indicator">💡</span></span>`
               : ``}
           </td>
-
-          <td class="num ${r.buy !== null && r.buy !== undefined ? 'side-buy' : ''}">${fmtNum(r.buy)}</td>
           <td class="fixed-center">${r.vdc || ""}</td>
           <td class="fixed-center">${r.tif || ""}</td>
           <td class="fixed-center">${r.valid || ""}</td>
